@@ -10,7 +10,7 @@ void onSurfaceChangedCPP(int width, int height) {
 }
 
 void onDrawFrameCPP() {
-    glClear(GL_COLOR_BUFFER_BIT);
+    // glClear(GL_COLOR_BUFFER_BIT);
 }
 
 extern "C" JNIEXPORT void JNICALL
