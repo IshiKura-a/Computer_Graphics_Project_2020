@@ -1,9 +1,8 @@
-#include <jni.h>
-#include <string>
+#include "MainRender.h"
 #include <GLES2/gl2.h>
 
 void onSurfaceCreatedCPP() {
-    glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void onSurfaceChangedCPP(int width, int height) {
