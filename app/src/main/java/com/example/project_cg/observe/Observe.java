@@ -27,8 +27,9 @@ public class Observe {
                 .setRight(3)
                 .setBottom(-3)
                 .setTop(3)
-                .setNear(-100)
-                .setFar(100);
+                .setNear(-3)
+                .setFar(20)
+                .setRatio(width, height);
     }
 
     public float[] getMVPMatrix() {
