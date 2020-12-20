@@ -3,20 +3,21 @@ package com.example.project_cg;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.*;
 import android.opengl.Matrix;
+import android.os.Build;
 import android.util.Log;
 
+import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shape.Cube;
 import com.example.project_cg.shape.Shape;
 
 import java.util.ArrayList;
-import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+
 public class MainRender implements Renderer {
-    Observe observe = new Observe().setOrtho(false);
     ArrayList<Shape> shapes = new ArrayList<>();
 
     static {
@@ -25,7 +26,15 @@ public class MainRender implements Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        shapes.add(new Cube(0, 0, 0, 1, 1, 1, 1, 0, 0, 1));
+        Observe.setOrtho(false);
+        Observe.getLightList().add(new Light()
+                .setAmbient(new float[]{0.2f, 0.2f, 0.2f, 1})
+                .setDiffuse(new float[]{0.8f, 0.8f, 0.8f, 1})
+                .setSpecular(new float[]{0.5f, 0.5f, 0.5f, 1})
+                .setLocation(new float[]{-5, -5, 5, 1})
+                .setShininess(100));
+
+        shapes.add(new Cube(0, 0, 0, 1, 1, 2, 1, 0, 1, 1));
         // GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         onSurfaceCreatedCPP();
         for (Shape s : shapes) {
@@ -38,12 +47,8 @@ public class MainRender implements Renderer {
         // GLES20.glViewport(0,0,width,height);
         onSurfaceChangedCPP(width, height);
         Log.i("TAG", "Width:" + width + ",height:" + height);
-        observe.getPerspective().setRatio(width, height);
-        observe.getOrtho().setRatio(width, height);
-        float[] mMVPMatrix = observe.getMVPMatrix();
-        for (Shape s : shapes) {
-            s.setMVPMatrix(mMVPMatrix);
-        }
+        Observe.getPerspective().setRatio(width, height);
+        Observe.getOrtho().setRatio(width, height);
     }
 
     @Override

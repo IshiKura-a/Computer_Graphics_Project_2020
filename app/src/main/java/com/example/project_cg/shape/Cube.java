@@ -5,26 +5,29 @@ import android.opengl.Matrix;
 import android.util.Log;
 import android.view.View;
 
+import com.example.project_cg.observe.Light;
+import com.example.project_cg.observe.Observe;
+import com.example.project_cg.shader.ShaderMap;
+import com.example.project_cg.shader.ShaderType;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class Cube extends Shape {
-    private FloatBuffer vertexBuffer, colorBuffer;
+    private FloatBuffer vertexBuffer, colorBuffer, normalBuffer;
     private ShortBuffer indexBuffer;
     private float length, width, height;
 
     private float[] vertex;
+    private float[] normal;
     private float[] color;
     private int mProgram;
-
-    private float[] mMVPMatrix;
-
-    private int mMatrixHandler;
 
     // Use triangles to draw a cube.
     private final short[] triangleMap = {
@@ -37,25 +40,30 @@ public class Cube extends Shape {
     };
 
     public Cube(float baseX, float baseY, float baseZ, float length, float width, float height, float r, float g, float b, float a) {
-        mMVPMatrix = new float[16];
-
         this.length = length;
         this.width = width;
         this.height = height;
 
-        vertex = new float[24];
+        vertex = new float[32];
+        normal = new float[32];
         int i, j, k;
         for (i = 0; i < 2; i++) {
             for (j = 0; j < 2; j++) {
                 for (k = 0; k < 2; k++) {
-                    vertex[(4 * i + 2 * j + k) * 3] = baseX + length * ((j == k) ? -0.5f : 0.5f);
-                    vertex[(4 * i + 2 * j + k) * 3 + 1] = baseY + width * ((j == 0) ? -0.5f : 0.5f);
-                    vertex[(4 * i + 2 * j + k) * 3 + 2] = baseZ + height * ((i == 1) ? -0.5f : 0.5f);
+                    int index = (4 * i + 2 * j + k) * 4;
+                    normal[index] = (j == k) ? -length : length;
+                    normal[index + 1] = (j == 0) ? -width : width;
+                    normal[index + 2] = (i == 1) ? -height : height;
+                    normal[index + 3] = 1;
+
+                    vertex[index] = baseX + length * ((j == k) ? -0.5f : 0.5f);
+                    vertex[index + 1] = baseY + width * ((j == 0) ? -0.5f : 0.5f);
+                    vertex[index + 2] = baseZ + height * ((i == 1) ? -0.5f : 0.5f);
+                    vertex[index + 3] = 1;
                 }
             }
         }
 
-        /*
         color = new float[32];
         for (i = 0; i < 8; i++) {
             color[4 * i] = r;
@@ -63,9 +71,9 @@ public class Cube extends Shape {
             color[4 * i + 2] = b;
             color[4 * i + 3] = a;
         }
-         */
 
         // test
+        /*
         color = new float[]{
                 0f, 1f, 0f, 1f,
                 0f, 1f, 0f, 1f,
@@ -76,39 +84,37 @@ public class Cube extends Shape {
                 1f, 0f, 0f, 1f,
                 1f, 0f, 0f, 1f,
         };
-        ByteBuffer bb = ByteBuffer.allocateDirect(vertex.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        vertexBuffer = bb.asFloatBuffer();
+        */
+
+        ByteBuffer vBB = ByteBuffer.allocateDirect(vertex.length * 4);
+        vBB.order(ByteOrder.nativeOrder());
+        vertexBuffer = vBB.asFloatBuffer();
         vertexBuffer.put(vertex);
         vertexBuffer.position(0);
 
-        ByteBuffer dd = ByteBuffer.allocateDirect(color.length * 4);
-        dd.order(ByteOrder.nativeOrder());
-        colorBuffer = dd.asFloatBuffer();
+        ByteBuffer cBB = ByteBuffer.allocateDirect(color.length * 4);
+        cBB.order(ByteOrder.nativeOrder());
+        colorBuffer = cBB.asFloatBuffer();
         colorBuffer.put(color);
         colorBuffer.position(0);
-        ByteBuffer cc = ByteBuffer.allocateDirect(triangleMap.length * 2);
-        cc.order(ByteOrder.nativeOrder());
-        indexBuffer = cc.asShortBuffer();
+
+        ByteBuffer nBB = ByteBuffer.allocateDirect(normal.length * 4);
+        nBB.order(ByteOrder.nativeOrder());
+        normalBuffer = nBB.asFloatBuffer();
+        normalBuffer.put(normal);
+        normalBuffer.position(0);
+
+        ByteBuffer tBB = ByteBuffer.allocateDirect(triangleMap.length * 2);
+        tBB.order(ByteOrder.nativeOrder());
+        indexBuffer = tBB.asShortBuffer();
         indexBuffer.put(triangleMap);
         indexBuffer.position(0);
-        String vertexShaderCode = "attribute vec4 vPosition;" +
-                "uniform mat4 vMatrix;" +
-                "varying  vec4 vColor;" +
-                "attribute vec4 aColor;" +
-                "void main() {" +
-                "  gl_Position = vMatrix*vPosition;" +
-                "  vColor=aColor;" +
-                "}";
+
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER,
-                vertexShaderCode);
-        String fragmentShaderCode = "precision mediump float;" +
-                "varying vec4 vColor;" +
-                "void main() {" +
-                "  gl_FragColor = vColor;" +
-                "}";
+                ShaderMap.get("shape", ShaderType.VERT));
         int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER,
-                fragmentShaderCode);
+                ShaderMap.get("shape", ShaderType.FRAG));
+
         mProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(mProgram, vertexShader);
         GLES20.glAttachShader(mProgram, fragmentShader);
@@ -134,6 +140,8 @@ public class Cube extends Shape {
         // add the source code to the shader and compile it
         GLES20.glShaderSource(shader, shaderCode);
         GLES20.glCompileShader(shader);
+
+        Log.e("Compile Error: ", GLES20.glGetShaderInfoLog(shader));
         return shader;
     }
 
@@ -146,30 +154,43 @@ public class Cube extends Shape {
     @Override
     public void onDrawFrame(GL10 gl) {
         GLES20.glUseProgram(mProgram);
-        // 获取变换矩阵vMatrix成员句柄
-        mMatrixHandler = GLES20.glGetUniformLocation(mProgram, "vMatrix");
-        //指定vMatrix的值
-        GLES20.glUniformMatrix4fv(mMatrixHandler, 1, false, mMVPMatrix, 0);
-        //获取顶点着色器的vPosition成员句柄
-        int mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
-        //启用三角形顶点的句柄
-        GLES20.glEnableVertexAttribArray(mPositionHandle);
-        //准备三角形的坐标数据
-        GLES20.glVertexAttribPointer(mPositionHandle, 3, GLES20.GL_FLOAT, false, 0, vertexBuffer);
-        //获取片元着色器的vColor成员的句柄
-        int mColorHandle = GLES20.glGetAttribLocation(mProgram, "aColor");
-        //设置绘制三角形的颜色
-        //GLES20.glUniform4fv(mColorHandle, 2, color, 0);
-        GLES20.glEnableVertexAttribArray(mColorHandle);
-        GLES20.glVertexAttribPointer(mColorHandle, 4, GLES20.GL_FLOAT, false, 0, colorBuffer);
-        //索引法绘制正方体
+
+        // get uniform handlers
+        int uMVPMatrixHandler = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
+        int uLightPositionHandler = GLES20.glGetUniformLocation(mProgram, "uLightPosition");
+        int uCameraPositionHandler = GLES20.glGetUniformLocation(mProgram, "uCameraPosition");
+        int uShininessHandler = GLES20.glGetUniformLocation(mProgram, "uShininess");
+        int uSpecularHandler = GLES20.glGetUniformLocation(mProgram, "uSpecular");
+        int uDiffuseHandler = GLES20.glGetUniformLocation(mProgram, "uDiffuse");
+        int uAmbientHandler = GLES20.glGetUniformLocation(mProgram, "uAmbient");
+
+        Light light = Observe.getLightList().get(0);
+        // set uniform data
+        GLES20.glUniformMatrix4fv(uMVPMatrixHandler, 1, false, Observe.getMVPMatrix(), 0);
+        GLES20.glUniform4fv(uLightPositionHandler, 1, light.getLocation(), 0);
+        GLES20.glUniform4fv(uCameraPositionHandler, 1, Observe.getCamera().getEye(), 0);
+        GLES20.glUniform1f(uShininessHandler, light.getShininess());
+        GLES20.glUniform4fv(uSpecularHandler, 1, light.getSpecular(), 0);
+        GLES20.glUniform4fv(uDiffuseHandler, 1, light.getDiffuse(), 0);
+        GLES20.glUniform4fv(uAmbientHandler, 1, light.getAmbient(), 0);
+
+        // get attribute handlers
+        int aVertexPositionHandle = GLES20.glGetAttribLocation(mProgram, "aVertexPosition");
+        int aColorHandle = GLES20.glGetAttribLocation(mProgram, "aColor");
+        int aNormalHandle = GLES20.glGetAttribLocation(mProgram, "aNormal");
+
+        // set attribute handlers
+        GLES20.glEnableVertexAttribArray(aVertexPositionHandle);
+        GLES20.glVertexAttribPointer(aVertexPositionHandle, 4, GLES20.GL_FLOAT, false, 0, vertexBuffer);
+
+        GLES20.glEnableVertexAttribArray(aColorHandle);
+        GLES20.glVertexAttribPointer(aColorHandle, 4, GLES20.GL_FLOAT, false, 0, colorBuffer);
+
+        GLES20.glEnableVertexAttribArray(aNormalHandle);
+        GLES20.glVertexAttribPointer(aNormalHandle, 4, GLES20.GL_FLOAT, false, 0, normalBuffer);
+
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, triangleMap.length, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
-        //禁止顶点数组的句柄
-        GLES20.glDisableVertexAttribArray(mPositionHandle);
+        GLES20.glDisableVertexAttribArray(aVertexPositionHandle);
     }
 
-    @Override
-    public void setMVPMatrix(float[] MVPMatrix) {
-        mMVPMatrix = MVPMatrix;
-    }
 }
