@@ -23,6 +23,8 @@ public class Cube extends Shape {
     private FloatBuffer vertexBuffer, colorBuffer, normalBuffer;
     private ShortBuffer indexBuffer;
     private float length, width, height;
+    private float shininess;
+    private float[] kAmbient, kDiffuse, kSpecular;
 
     private float[] vertex;
     private float[] normal;
@@ -39,7 +41,12 @@ public class Cube extends Shape {
             2, 3, 7, 2, 7, 6,    // top
     };
 
-    public Cube(float baseX, float baseY, float baseZ, float length, float width, float height, float r, float g, float b, float a) {
+    public Cube(float[] base, float length, float width, float height, float[] color, float[] ambient, float[] diffuse, float[] specular, float shininess) {
+        kAmbient = ambient.clone();
+        kDiffuse = diffuse.clone();
+        kSpecular = specular.clone();
+
+        this.shininess = shininess;
         this.length = length;
         this.width = width;
         this.height = height;
@@ -51,40 +58,26 @@ public class Cube extends Shape {
             for (j = 0; j < 2; j++) {
                 for (k = 0; k < 2; k++) {
                     int index = (4 * i + 2 * j + k) * 4;
-                    normal[index] = (j == k) ? -length : length;
-                    normal[index + 1] = (j == 0) ? -width : width;
-                    normal[index + 2] = (i == 1) ? -height : height;
+                    normal[index] = (i == 1) ? -length : length;
+                    normal[index + 1] = (j == k) ? -width : width;
+                    normal[index + 2] = (j == 0) ? -height : height;
                     normal[index + 3] = 1;
 
-                    vertex[index] = baseX + length * ((j == k) ? -0.5f : 0.5f);
-                    vertex[index + 1] = baseY + width * ((j == 0) ? -0.5f : 0.5f);
-                    vertex[index + 2] = baseZ + height * ((i == 1) ? -0.5f : 0.5f);
+                    vertex[index] = base[0] / base[3] + length * ((i == 1) ? -0.5f : 0.5f);
+                    vertex[index + 1] = base[1] / base[3] + width * ((j == k) ? -0.5f : 0.5f);
+                    vertex[index + 2] = base[2] / base[3] + height * ((j == 0) ? -0.5f : 0.5f);
                     vertex[index + 3] = 1;
                 }
             }
         }
 
-        color = new float[32];
+        this.color = new float[32];
         for (i = 0; i < 8; i++) {
-            color[4 * i] = r;
-            color[4 * i + 1] = g;
-            color[4 * i + 2] = b;
-            color[4 * i + 3] = a;
+            this.color[4 * i] = color[0];
+            this.color[4 * i + 1] = color[1];
+            this.color[4 * i + 2] = color[2];
+            this.color[4 * i + 3] = color[3];
         }
-
-        // test
-        /*
-        color = new float[]{
-                0f, 1f, 0f, 1f,
-                0f, 1f, 0f, 1f,
-                0f, 1f, 0f, 1f,
-                0f, 1f, 0f, 1f,
-                1f, 0f, 0f, 1f,
-                1f, 0f, 0f, 1f,
-                1f, 0f, 0f, 1f,
-                1f, 0f, 0f, 1f,
-        };
-        */
 
         ByteBuffer vBB = ByteBuffer.allocateDirect(vertex.length * 4);
         vBB.order(ByteOrder.nativeOrder());
@@ -92,10 +85,10 @@ public class Cube extends Shape {
         vertexBuffer.put(vertex);
         vertexBuffer.position(0);
 
-        ByteBuffer cBB = ByteBuffer.allocateDirect(color.length * 4);
+        ByteBuffer cBB = ByteBuffer.allocateDirect(this.color.length * 4);
         cBB.order(ByteOrder.nativeOrder());
         colorBuffer = cBB.asFloatBuffer();
-        colorBuffer.put(color);
+        colorBuffer.put(this.color);
         colorBuffer.position(0);
 
         ByteBuffer nBB = ByteBuffer.allocateDirect(normal.length * 4);
@@ -160,19 +153,26 @@ public class Cube extends Shape {
         int uLightPositionHandler = GLES20.glGetUniformLocation(mProgram, "uLightPosition");
         int uCameraPositionHandler = GLES20.glGetUniformLocation(mProgram, "uCameraPosition");
         int uShininessHandler = GLES20.glGetUniformLocation(mProgram, "uShininess");
-        int uSpecularHandler = GLES20.glGetUniformLocation(mProgram, "uSpecular");
-        int uDiffuseHandler = GLES20.glGetUniformLocation(mProgram, "uDiffuse");
-        int uAmbientHandler = GLES20.glGetUniformLocation(mProgram, "uAmbient");
+        int uLightSpecularHandler = GLES20.glGetUniformLocation(mProgram, "uLightSpecular");
+        int uLightDiffuseHandler = GLES20.glGetUniformLocation(mProgram, "uLightDiffuse");
+        int uLightAmbientHandler = GLES20.glGetUniformLocation(mProgram, "uLightAmbient");
+        int uMaterialSpecularHandler = GLES20.glGetUniformLocation(mProgram, "uMaterialSpecular");
+        int uMaterialDiffuseHandler = GLES20.glGetUniformLocation(mProgram, "uMaterialDiffuse");
+        int uMaterialAmbientHandler = GLES20.glGetUniformLocation(mProgram, "uMaterialAmbient");
 
         Light light = Observe.getLightList().get(0);
         // set uniform data
         GLES20.glUniformMatrix4fv(uMVPMatrixHandler, 1, false, Observe.getMVPMatrix(), 0);
         GLES20.glUniform4fv(uLightPositionHandler, 1, light.getLocation(), 0);
         GLES20.glUniform4fv(uCameraPositionHandler, 1, Observe.getCamera().getEye(), 0);
-        GLES20.glUniform1f(uShininessHandler, light.getShininess());
-        GLES20.glUniform4fv(uSpecularHandler, 1, light.getSpecular(), 0);
-        GLES20.glUniform4fv(uDiffuseHandler, 1, light.getDiffuse(), 0);
-        GLES20.glUniform4fv(uAmbientHandler, 1, light.getAmbient(), 0);
+        GLES20.glUniform1f(uShininessHandler, shininess);
+        GLES20.glUniform4fv(uLightSpecularHandler, 1, light.getSpecular(), 0);
+        GLES20.glUniform4fv(uLightDiffuseHandler, 1, light.getDiffuse(), 0);
+        GLES20.glUniform4fv(uLightAmbientHandler, 1, light.getAmbient(), 0);
+        GLES20.glUniform4fv(uMaterialSpecularHandler, 1, kSpecular, 0);
+        GLES20.glUniform4fv(uMaterialDiffuseHandler, 1, kDiffuse, 0);
+        GLES20.glUniform4fv(uMaterialAmbientHandler, 1, kAmbient, 0);
+
 
         // get attribute handlers
         int aVertexPositionHandle = GLES20.glGetAttribLocation(mProgram, "aVertexPosition");

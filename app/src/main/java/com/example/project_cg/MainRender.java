@@ -28,13 +28,14 @@ public class MainRender implements Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Observe.setOrtho(false);
         Observe.getLightList().add(new Light()
-                .setAmbient(new float[]{0.2f, 0.2f, 0.2f, 1})
-                .setDiffuse(new float[]{0.8f, 0.8f, 0.8f, 1})
-                .setSpecular(new float[]{0.5f, 0.5f, 0.5f, 1})
-                .setLocation(new float[]{-5, -5, 5, 1})
-                .setShininess(100));
+                .setAmbient(new float[]{1, 1, 1, 1})
+                .setDiffuse(new float[]{1, 1, 1, 1})
+                .setSpecular(new float[]{1, 1, 1, 1})
+                .setLocation(new float[]{5, 5, -5, 1}));
 
-        shapes.add(new Cube(0, 0, 0, 1, 1, 2, 1, 0, 1, 1));
+        shapes.add(new Cube(new float[]{0, 0, 0, 1}, 1, 1, 2,
+                new float[]{1, 0, 0, 1}, new float[]{0.2f, 0.2f, 0.2f, 1},
+                new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0, 0, 0, 1}, 20));
         // GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         onSurfaceCreatedCPP();
         for (Shape s : shapes) {
