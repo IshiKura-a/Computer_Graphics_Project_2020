@@ -19,6 +19,9 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class MainRender implements Renderer {
     ArrayList<Shape> shapes = new ArrayList<>();
+    int inc = 0;
+    int cnt= 250;
+    int dir = 2;
 
     static {
         System.loadLibrary("MainRender");
@@ -28,14 +31,14 @@ public class MainRender implements Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Observe.setOrtho(false);
         Observe.getLightList().add(new Light()
-                .setAmbient(new float[]{1, 1, 1, 1})
-                .setDiffuse(new float[]{1, 1, 1, 1})
-                .setSpecular(new float[]{1, 1, 1, 1})
-                .setLocation(new float[]{5, 5, -5, 1}));
+                .setAmbient(new float[]{1f, 1f, 1f, 1f})
+                .setDiffuse(new float[]{1f, 1f, 1f, 1f})
+                .setSpecular(new float[]{1f, 1f, 1f, 1f})
+                .setLocation(new float[]{-20+0.1f*(cnt%400), 5, 5, 1}));
 
         shapes.add(new Cube(new float[]{0, 0, 0, 1}, 1, 1, 2,
                 new float[]{1, 0, 0, 1}, new float[]{0.2f, 0.2f, 0.2f, 1},
-                new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0, 0, 0, 1}, 20));
+                new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 100));
         // GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         onSurfaceCreatedCPP();
         for (Shape s : shapes) {
@@ -54,12 +57,19 @@ public class MainRender implements Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        // GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        // GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT)
+
+        Observe.getLightList().get(0).setLocation(new float[]{-20+0.1f*(cnt%400),5,5,1});
         onDrawFrameCPP();
         // Shapes should be drawn after the canvus
         for(Shape s:shapes) {
             s.onDrawFrame(gl);
         }
+
+
+        cnt += dir * inc;
+        inc = (inc+1)%2;
+        if(cnt == 0 || cnt == 400) dir = -dir;
     }
 
     private static native void onSurfaceCreatedCPP();

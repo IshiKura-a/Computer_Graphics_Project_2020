@@ -1,10 +1,33 @@
+#version 320 es
+
 precision mediump float;
 
-varying vec4 vColor;
-varying vec4 vSpecular;
-varying vec4 vDiffuse;
-varying vec4 vAmbient;
+in vec4 fragPosition;
+in vec4 fragNormal;
+in vec4 fragColor;
+
+out vec4 oColor;
+
+uniform float uShininess;
+uniform vec4 uLightSpecular;
+uniform vec4 uLightDiffuse;
+uniform vec4 uLightAmbient;
+uniform vec4 uMaterialSpecular;
+uniform vec4 uMaterialDiffuse;
+uniform vec4 uMaterialAmbient;
+uniform vec4 uLightPosition;
+uniform vec4 uCameraPosition;
 
 void main() {
-    gl_FragColor = vColor*vSpecular + vColor*vDiffuse + vColor*vAmbient;
+    vec4 vAmbient = uLightAmbient*uMaterialAmbient;
+
+    vec3 normal = normalize(fragNormal.xyz/fragNormal.w);
+    vec3 eye = normalize(uCameraPosition.xyz/uCameraPosition.w-fragPosition.xyz/fragPosition.w);
+    vec3 light = normalize(uLightPosition.xyz/uLightPosition.w-fragPosition.xyz/fragPosition.w);
+
+    vec4 vDiffuse = uLightDiffuse*uMaterialDiffuse*max(0.0, dot(normal, light));
+    vec3 halfV = normalize(light+eye);
+    vec4 vSpecular = uLightSpecular*uMaterialSpecular*max(0.0, pow(dot(normal, halfV), uShininess));
+
+    oColor = fragColor * (vSpecular + vDiffuse + vAmbient);
 }

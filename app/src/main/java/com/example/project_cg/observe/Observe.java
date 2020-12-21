@@ -24,18 +24,15 @@ public class Observe {
             .setFar(20)
             .setRatio(1200, 2313);;
     private static boolean isOrtho = false;
-    private static float[] mMVPMatrix = new float[16];
 
-
-    public static float[] getMVPMatrix() {
-        if (isOrtho) {
-            Matrix.multiplyMM(mMVPMatrix, 0, ortho.getProjectionMatrix(), 0, camera.getViewMatrix(), 0);
-        } else {
-            Matrix.multiplyMM(mMVPMatrix, 0, perspective.getProjectionMatrix(), 0, camera.getViewMatrix(), 0);
-        }
-        return mMVPMatrix;
+    public static float[] getViewMatrix() {
+        return camera.getViewMatrix();
     }
 
+    public static float[] getProjectionMatrix() {
+        if(isOrtho) return ortho.getProjectionMatrix();
+        else return perspective.getProjectionMatrix();
+    }
     public static Camera getCamera() {
         return camera;
     }
