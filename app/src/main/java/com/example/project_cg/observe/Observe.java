@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Observe {
     private static ArrayList<Light> lightList = new ArrayList<>();
-    private static Camera camera = new Camera().setEye(5, 5, 10, 1)
+    private static Camera camera = new Camera().setEye(0, 5, 15, 1)
             .setCenter(0, 0, 0, 1)
             .setUp(0, 1, 0, 1);
     private static Projection perspective = new Perspective().setLeft(-1)

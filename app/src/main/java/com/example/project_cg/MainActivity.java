@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import com.example.project_cg.shader.ShaderMap;
+import com.example.project_cg.texture.TextureManager;
 
 public class MainActivity extends AppCompatActivity {
     private GLSurfaceView glSurfaceView;
@@ -14,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ShaderMap.readShaders(getApplicationContext());
+        TextureManager.readTextures(getApplicationContext());
         glSurfaceView = new GLSurfaceView(this);
         glSurfaceView.setEGLContextClientVersion(2);
         glSurfaceView.setRenderer(new MainRender());

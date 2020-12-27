@@ -3,15 +3,16 @@ package com.example.project_cg;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.*;
 import android.opengl.Matrix;
-import android.os.Build;
 import android.util.Log;
 
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shape.Cube;
 import com.example.project_cg.shape.Shape;
+import com.example.project_cg.texture.TextureManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -34,13 +35,26 @@ public class MainRender implements Renderer {
                 .setAmbient(new float[]{1f, 1f, 1f, 1f})
                 .setDiffuse(new float[]{1f, 1f, 1f, 1f})
                 .setSpecular(new float[]{1f, 1f, 1f, 1f})
-                .setLocation(new float[]{-20+0.1f*(cnt%400), 5, 5, 1}));
+                .setLocation(new float[]{-20 + 0.1f * (cnt % 400), 5, 20, 1}));
 
-        shapes.add(new Cube(new float[]{0, 0, 0, 1}, 1, 1, 2,
+        shapes.add(new Cube(new float[]{0, 0, 0, 1}, new float[]{1, 2, 3, 1}, new float[]{0, 1, 0, 0},
                 new float[]{1, 0, 0, 1}, new float[]{0.2f, 0.2f, 0.2f, 1},
                 new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 100));
-        // GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        shapes.add(new Cube(new float[]{0, 3, 0, 1}, new float[]{2, 2, 1, 1}, new float[]{0, 1, 0, 0},
+                new float[]{1, 0, 0, 1}, new float[]{0.2f, 0.2f, 0.2f, 1},
+                new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 100));
+
+        ArrayList<Integer> al = new ArrayList<>();
+        al.add(0);
+        shapes.get(0).setTextureUsed(al);
+
+        ArrayList<Integer> a2 = new ArrayList<>();
+        a2.add(1);
+        shapes.get(1).setTextureUsed(a2);
         onSurfaceCreatedCPP();
+
+        GLES20.glGenTextures(TextureManager.getTextureCount(), TextureManager.getTextureID(), 0);
         for (Shape s : shapes) {
             s.onSurfaceCreated(gl, config);
         }
@@ -59,17 +73,20 @@ public class MainRender implements Renderer {
     public void onDrawFrame(GL10 gl) {
         // GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT)
 
-        Observe.getLightList().get(0).setLocation(new float[]{-20+0.1f*(cnt%400),5,5,1});
+        Observe.getLightList().get(0).setLocation(new float[]{-20 + 0.1f * (cnt % 400), 5, 5, 1});
+        // Observe.getCamera().setEye(5,5, 15+0.01f * (cnt % 400), 1);
+        shapes.get(0).setDirPara(new float[]{cnt % 360, 0, 0, 1});
+        // shapes.get(1).setRotatePara(new float[]{cnt % 360, 0, 0, 0});
         onDrawFrameCPP();
         // Shapes should be drawn after the canvus
-        for(Shape s:shapes) {
+        for (Shape s : shapes) {
             s.onDrawFrame(gl);
         }
 
 
         cnt += dir * inc;
-        inc = (inc+1)%2;
-        if(cnt == 0 || cnt == 400) dir = -dir;
+        inc = (inc + 1) % 2;
+        if (cnt == 0 || cnt == 360) dir = -dir;
     }
 
     private static native void onSurfaceCreatedCPP();
