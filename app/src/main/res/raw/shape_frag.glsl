@@ -5,8 +5,12 @@ precision mediump float;
 in vec4 fragPosition;
 in vec4 fragNormal;
 in vec4 fragColor;
+in vec2 fragTextureCoord;
 
 out vec4 oColor;
+
+uniform int uUseTexture;
+uniform sampler2D uTexture;
 
 uniform float uShininess;
 uniform vec4 uLightSpecular;
@@ -29,5 +33,5 @@ void main() {
     vec3 halfV = normalize(light+eye);
     vec4 vSpecular = uLightSpecular*uMaterialSpecular*max(0.0, pow(dot(normal, halfV), uShininess));
 
-    oColor = fragColor * (vSpecular + vDiffuse + vAmbient);
+    oColor = (uUseTexture==1?texture(uTexture, fragTextureCoord):fragColor) * (vSpecular + vDiffuse + vAmbient);
 }
