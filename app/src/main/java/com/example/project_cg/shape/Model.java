@@ -1,48 +1,29 @@
 package com.example.project_cg.shape;
 
 import android.opengl.GLES20;
-import android.util.Log;
 
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shader.ShaderMap;
 import com.example.project_cg.shader.ShaderType;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class Cube extends Shape {
-    private final ShortBuffer indexBuffer;
+public class Model extends Shape {
+    ArrayList<Float> vertex = new ArrayList<>();
+    ArrayList<Float> normal = new ArrayList<>();
+    ArrayList<Float> texture = new ArrayList<>();
     private float[] color;
-    // Use triangles to draw a cube.
-    private final short[] triangleMap = {
-            0, 1, 2, 2, 3, 0,    // front
-            4, 5, 6, 6, 7, 4,    // back
-            8, 9, 10, 10, 11, 8,    // left
-            12, 13, 14, 14, 15, 12,    // right
-            16, 17, 18, 18, 19, 16,    // top
-            20, 21, 22, 22, 23, 20,    // bottom
-    };
 
-    public Cube(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
-        this.mtl = mtl;
-
-        setRotateX(90+dir[0]);
-        setRotateY(dir[1]);
-        setRotateZ(dir[2]);
-
-        basePara = new float[4];
-        shapePara = new float[4];
-
-        setBasePara(base);
-        setShapePara(shape);
-
+    public Model() {
         translatePara = new float[4];
         scalePara = new float[4];
         rotatePara = new float[4];
@@ -58,89 +39,109 @@ public class Cube extends Shape {
 
         textureUsed = new ArrayList<>();
 
-        updateModelMatrix();
-
-        float[] normalTemp = {
-                1, 0, 0, 1, -1, 0, 0, 1,
-                0, -1, 0, 1, 0, 1, 0, 1,
-                0, 0, 1, 1, 0, 0, -1, 1
-        };
-
-        String vertexTemp = "+--++-++++-+" +
-                "----+--++--+" +
-                "---+--+-+--+" +
-                "-+-++-+++-++" +
-                "+-++++-++--+" +
-                "+--++--+----";
-        int i;
-        float[] normal = new float[96];
-        for (i = 0; i < 24; i++) {
-            int indexL = 4 * i;
-            int indexR = (i / 4) * 4;
-            normal[indexL] = normalTemp[indexR];
-            normal[indexL + 1] = normalTemp[indexR + 1];
-            normal[indexL + 2] = normalTemp[indexR + 2];
-            normal[indexL + 3] = normalTemp[indexR + 3];
-        }
-
-        float[] vertex = new float[96];
-        float[] textureCoord = new float[48];
-        for (i = 0; i < 24; i++) {
-            int index = 4 * i;
-            vertex[index] = vertexTemp.charAt(3 * i) == '-' ? -0.5f : 0.5f;
-            vertex[index + 1] = vertexTemp.charAt(3 * i + 1) == '-' ? -0.5f : 0.5f;
-            vertex[index + 2] = vertexTemp.charAt(3 * i + 2) == '-' ? -0.5f : 0.5f;
-            vertex[index + 3] = 1f;
-
-            int mod = i % 4;
-            textureCoord[2 * i] = (mod == 1 || mod == 2) ? 1f : 0f;
-            textureCoord[2 * i + 1] = (mod == 2 || mod == 3) ? 1f : 0f;
-        }
-
-
-        color = new float[96];
-        for (i = 0; i < 24; i++) {
-            color[4 * i] = rgba[0];
-            color[4 * i + 1] = rgba[1];
-            color[4 * i + 2] = rgba[2];
-            color[4 * i + 3] = rgba[3];
-        }
-
-        vertexBuffer = ByteBuffer.allocateDirect(vertex.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-        vertexBuffer.put(vertex)
-                .position(0);
-
-        updateColorBuffer();
-
-        normalBuffer = ByteBuffer.allocateDirect(normal.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-        normalBuffer.put(normal)
-                .position(0);
-
-        textureBuffer = ByteBuffer.allocateDirect(textureCoord.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-        textureBuffer.put(textureCoord)
-                .position(0);
-
-        indexBuffer = ByteBuffer.allocateDirect(triangleMap.length * 2)
-                .order(ByteOrder.nativeOrder())
-                .asShortBuffer();
-        indexBuffer.put(triangleMap)
-                .position(0);
-
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER,
-                ShaderMap.get("shape", ShaderType.VERT));
+                ShaderMap.get("object", ShaderType.VERT));
         int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER,
-                ShaderMap.get("shape", ShaderType.FRAG));
+                ShaderMap.get("object", ShaderType.FRAG));
 
         mProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(mProgram, vertexShader);
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
+    }
+
+    public static Model readObject(BufferedReader br) {
+        Model model = new Model();
+        ArrayList<Float> tmpVertex = new ArrayList<>();
+        ArrayList<Float> tmpNormal = new ArrayList<>();
+        ArrayList<Float> tmpTexture = new ArrayList<>();
+
+        String line;
+        try {
+            while ((line = br.readLine()) != null) {
+                String[] list = line.split("[ ]+");
+                switch (list[0]) {
+                    case "v": {
+                        for (int i = 1; i < 4; i++) {
+                            tmpVertex.add(Float.parseFloat(list[i]));
+                        }
+                        tmpVertex.add(1.0f);
+                        break;
+                    }
+                    case "vn": {
+                        for (int i = 1; i < 4; i++) {
+                            tmpNormal.add(Float.parseFloat(list[i]));
+                        }
+                        tmpNormal.add(1.0f);
+                        break;
+                    }
+                    case "vt": {
+                        for (int i = 1; i < 3; i++) {
+                            tmpTexture.add(Float.parseFloat(list[i]));
+                        }
+                        break;
+                    }
+                    case "f": {
+                        for(int i=1;i<list.length;i++) {
+                            String[] parts = list[i].split("/");
+                            int index;
+                            if(parts.length > 0) {
+                                index = 4*(Integer.parseInt(parts[0])-1);
+                                model.vertex.add(tmpVertex.get(index++));
+                                model.vertex.add(tmpVertex.get(index++));
+                                model.vertex.add(tmpVertex.get(index++));
+                                model.vertex.add(tmpVertex.get(index));
+                            }
+                            if(parts.length > 1) {
+                                index = 2*(Integer.parseInt(parts[1])-1);
+                                model.texture.add(tmpTexture.get(index++));
+                                model.texture.add(tmpTexture.get(index));
+                            }
+                            if(parts.length > 2) {
+                                index = 4*(Integer.parseInt(parts[2])-1);
+                                model.normal.add(tmpNormal.get(index++));
+                                model.normal.add(tmpNormal.get(index++));
+                                model.normal.add(tmpNormal.get(index++));
+                                model.normal.add(tmpNormal.get(index));
+                            }
+                        }
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+
+        model.vertexBuffer = ByteBuffer.allocateDirect(model.vertex.size() * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        for(float f: model.vertex) {
+            model.vertexBuffer.put(f);
+        }
+        model.vertexBuffer.position(0);
+
+        model.normalBuffer = ByteBuffer.allocateDirect(model.normal.size() * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        for(float f: model.normal) {
+            model.normalBuffer.put(f);
+        }
+        model.normalBuffer.position(0);
+
+        model.textureBuffer = ByteBuffer.allocateDirect(model.texture.size() * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        for(float f: model.texture) {
+            model.textureBuffer.put(f);
+        }
+        model.textureBuffer.position(0);
+        return model;
     }
 
     @Override
@@ -170,6 +171,7 @@ public class Cube extends Shape {
         int uUseTextureHandler = GLES20.glGetUniformLocation(mProgram, "uUseTexture");
         int uTextureHandler = GLES20.glGetUniformLocation(mProgram, "uTexture");
         int uAffineHandler = GLES20.glGetUniformLocation(mProgram, "uAffine");
+        int uColorHandler = GLES20.glGetUniformLocation(mProgram, "uColor");
 
         Light light = Observe.getLightList().get(0);
         updateModelMatrix();
@@ -190,7 +192,7 @@ public class Cube extends Shape {
         GLES20.glUniform4fv(uMaterialAmbientHandler, 1, mtl.kAmbient, 0);
         GLES20.glUniform1i(uUseTextureHandler, useTexture ? 1 : 0);
         if (useTexture) GLES20.glUniform1i(uTextureHandler, textureUsed.get(0));
-
+        GLES20.glUniform4fv(uColorHandler, 1, color, 0);
 
 
         // get attribute handlers
@@ -204,38 +206,18 @@ public class Cube extends Shape {
         GLES20.glEnableVertexAttribArray(iVertexPositionHandle);
         GLES20.glVertexAttribPointer(iVertexPositionHandle, 4, GLES20.GL_FLOAT, false, 0, vertexBuffer);
 
-        GLES20.glEnableVertexAttribArray(iColorHandle);
-        GLES20.glVertexAttribPointer(iColorHandle, 4, GLES20.GL_FLOAT, false, 0, colorBuffer);
-
         GLES20.glEnableVertexAttribArray(iNormalHandle);
         GLES20.glVertexAttribPointer(iNormalHandle, 4, GLES20.GL_FLOAT, false, 0, normalBuffer);
 
         GLES20.glEnableVertexAttribArray(iTextureCoordHandle);
         GLES20.glVertexAttribPointer(iTextureCoordHandle, 2, GLES20.GL_FLOAT, false, 0, textureBuffer);
 
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, triangleMap.length, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertex.size() / 4);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
     }
 
     @Override
     public void setColor(float[] rgba) {
-        int i;
-        for (i = 0; i < 24; i++) {
-            color[4 * i] = rgba[0];
-            color[4 * i + 1] = rgba[1];
-            color[4 * i + 2] = rgba[2];
-            color[4 * i + 3] = rgba[3];
-        }
-
-        updateColorBuffer();
+        color = rgba.clone();
     }
-
-    public void updateColorBuffer() {
-        ByteBuffer cBB = ByteBuffer.allocateDirect(color.length * 4);
-        cBB.order(ByteOrder.nativeOrder());
-        colorBuffer = cBB.asFloatBuffer();
-        colorBuffer.put(color);
-        colorBuffer.position(0);
-    }
-
 }
