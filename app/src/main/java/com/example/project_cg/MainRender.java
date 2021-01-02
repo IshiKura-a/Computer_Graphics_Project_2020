@@ -1,6 +1,7 @@
 package com.example.project_cg;
 
 import android.opengl.GLSurfaceView.*;
+import android.opengl.GLUtils;
 import android.util.Log;
 
 import com.example.project_cg.shape.Model;
@@ -40,20 +41,30 @@ public class MainRender implements Renderer {
                 .setSpecular(new float[]{1f, 1f, 1f, 1f})
                 .setLocation(new float[]{-20 + 0.1f * (cnt % 360), 5, 20, 1}));
 
-        //MtlInfo tmpMtl = new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
-        //        new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 100);
-        //shapes.add(new Cube(new float[]{0, 0, 0, 1}, new float[]{1, 2, 3, 1}, new float[]{0, 0, 0},
-        //        new float[]{1, 0, 0, 1}, tmpMtl));
+        MtlInfo tmpMtl = new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
+                new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 100);
+        shapes.add(new Cube(new float[]{0, -10, 0, 1}, new float[]{3, 2, 1, 1}, new float[]{0, 0, 0},
+                new float[]{1, 0, 0, 1}, tmpMtl));
 
 
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(TextureManager.getAssetManager().open("object/Chair.obj")));
+            BufferedReader br = new BufferedReader(new InputStreamReader(TextureManager.getAssetManager().open("object/Cube.obj")));
             Model model = Model.readObject(br);
             model.setMtl(new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
                     new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 30));
             model.setColor(new float[]{0.9f, 0.1f, 0.3f, 1.0f});
-            model.setBasePara(new float[]{0, 0, 0, 1});
+            model.setBasePara(new float[]{0, -5, 0, 1});
             model.setShapePara(new float[]{1, 1, 1, 1});
+            model.setRotateY(-90);
+            shapes.add(model);
+
+            br = new BufferedReader(new InputStreamReader(TextureManager.getAssetManager().open("object/Chair.obj")));
+            model = Model.readObject(br);
+            model.setMtl(new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
+                    new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 30));
+            model.setColor(new float[]{0.3f, 0.3f, 0.3f, 1.0f});
+            model.setBasePara(new float[]{0, 1, 0, 1});
+            model.setShapePara(new float[]{0.5f, 0.5f, 0.5f, 1});
             model.setRotateY(-90);
             shapes.add(model);
         } catch (IOException e) {
@@ -61,14 +72,14 @@ public class MainRender implements Renderer {
         }
 
 
-        //ArrayList<Integer> al = new ArrayList<>();
-        //al.add(0);
-        //shapes.get(0).setTextureUsed(al);
+        ArrayList<Integer> al = new ArrayList<>();
+        al.add(0);
+        shapes.get(0).setTextureUsed(al);
 
-        //ArrayList<Integer> a2 = new ArrayList<>();
-        //a2.add(1);
-        //shapes.get(1).setTextureUsed(a2);
-        //onSurfaceCreatedCPP();
+        ArrayList<Integer> a2 = new ArrayList<>();
+        a2.add(2);
+        shapes.get(1).setTextureUsed(a2);
+        onSurfaceCreatedCPP();
 
         for (Shape s : shapes) {
             s.onSurfaceCreated(gl, config);
@@ -88,16 +99,17 @@ public class MainRender implements Renderer {
     public void onDrawFrame(GL10 gl) {
         // GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT)
 
-        Observe.getLightList().get(0).setLocation(new float[]{-20 + 0.1f * (cnt % 360), 5, 5, 1});
-        // Observe.getCamera().setEye(5,5, 15+0.01f * (cnt % 400), 1);
-        // shapes.get(0).setDirPara(new float[]{cnt % 360, 0, 0, 1});
-        // shapes.get(1).setRotatePara(new float[]{cnt % 360, 0, 0, 0});
+        // Observe.getLightList().get(0).setLocation(new float[]{-20 + 0.1f * (cnt % 360), 5, 5, 1});
+        Observe.getCamera().setEye(0,5, 15, 1);
+        shapes.get(0).setRotateX(cnt % 360);
+        shapes.get(1).setRotateX(cnt % 360);
+        shapes.get(1).setRotateY(cnt % 360);
+        shapes.get(2).setRotateY(cnt % 360);
         onDrawFrameCPP();
         // Shapes should be drawn after the canvus
         for (Shape s : shapes) {
             s.onDrawFrame(gl);
         }
-
 
         cnt += dir * inc;
         inc = (inc + 1) % 2;

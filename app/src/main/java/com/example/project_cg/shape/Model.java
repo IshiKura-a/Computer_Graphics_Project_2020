@@ -212,7 +212,7 @@ public class Model extends Shape {
         GLES20.glEnableVertexAttribArray(iTextureCoordHandle);
         GLES20.glVertexAttribPointer(iTextureCoordHandle, 2, GLES20.GL_FLOAT, false, 0, textureBuffer);
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, vertex.size() / 4);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertex.size() / 4);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
     }
 
