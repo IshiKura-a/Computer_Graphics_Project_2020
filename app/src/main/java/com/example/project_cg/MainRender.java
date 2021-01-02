@@ -1,7 +1,9 @@
 package com.example.project_cg;
 
+import android.annotation.SuppressLint;
 import android.opengl.GLSurfaceView.*;
 import android.opengl.GLUtils;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.project_cg.shape.Model;
@@ -34,12 +36,13 @@ public class MainRender implements Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        // Observe.getCamera().setEye(0,5, 15, 1);
         Observe.setOrtho(false);
         Observe.getLightList().add(new Light()
                 .setAmbient(new float[]{1f, 1f, 1f, 1f})
                 .setDiffuse(new float[]{1f, 1f, 1f, 1f})
                 .setSpecular(new float[]{1f, 1f, 1f, 1f})
-                .setLocation(new float[]{-20 + 0.1f * (cnt % 360), 5, 20, 1}));
+                .setLocation(new float[]{5, 5, 20, 1}));
 
         MtlInfo tmpMtl = new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
                 new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 100);
@@ -95,12 +98,13 @@ public class MainRender implements Renderer {
         Observe.getOrtho().setRatio(width, height);
     }
 
+    @SuppressLint("StaticFieldLeak")
     @Override
     public void onDrawFrame(GL10 gl) {
         // GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT)
 
         // Observe.getLightList().get(0).setLocation(new float[]{-20 + 0.1f * (cnt % 360), 5, 5, 1});
-        Observe.getCamera().setEye(0,5, 15, 1);
+
         shapes.get(0).setRotateX(cnt % 360);
         shapes.get(1).setRotateX(cnt % 360);
         shapes.get(1).setRotateY(cnt % 360);

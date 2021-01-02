@@ -8,22 +8,32 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:rowCount="2"
-        android:columnCount="1">
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_row="0"
-            android:layout_column="0"
-            android:id="@+id/btn_1"
-            android:text="123"
-            />
+        android:columnCount="2">
 
         <android.opengl.GLSurfaceView
-            android:layout_row="1"
-            android:layout_column="0"
             android:id="@+id/glSurfaceView"
+            android:layout_row="0"
+            android:layout_column="0"
+            android:layout_rowSpan="2"
+            android:layout_columnSpan="2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             />
+
+        <io.github.controlwear.virtual.joystick.android.JoystickView
+            xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/joystick"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+
+            android:layout_row="1"
+            android:layout_column="0"
+            custom:JV_buttonColor="#CCEEEEEE"
+            custom:JV_backgroundColor="#44DDDDDD"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="20dp"
+            />
+
     </GridLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

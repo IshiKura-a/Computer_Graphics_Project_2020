@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shader.ShaderMap;
 import com.example.project_cg.shape.Model;
 import com.example.project_cg.shape.Shape;
@@ -29,12 +30,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import io.github.controlwear.virtual.joystick.android.JoystickView;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private GLSurfaceView glSurfaceView;
     private MainRender render;
 
     private void initView() {
-        findViewById(R.id.btn_1).setOnClickListener(this);
+        // findViewById(R.id.btn_1).setOnClickListener(this);
+        ((JoystickView)findViewById(R.id.joystick)).setOnMoveListener(
+                (angle, strength) -> {
+                    float theta = (float)(angle / 180f * Math.PI);
+                    float step = 0.1f;
+                    Observe.getCamera().moveEye((float)(step*Math.cos(theta)),(float)(step*Math.sin(theta)),0);
+                });
     }
 
     @Override
@@ -61,20 +70,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     @SuppressLint("StaticFieldLeak")
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_1: {
-                new CheckStorage() {
-                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+        /*
+        new CheckStorage() {
                     @Override
                     protected void onPostExecute(MainActivity activity) {
                         super.onPostExecute(activity);
                         new ExportObj().execute(activity, new ArrayList<>(render.getShapes().subList(0, 3)));
                     }
                 }.execute(this);
-                break;
-            }
-        }
-
+         */
     }
 
     class ExportObj extends AsyncTask<Object, Void, Void> {

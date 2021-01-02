@@ -47,4 +47,14 @@ public class Camera {
     public float[] getEye() {
         return new float[]{eyeX, eyeY, eyeZ, eyeW};
     }
+
+    public void moveEye(float dx, float dy, float dz) {
+        eyeX += dx * eyeW;
+        eyeY += dy * eyeW;
+        eyeZ += dz * eyeW;
+
+        centerX += dx * centerW;
+        centerY += dy * centerW;
+        centerZ += dz * centerW;
+    }
 }
