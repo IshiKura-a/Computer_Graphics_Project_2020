@@ -23,7 +23,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 
 public class MainRender implements Renderer {
-    ArrayList<Shape> shapes = new ArrayList<>();
+    private ArrayList<Shape> shapes = new ArrayList<>();
     int inc = 0;
     int cnt= 250;
     int dir = 2;
@@ -119,4 +119,8 @@ public class MainRender implements Renderer {
     private static native void onSurfaceCreatedCPP();
     private static native void onSurfaceChangedCPP(int width, int height);
     private static native void onDrawFrameCPP();
+
+    public ArrayList<Shape> getShapes() {
+        return shapes;
+    }
 }

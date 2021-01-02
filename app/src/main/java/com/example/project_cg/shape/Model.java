@@ -1,18 +1,28 @@
 package com.example.project_cg.shape;
 
+import android.annotation.SuppressLint;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
+import android.os.AsyncTask;
+import android.util.Log;
 
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shader.ShaderMap;
 import com.example.project_cg.shader.ShaderType;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -24,6 +34,7 @@ public class Model extends Shape {
     private float[] color;
 
     public Model() {
+        method = DrawMethod.SIMPLE;
         translatePara = new float[4];
         scalePara = new float[4];
         rotatePara = new float[4];
@@ -197,7 +208,6 @@ public class Model extends Shape {
 
         // get attribute handlers
         int iVertexPositionHandle = GLES20.glGetAttribLocation(mProgram, "iVertexPosition");
-        int iColorHandle = GLES20.glGetAttribLocation(mProgram, "iColor");
         int iNormalHandle = GLES20.glGetAttribLocation(mProgram, "iNormal");
         int iTextureCoordHandle = GLES20.glGetAttribLocation(mProgram, "iTextureCoord");
 
@@ -219,5 +229,64 @@ public class Model extends Shape {
     @Override
     public void setColor(float[] rgba) {
         color = rgba.clone();
+    }
+
+    public static void writeObject(ArrayList<Shape> shapes, FileOutputStream fos) throws IOException {
+        int base = 1;
+        for (Shape s : shapes) {
+            s.updateModelMatrix();
+            float[] model = s.model.clone();
+            FloatBuffer vertexBuffer = s.vertexBuffer.asReadOnlyBuffer();
+            FloatBuffer normalBuffer = s.normalBuffer.asReadOnlyBuffer();
+            FloatBuffer textureBuffer = s.textureBuffer.asReadOnlyBuffer();
+
+            vertexBuffer.position(0);
+            normalBuffer.position(0);
+            textureBuffer.position(0);
+
+            for (int i = 0; i < vertexBuffer.limit(); i += 4) {
+                float[] tmpVertex = new float[4];
+                vertexBuffer.get(tmpVertex);
+                Matrix.multiplyMV(tmpVertex, 0, model, 0, tmpVertex, 0);
+                fos.write(String.format(Locale.getDefault(), "v %.6f %.6f %.6f\n",
+                        tmpVertex[0] / tmpVertex[3], tmpVertex[1] / tmpVertex[3], tmpVertex[2] / tmpVertex[3]).getBytes());
+            }
+            vertexBuffer.position(0);
+
+            for (int i = 0; i < textureBuffer.limit(); i += 2) {
+                float[] tmpTexture = new float[2];
+                textureBuffer.get(tmpTexture);
+                fos.write(String.format(Locale.getDefault(), "vt %.6f %.6f\n", tmpTexture[0], tmpTexture[1]).getBytes());
+            }
+            textureBuffer.position(0);
+
+            for (int i = 0; i < normalBuffer.limit(); i += 4) {
+                float[] tmpNormal = new float[4];
+                normalBuffer.get(tmpNormal);
+                Matrix.multiplyMV(tmpNormal, 0, model, 0, tmpNormal, 0);
+                fos.write(String.format(Locale.getDefault(), "vn %.6f %.6f %.6f\n",
+                        tmpNormal[0] / tmpNormal[3], tmpNormal[1] / tmpNormal[3], tmpNormal[2] / tmpNormal[3]).getBytes());
+            }
+            normalBuffer.position(0);
+
+            if (s.method == DrawMethod.SIMPLE) {
+                for (int index = 0; index < vertexBuffer.limit() / 4; index += 3) {
+                    int i = base + index;
+                    int j = i + 1;
+                    int k = i + 2;
+                    fos.write(String.format(Locale.getDefault(), "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i, i, i, j, j, j, k, k, k).getBytes());
+                }
+            } else if (s.method == DrawMethod.STRIPE) {
+                for (int index = 0; index < vertexBuffer.limit() / 4 - 2; index++) {
+                    int i = base + index;
+                    int j = i + 1;
+                    int k = i + 2;
+                    fos.write(String.format(Locale.getDefault(), "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i, i, i, j, j, j, k, k, k).getBytes());
+                }
+            } else {
+                Log.e("Error", "DrawMethod not supported");
+            }
+            base += vertexBuffer.limit() / 4;
+        }
     }
 }

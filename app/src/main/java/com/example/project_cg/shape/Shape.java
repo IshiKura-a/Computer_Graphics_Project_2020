@@ -15,11 +15,14 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public abstract class Shape {
+    enum DrawMethod {
+        SIMPLE, STRIPE, FAN;
+    }
     protected float rotateX = 0f, rotateY = 0f, rotateZ = 0f;
     protected FloatBuffer vertexBuffer;
     protected FloatBuffer textureBuffer;
     protected FloatBuffer normalBuffer;
-    protected FloatBuffer colorBuffer;
+    protected DrawMethod method = DrawMethod.SIMPLE;
 
     protected int mProgram;
 
@@ -27,7 +30,7 @@ public abstract class Shape {
     protected boolean useTexture = false;
     protected float[] translatePara, scalePara, rotatePara;
     protected float[] basePara, shapePara;
-    protected float[] model, affine;
+    protected float[] model, affine, color;
 
     protected ArrayList<Integer> textureUsed = new ArrayList<>();
 
@@ -130,5 +133,7 @@ public abstract class Shape {
 
     abstract public void onDrawFrame(GL10 gl);
 
-    abstract public void setColor(float[] rgba);
+    public void setColor(float[] rgba) {
+        color = rgba.clone();
+    }
 }
