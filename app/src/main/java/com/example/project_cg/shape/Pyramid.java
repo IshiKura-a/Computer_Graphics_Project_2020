@@ -231,7 +231,7 @@ public class Pyramid extends Shape{
         GLES20.glEnableVertexAttribArray(iTextureCoordHandle);
         GLES20.glVertexAttribPointer(iTextureCoordHandle, 2, GLES20.GL_FLOAT, false, 0, textureBuffer);
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, faces.length / 3);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, vertex.length / 3);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
     }
     private void normalCalculate(int Index1,int Index2)
@@ -242,8 +242,8 @@ public class Pyramid extends Shape{
         float vector2X=vertex[Index2*3]-vertex[0];
         float vector2Y=vertex[Index2*3+1]-vertex[1];
         float vector2Z=vertex[Index2*3+2]-vertex[2];
-        normalX=vector1Y*vector2Z-vector2Y*vector1Z;
-        normalY=vector1Z*vector2X-vector1X*vector2Z;
-        normalZ=vector1X*vector2Y-vector1Y*vector2X;
+        normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
+        normalY=-(vector1Z*vector2X-vector1X*vector2Z);
+        normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
     }
 }

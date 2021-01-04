@@ -1,7 +1,6 @@
 package com.example.project_cg.shape;
 
 import android.opengl.GLES20;
-import android.util.Log;
 
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
@@ -10,22 +9,20 @@ import com.example.project_cg.shader.ShaderType;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-
-public class Cone extends Shape{
+public class Prism extends Shape {
     private float vertex[];
     private float normalX;
     private float normalY;
     private float normalZ;
-    public Cone(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,float height,float radius) {
+
+    public Prism(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float height, float radius1, float radius2, int edge) {
         color = rgba.clone();
-        method = DrawMethod.FAN;
+        method = DrawMethod.STRIPE;
         this.mtl = mtl;
 
 
@@ -51,45 +48,30 @@ public class Cone extends Shape{
         textureUsed = new ArrayList<>();
 
         updateModelMatrix();
-
-
         ArrayList<Float> pos=new ArrayList<>();
-        pos.add(base[0]);
-        pos.add(base[1]);
-        pos.add(base[2]+height);
-        float angDegSpan=360f/60;
+        float angDegSpan=360f/edge;
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
-            pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
-            pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
+            pos.add((float) (base[0]+radius1*Math.sin(i*Math.PI/180f)));
+            pos.add((float)(base[1]+radius1*Math.cos(i*Math.PI/180f)));
+            pos.add(base[2]+height);
+            pos.add((float) (base[0]+radius2*Math.sin(i*Math.PI/180f)));
+            pos.add((float)(base[1]+radius2*Math.cos(i*Math.PI/180f)));
             pos.add(base[2]);
         }
         vertex=new float[pos.size()];    //所有的顶点
-
         for (int i=0;i<vertex.length;i++)
         {
             vertex[i]=pos.get(i);
         }
         int vSize=vertex.length/3;
 
-        //未修改
-
         //法向量
-        ArrayList<Float> normalTmp=new ArrayList<>();
-        for(int i=0;i<vertex.length/3-1;i++)
-        {
-            if(i+2>60) normalCalculate(i+1,1);
-            else normalCalculate(i+1,i+2);
-            normalTmp.add(normalX);
-            normalTmp.add(normalY);
-            normalTmp.add(normalZ);
-        }
-        float normal[]=new float[normalTmp.size()];
-        for(int i=0;i<normal.length;i++)
-        {
-            normal[i]=normalTmp.get(i);
+        float normal[]=new float[pos.size()];
+        for(int i=0;i<normal.length;i++){
+            normal[i]=vertex[i];
         }
 
-        vertexBuffer = ByteBuffer.allocateDirect(vertex.length/3*4*4)
+        vertexBuffer = ByteBuffer.allocateDirect(vertex.length /3*4*4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
 
@@ -97,7 +79,7 @@ public class Cone extends Shape{
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
 
-        textureBuffer = ByteBuffer.allocateDirect(vertex.length / 3 * 8)
+        textureBuffer = ByteBuffer.allocateDirect(vertex.length/3*8)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
 
@@ -131,7 +113,6 @@ public class Cone extends Shape{
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
-
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
@@ -200,7 +181,7 @@ public class Cone extends Shape{
         GLES20.glEnableVertexAttribArray(iTextureCoordHandle);
         GLES20.glVertexAttribPointer(iTextureCoordHandle, 2, GLES20.GL_FLOAT, false, 0, textureBuffer);
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, vertex.length / 3);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertex.length / 3);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
     }
     private void normalCalculate(int Index1,int Index2)
@@ -208,14 +189,11 @@ public class Cone extends Shape{
         float vector1X=vertex[Index1*3]-vertex[0];
         float vector1Y=vertex[Index1*3+1]-vertex[1];
         float vector1Z=vertex[Index1*3+2]-vertex[2];
-
         float vector2X=vertex[Index2*3]-vertex[0];
         float vector2Y=vertex[Index2*3+1]-vertex[1];
         float vector2Z=vertex[Index2*3+2]-vertex[2];
-
-        normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
-        normalY=-(vector1Z*vector2X-vector1X*vector2Z);
-        normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
+        normalX=vector1Y*vector2Z-vector2Y*vector1Z;
+        normalY=vector1Z*vector2X-vector1X*vector2Z;
+        normalZ=vector1X*vector2Y-vector1Y*vector2X;
     }
 }
-

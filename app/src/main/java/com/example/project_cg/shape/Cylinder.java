@@ -21,20 +21,6 @@ public class Cylinder extends Shape{
     private float normalX;
     private float normalY;
     private float normalZ;
-    private final int[] faces = {
-            1, 5, 1, 2, 6, 1, 3, 2, 1,
-            1, 5, 1, 3, 2, 1, 4, 1, 1,
-            5, 8, 2, 8, 4, 2, 7, 3, 2,
-            5, 8, 2, 7, 3, 2, 6, 7, 2,
-            1, 9, 3, 5, 10, 3, 6, 7, 3,
-            1, 9, 3, 6, 7, 3, 2, 6, 3,
-            2, 6, 4, 6, 7, 4, 7, 3, 4,
-            2, 6, 4, 7, 3, 4, 3, 2, 4,
-            3, 13, 5, 7, 14, 5, 8, 12, 5,
-            3, 13, 5, 8, 12, 5, 4, 11, 5,
-            5, 10, 6, 1, 9, 6, 4, 11, 6,
-            5, 10, 6, 4, 11, 6, 8, 12, 6
-    };
 
     public Cylinder(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,float height,float radius) {
         color = rgba.clone();
@@ -65,9 +51,6 @@ public class Cylinder extends Shape{
 
         updateModelMatrix();
         ArrayList<Float> pos=new ArrayList<>();
-        pos.add(base[0]);
-        pos.add(base[1]);
-        pos.add(base[2]+height);
         float angDegSpan=360f/360;
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
@@ -98,7 +81,7 @@ public class Cylinder extends Shape{
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
 
-        textureBuffer = ByteBuffer.allocateDirect(faces.length/3*8)
+        textureBuffer = ByteBuffer.allocateDirect(vertex.length/3*8)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
 
@@ -200,7 +183,7 @@ public class Cylinder extends Shape{
         GLES20.glEnableVertexAttribArray(iTextureCoordHandle);
         GLES20.glVertexAttribPointer(iTextureCoordHandle, 2, GLES20.GL_FLOAT, false, 0, textureBuffer);
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, faces.length / 3);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertex.length / 3);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
     }
     private void normalCalculate(int Index1,int Index2)
