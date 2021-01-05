@@ -57,4 +57,9 @@ public class Camera {
         centerY += dy * centerW;
         centerZ += dz * centerW;
     }
+
+    public void moveLookAt(float dx, float dy) {
+        centerX -= dx * centerW;
+        centerY += dy * centerW;
+    }
 }

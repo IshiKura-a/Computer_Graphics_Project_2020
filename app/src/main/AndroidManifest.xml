@@ -12,7 +12,9 @@
         android:theme="@style/Theme.Design.NoActionBar"
         android:hardwareAccelerated="true"
         >
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:screenOrientation="landscape"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

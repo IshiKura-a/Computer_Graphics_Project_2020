@@ -34,6 +34,7 @@ public class Cube extends Shape {
     };
 
     public Cube(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
+        type = ShapeType.CUBE;
         color = rgba.clone();
         method = DrawMethod.SIMPLE;
         this.mtl = mtl;

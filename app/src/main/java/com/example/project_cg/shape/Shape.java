@@ -23,6 +23,7 @@ public abstract class Shape {
     protected FloatBuffer textureBuffer;
     protected FloatBuffer normalBuffer;
     protected DrawMethod method = DrawMethod.SIMPLE;
+    protected ShapeType type;
 
     protected int mProgram;
 
@@ -135,5 +136,9 @@ public abstract class Shape {
 
     public void setColor(float[] rgba) {
         color = rgba.clone();
+    }
+
+    public ShapeType getType() {
+        return type;
     }
 }

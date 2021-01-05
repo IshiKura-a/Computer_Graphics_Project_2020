@@ -1,6 +1,8 @@
 package com.example.project_cg;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.*;
 import android.opengl.GLUtils;
 import android.os.AsyncTask;
@@ -13,11 +15,15 @@ import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shape.Cube;
 import com.example.project_cg.shape.Shape;
 import com.example.project_cg.texture.TextureManager;
+import com.example.project_cg.util.ScreenShotUtil;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -101,23 +107,69 @@ public class MainRender implements Renderer {
     @SuppressLint("StaticFieldLeak")
     @Override
     public void onDrawFrame(GL10 gl) {
-        // GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT)
+        synchronized (Observe.getCamera()) {
+            // GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT)
 
-        // Observe.getLightList().get(0).setLocation(new float[]{-20 + 0.1f * (cnt % 360), 5, 5, 1});
+            // Observe.getLightList().get(0).setLocation(new float[]{-20 + 0.1f * (cnt % 360), 5, 5, 1});
 
-        shapes.get(0).setRotateX(cnt % 360);
-        shapes.get(1).setRotateX(cnt % 360);
-        shapes.get(1).setRotateY(cnt % 360);
-        shapes.get(2).setRotateY(cnt % 360);
-        onDrawFrameCPP();
-        // Shapes should be drawn after the canvus
-        for (Shape s : shapes) {
-            s.onDrawFrame(gl);
+            shapes.get(0).setRotateX(cnt % 360);
+            shapes.get(1).setRotateX(cnt % 360);
+            shapes.get(1).setRotateY(cnt % 360);
+            shapes.get(2).setRotateY(cnt % 360);
+            onDrawFrameCPP();
+            // Shapes should be drawn after the canvus
+            for (Shape s : shapes) {
+                s.onDrawFrame(gl);
+            }
+
+            cnt += dir * inc;
+            inc = (inc + 1) % 2;
+            if (cnt == 0 || cnt == 360) dir = -dir;
+
+
+            if (ScreenShotUtil.toScreenShot) {
+                ScreenShotUtil.toScreenShot = false;
+                int width = ScreenShotUtil.width;
+                int height = ScreenShotUtil.height;
+                int screenshotSize = ScreenShotUtil.width * ScreenShotUtil.height;
+                ScreenShotUtil.buf = ByteBuffer.allocateDirect(screenshotSize * 4);
+                ScreenShotUtil.buf.order(ByteOrder.nativeOrder());
+                gl.glReadPixels(0, 0, width, height, GL10.GL_RGBA,
+                        GL10.GL_UNSIGNED_BYTE, ScreenShotUtil.buf);
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+
+                        int pixelsBuffer[] = new int[screenshotSize];
+                        ScreenShotUtil.buf.asIntBuffer().get(pixelsBuffer);
+                        ScreenShotUtil.buf = null;
+                        Bitmap bitmap = Bitmap.createBitmap(width, height,
+                                Bitmap.Config.RGB_565);
+                        bitmap.setPixels(pixelsBuffer, screenshotSize - width, -width, 0,
+                                0, width, height);
+                        pixelsBuffer = null;
+
+                        short sBuffer[] = new short[screenshotSize];
+                        ShortBuffer sb = ShortBuffer.wrap(sBuffer);
+                        bitmap.copyPixelsToBuffer(sb);
+
+                        // Making created bitmap (from OpenGL points) compatible with
+                        // Android bitmap
+                        for (int i = 0; i < screenshotSize;++i) {
+                            short v = sBuffer[i];
+                            sBuffer[i] = (short) (((v & 0x1f) << 11) | (v & 0x7e0) | ((v & 0xf800) >> 11));
+                        }
+                        sb.rewind();
+                        bitmap.copyPixelsFromBuffer(sb);
+
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, ScreenShotUtil.bos);
+                        Log.i("Render", "SetFalse");
+
+                        return null;
+                    }
+                }.execute();
+            }
         }
-
-        cnt += dir * inc;
-        inc = (inc + 1) % 2;
-        if (cnt == 0 || cnt == 360) dir = -dir;
     }
 
     private static native void onSurfaceCreatedCPP();
