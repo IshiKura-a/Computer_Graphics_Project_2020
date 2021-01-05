@@ -1,40 +1,180 @@
 package com.example.project_cg;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.GestureDetectorCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.annotation.SuppressLint;
+import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.project_cg.asynctask.CheckStorage;
+import com.example.project_cg.layout.LightRecyclerAdapter;
+import com.example.project_cg.layout.LinearItemDecoration;
+import com.example.project_cg.layout.ObjectRecyclerAdapter;
+import com.example.project_cg.menu.Menu;
+import com.example.project_cg.observe.Light;
+import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shader.ShaderMap;
 import com.example.project_cg.shape.Model;
 import com.example.project_cg.shape.Shape;
 import com.example.project_cg.texture.TextureManager;
+import com.example.project_cg.util.FontUtil;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private GLSurfaceView glSurfaceView;
-    private MainRender render;
+import io.github.controlwear.virtual.joystick.android.JoystickView;
+
+public class MainActivity extends AppCompatActivity implements LightRecyclerAdapter.LightOnItemClickListener,
+        ObjectRecyclerAdapter.ObjectOnItemClickListener {
+    private GLSurfaceView mGlSurfaceView;
+    private MainRender mRender;
+    private Menu mMenu;
+    private GestureDetectorCompat mGestureDetector;
+    private ScaleGestureDetector mScaleGestureDetector;
+    private RecyclerView mLightRecyclerView, mObjectRecyclerView;
+    private LightRecyclerAdapter mLightRecyclerAdapter;
+    private ObjectRecyclerAdapter mObjectRecyclerAdapter;
+
+    private Float prevSpan = null;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        boolean retVal = mScaleGestureDetector.onTouchEvent(event);
+        retVal = mGestureDetector.onTouchEvent(event) || retVal;
+        return retVal || super.onTouchEvent(event);
+    }
+
+    /**
+     * The scale listener, used for handling multi-finger scale gestures.
+     */
+    private final ScaleGestureDetector.OnScaleGestureListener mScaleGestureListener
+            = new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+
+        @Override
+        public boolean onScale(ScaleGestureDetector detector)
+        {
+            float scale = detector.getScaleFactor();
+            if(prevSpan == null) {
+                Observe.getCamera().moveEye(0,0,scale > 1?-0.1f:0.1f);
+
+            }
+            else {
+                if(detector.getCurrentSpan() > prevSpan + 1) {
+                    Observe.getCamera().moveEye(0,0,-0.1f);
+                }
+                else if(detector.getCurrentSpan() < prevSpan - 1) {
+                    Observe.getCamera().moveEye(0,0,0.1f);
+                }
+            }
+            prevSpan = detector.getCurrentSpan();
+            Log.i("Scale", scale+":"+detector.getCurrentSpan()+":"+detector.getPreviousSpan());
+            return false;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            super.onScaleEnd(detector);
+        }
+    };
+
+    /**
+     * The gesture listener, used for handling simple gestures such as double touches, scrolls,
+     * and flings.
+     */
+    private final GestureDetector.SimpleOnGestureListener mGestureListener
+            = new GestureDetector.SimpleOnGestureListener() {
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            Log.i("Scroll",distanceX+":"+distanceY);
+            //Observe.getCamera().moveLookAt(distanceX > 0?0.1f:-0.1f,distanceY > 0?0.1f:-0.1f);
+            Observe.getCamera().moveLookAt(distanceX/100f,distanceY/100f);
+            return super.onScroll(e1, e2, distanceX, distanceY);
+        }
+    };
+
 
     private void initView() {
-        findViewById(R.id.btn_1).setOnClickListener(this);
+        // findViewById(R.id.btn_1).setOnClickListener(this);
+        ((JoystickView)findViewById(R.id.joystick)).setOnMoveListener(
+                (angle, strength) -> {
+                    double theta = Math.toRadians(angle);
+                    float step = 0.1f;
+                    Observe.getCamera().moveEye((float)(step*Math.cos(theta)),(float)(step*Math.sin(theta)),0);
+                });
+
+        findViewById(R.id.img_0).setOnClickListener(notUsed -> {
+                // Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
+
+                ValueAnimator animator = mMenu.isOpen()?ValueAnimator.ofFloat(200f,0f):ValueAnimator.ofFloat(0f,200f);
+                animator.setDuration(600);
+                animator.addUpdateListener(a -> {
+                    Float animateVal = (Float)a.getAnimatedValue();
+                    for(int i = 0; i< mMenu.getMenuList().size(); i++) {
+                        View v = mMenu.getMenuList().get(i);
+
+                        v.setVisibility(mMenu.isOpen()?View.VISIBLE:View.GONE);
+
+                        float degree = 120.0f / mMenu.getMenuList().size() * i;
+
+                        v.setTranslationX((float) (animateVal * Math.cos(Math.toRadians(degree))));
+                        v.setTranslationY((float) (animateVal * Math.sin(Math.toRadians(degree))));
+
+                        v.setRotation(360f * a.getAnimatedFraction());
+
+                        if(animateVal > 0) {
+                            v.setScaleX(animateVal / 200f);
+                            v.setScaleY(animateVal / 200f);
+
+                            v.setAlpha(animateVal / 200f);
+                        }
+                    }
+                });
+                mMenu.setOpen(!mMenu.isOpen());
+
+                animator.start();
+            });
+
+        mLightRecyclerAdapter.setOnItemClickListener(this);
+
+        mLightRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mLightRecyclerView.addItemDecoration(new LinearItemDecoration(Color.rgb(168,165,181)));
+        mLightRecyclerView.swapAdapter(mLightRecyclerAdapter, true);
+
+        mObjectRecyclerAdapter.setOnItemClickListener(this);
+
+        mObjectRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mObjectRecyclerView.addItemDecoration(new LinearItemDecoration(Color.rgb(168,165,181)));
+        mObjectRecyclerView.swapAdapter(mObjectRecyclerAdapter, true);
+
+
+    }
+
+    @Override
+    public void onItemCLick(int position, Light light) {
+        Toast.makeText(this, "light"+(position+1), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onItemLongCLick(int position, Light light) {
+        // ignore
     }
 
     @Override
@@ -47,35 +187,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ShaderMap.readShaders(getApplicationContext());
         TextureManager.readTextures(getApplicationContext());
 
+        FontUtil.init(this);
+
         setContentView(R.layout.activity_main);
 
-        glSurfaceView = (GLSurfaceView) findViewById(R.id.glSurfaceView);
+        mGlSurfaceView = findViewById(R.id.glSurfaceView);
 
-        render = new MainRender();
-        glSurfaceView.setEGLContextClientVersion(2);
-        glSurfaceView.setRenderer(render);
+        mRender = new MainRender();
+        mGlSurfaceView.setEGLContextClientVersion(2);
+        mGlSurfaceView.setRenderer(mRender);
+
+        mMenu = new Menu(this);
+
+        mScaleGestureDetector = new ScaleGestureDetector(this, mScaleGestureListener);
+        mGestureDetector = new GestureDetectorCompat(this, mGestureListener);
+
+        mLightRecyclerView = findViewById(R.id.lightRecycler);
+        mLightRecyclerAdapter = new LightRecyclerAdapter();
+
+        mObjectRecyclerView = findViewById(R.id.objectRecycler);
+        mObjectRecyclerAdapter = new ObjectRecyclerAdapter(mRender.getShapes());
 
         initView();
     }
 
     @Override
-    @SuppressLint("StaticFieldLeak")
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_1: {
-                new CheckStorage() {
-                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public void onItemCLick(int position, Shape shape) {
+        Toast.makeText(this, "object"+(position+1), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onItemLongCLick(int position, Shape shape) {
+        // do nothing
+    }
+
+
+        /*
+        new CheckStorage() {
                     @Override
                     protected void onPostExecute(MainActivity activity) {
                         super.onPostExecute(activity);
                         new ExportObj().execute(activity, new ArrayList<>(render.getShapes().subList(0, 3)));
                     }
                 }.execute(this);
-                break;
-            }
-        }
-
-    }
+         */
 
     class ExportObj extends AsyncTask<Object, Void, Void> {
         @Override
@@ -97,26 +252,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return null;
         }
     }
-}
 
-class CheckStorage extends AsyncTask<Object, Void, MainActivity> {
-    @Override
-    protected MainActivity doInBackground(Object... params) {
-        int permission;
-        MainActivity activity = (MainActivity) params[0];
-        try {
-            //检测是否有写的权限
-            permission = ActivityCompat.checkSelfPermission(activity,
-                    "android.permission.WRITE_EXTERNAL_STORAGE");
-            if (permission != PackageManager.PERMISSION_GRANTED) {
-                // 没有写的权限，去申请写的权限，会弹出对话框
-                ActivityCompat.requestPermissions(activity, new String[]{
-                        "android.permission.READ_EXTERNAL_STORAGE",
-                        "android.permission.WRITE_EXTERNAL_STORAGE"}, 1);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return activity;
+    public GLSurfaceView getmGlSurfaceView() {
+        return mGlSurfaceView;
     }
 }

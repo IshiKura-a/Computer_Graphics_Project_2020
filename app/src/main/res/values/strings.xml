@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CG Demo</string>
+    <string name="menu">MENU</string>
+    <string name="icon">ICON</string>
 </resources>

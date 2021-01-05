@@ -34,6 +34,7 @@ public class Model extends Shape {
     private float[] color;
 
     public Model() {
+        type = ShapeType.MODEL;
         method = DrawMethod.SIMPLE;
         translatePara = new float[4];
         scalePara = new float[4];
