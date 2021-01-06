@@ -18,10 +18,6 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 public class Cylinder extends Shape{
     private float vertex[];
-    private float normalX;
-    private float normalY;
-    private float normalZ;
-
     public Cylinder(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,float height,float radius) {
         color = rgba.clone();
         method = DrawMethod.STRIPE;
@@ -51,7 +47,7 @@ public class Cylinder extends Shape{
 
         updateModelMatrix();
         ArrayList<Float> pos=new ArrayList<>();
-        float angDegSpan=360f/360;
+        float angDegSpan=360f/60;
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
@@ -67,6 +63,25 @@ public class Cylinder extends Shape{
         }
         int vSize=vertex.length/3;
 
+        ArrayList<Float> tex=new ArrayList<>();
+        for(int j=0;j<3;j+=1)
+        {
+            for(float i=0;i<360;i+=18){
+                tex.add((float) ((i)/360));
+                tex.add((float)(1));
+                tex.add((float) ((i)/360));
+                tex.add((float)(0));
+            }
+        }
+        tex.add(1f);
+        tex.add(1f);
+        tex.add(1f);
+        tex.add(0f);
+        float[] texture = new float[tex.size()];
+        for (int i=0;i<texture.length;i++)
+        {
+            texture[i]=tex.get(i);
+        }
         //法向量
         float normal[]=new float[pos.size()];
         for(int i=0;i<normal.length;i++){
@@ -99,7 +114,11 @@ public class Cylinder extends Shape{
             normalBuffer.put(cntNormal++,normal[3*i+2]);
             normalBuffer.put(cntNormal++,1f);
         }
-
+        for(int i=0;i<texture.length/2;i++)
+        {
+            textureBuffer.put(cntTexture++,texture[2*i]);
+            textureBuffer.put(cntTexture++,texture[2*i+1]);
+        }
         vertexBuffer.position(0);
         normalBuffer.position(0);
         textureBuffer.position(0);
@@ -185,17 +204,5 @@ public class Cylinder extends Shape{
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertex.length / 3);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
-    }
-    private void normalCalculate(int Index1,int Index2)
-    {
-        float vector1X=vertex[Index1*3]-vertex[0];
-        float vector1Y=vertex[Index1*3+1]-vertex[1];
-        float vector1Z=vertex[Index1*3+2]-vertex[2];
-        float vector2X=vertex[Index2*3]-vertex[0];
-        float vector2Y=vertex[Index2*3+1]-vertex[1];
-        float vector2Z=vertex[Index2*3+2]-vertex[2];
-        normalX=vector1Y*vector2Z-vector2Y*vector1Z;
-        normalY=vector1Z*vector2X-vector1X*vector2Z;
-        normalZ=vector1X*vector2Y-vector1Y*vector2X;
     }
 }

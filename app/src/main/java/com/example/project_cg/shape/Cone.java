@@ -71,7 +71,23 @@ public class Cone extends Shape{
         }
         int vSize=vertex.length/3;
 
-        //未修改
+        ArrayList<Float> tex=new ArrayList<>();
+        tex.add(0.5f);
+        tex.add(1f);
+        for(int i=0;i<3;i++)
+        {
+            for(int j=0;j<360;j+=18)
+            {
+                tex.add(j/360f);
+                tex.add(0f);
+            }
+        }
+        float texture[]=new float[tex.size()];    //所有的顶点
+        for(int i=0;i<texture.length;i++)
+        {
+            texture[i]=tex.get(i);
+        }
+
 
         //法向量
         ArrayList<Float> normalTmp=new ArrayList<>();
@@ -114,6 +130,11 @@ public class Cone extends Shape{
             normalBuffer.put(cntNormal++,normal[3*i+1]);
             normalBuffer.put(cntNormal++,normal[3*i+2]);
             normalBuffer.put(cntNormal++,1f);
+        }
+        for(int i=0;i<texture.length/2;i++)
+        {
+            textureBuffer.put(cntTexture++,texture[2*i]);
+            textureBuffer.put(cntTexture++,texture[2*i+1]);
         }
 
         vertexBuffer.position(0);
@@ -218,4 +239,3 @@ public class Cone extends Shape{
         normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
     }
 }
-

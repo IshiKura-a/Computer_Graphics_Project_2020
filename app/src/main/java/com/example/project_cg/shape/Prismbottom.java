@@ -1,7 +1,6 @@
 package com.example.project_cg.shape;
 
 import android.opengl.GLES20;
-import android.util.Log;
 
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
@@ -10,19 +9,18 @@ import com.example.project_cg.shader.ShaderType;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
-public class Pyramid extends Shape{
+
+public class Prismbottom extends Shape {
     private float vertex[];
     private float normalX;
     private float normalY;
     private float normalZ;
 
-    public Pyramid(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,float height,float radius,int edge) {
+    public Prismbottom(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float radius, int edge) {
         color = rgba.clone();
         method = DrawMethod.FAN;
         this.mtl = mtl;
@@ -58,7 +56,7 @@ public class Pyramid extends Shape{
         ArrayList<Float> pos=new ArrayList<>();
         pos.add(base[0]);
         pos.add(base[1]);
-        pos.add(base[2]+height);
+        pos.add(base[2]);
         float angDegSpan=360f/edge;
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
@@ -242,8 +240,8 @@ public class Pyramid extends Shape{
         float vector2X=vertex[Index2*3]-vertex[0];
         float vector2Y=vertex[Index2*3+1]-vertex[1];
         float vector2Z=vertex[Index2*3+2]-vertex[2];
-        normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
-        normalY=-(vector1Z*vector2X-vector1X*vector2Z);
-        normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
+        normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
+        normalY=(vector1Z*vector2X-vector1X*vector2Z);
+        normalZ=(vector1X*vector2Y-vector1Y*vector2X);
     }
 }

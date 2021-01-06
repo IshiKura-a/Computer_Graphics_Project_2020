@@ -1,6 +1,7 @@
 package com.example.project_cg.shape;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
@@ -9,18 +10,20 @@ import com.example.project_cg.shader.ShaderType;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 
-public class Circle extends Shape {
+public class Circle extends Shape{
     private float vertex[];
     private float normalX;
     private float normalY;
     private float normalZ;
-    public Circle(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float radius) {
+    public Circle(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,float radius) {
         color = rgba.clone();
         method = DrawMethod.FAN;
         this.mtl = mtl;
@@ -68,7 +71,23 @@ public class Circle extends Shape {
         }
         int vSize=vertex.length/3;
 
-        //未修改
+        //纹理
+        ArrayList<Float> tex=new ArrayList<>();
+        tex.add(0.5f);
+        tex.add(1f);
+        for(int i=0;i<3;i++)
+        {
+            for(int j=0;j<360;j+=18)
+            {
+                tex.add(j/360f);
+                tex.add(0f);
+            }
+        }
+        float texture[]=new float[tex.size()];    //所有的顶点
+        for(int i=0;i<texture.length;i++)
+        {
+            texture[i]=tex.get(i);
+        }
 
         //法向量
         ArrayList<Float> normalTmp=new ArrayList<>();
@@ -111,6 +130,11 @@ public class Circle extends Shape {
             normalBuffer.put(cntNormal++,normal[3*i+1]);
             normalBuffer.put(cntNormal++,normal[3*i+2]);
             normalBuffer.put(cntNormal++,1f);
+        }
+        for(int i=0;i<texture.length/2;i++)
+        {
+            textureBuffer.put(cntTexture++,texture[2*i]);
+            textureBuffer.put(cntTexture++,texture[2*i+1]);
         }
 
         vertexBuffer.position(0);

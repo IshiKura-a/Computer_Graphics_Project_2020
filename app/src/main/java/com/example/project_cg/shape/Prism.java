@@ -1,6 +1,7 @@
 package com.example.project_cg.shape;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
@@ -9,18 +10,19 @@ import com.example.project_cg.shader.ShaderType;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
-
-public class Prism extends Shape {
+public class Prism extends Shape{
     private float vertex[];
     private float normalX;
     private float normalY;
     private float normalZ;
 
-    public Prism(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float height, float radius1, float radius2, int edge) {
+    public Prism(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,float height,float radius1,float radius2,int edge) {
         color = rgba.clone();
         method = DrawMethod.STRIPE;
         this.mtl = mtl;
@@ -65,6 +67,39 @@ public class Prism extends Shape {
         }
         int vSize=vertex.length/3;
 
+
+        ArrayList<Float> tex=new ArrayList<>();
+        tex.add(0f);
+        tex.add(1f);
+        tex.add(0f);
+        tex.add(0f);
+        int flag=0;
+        for(int i=0;i<edge;i+=1)
+        {
+            if(flag==0)
+            {
+                flag=1;
+                tex.add(1f);
+                tex.add(1f);
+                tex.add(1f);
+                tex.add(0f);
+            }
+            else
+            {
+                flag=0;
+                tex.add(0f);
+                tex.add(1f);
+                tex.add(0f);
+                tex.add(0f);
+            }
+        }
+        float[] texture = new float[tex.size()];
+        for (int i=0;i<texture.length;i++)
+        {
+            texture[i]=tex.get(i);
+        }
+
+
         //法向量
         float normal[]=new float[pos.size()];
         for(int i=0;i<normal.length;i++){
@@ -97,7 +132,11 @@ public class Prism extends Shape {
             normalBuffer.put(cntNormal++,normal[3*i+2]);
             normalBuffer.put(cntNormal++,1f);
         }
-
+        for(int i=0;i<texture.length/2;i++)
+        {
+            textureBuffer.put(cntTexture++,texture[2*i]);
+            textureBuffer.put(cntTexture++,texture[2*i+1]);
+        }
         vertexBuffer.position(0);
         normalBuffer.position(0);
         textureBuffer.position(0);

@@ -20,21 +20,6 @@ import javax.microedition.khronos.opengles.GL10;
 public class Ball extends Shape{
 
     private int Vsize;
-    private final int[] faces = {
-            1, 5, 1, 2, 6, 1, 3, 2, 1,
-            1, 5, 1, 3, 2, 1, 4, 1, 1,
-            5, 8, 2, 8, 4, 2, 7, 3, 2,
-            5, 8, 2, 7, 3, 2, 6, 7, 2,
-            1, 9, 3, 5, 10, 3, 6, 7, 3,
-            1, 9, 3, 6, 7, 3, 2, 6, 3,
-            2, 6, 4, 6, 7, 4, 7, 3, 4,
-            2, 6, 4, 7, 3, 4, 3, 2, 4,
-            3, 13, 5, 7, 14, 5, 8, 12, 5,
-            3, 13, 5, 8, 12, 5, 4, 11, 5,
-            5, 10, 6, 1, 9, 6, 4, 11, 6,
-            5, 10, 6, 4, 11, 6, 8, 12, 6
-    };
-
     public Ball(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl)
     {
         color = rgba.clone();
@@ -85,12 +70,12 @@ public class Ball extends Shape{
                 cos = (float) Math.cos(j * Math.PI / 180.0);
                 sin = -(float) Math.sin(j * Math.PI / 180.0);
                 data.add(r1 * cos);
-                data.add(h1);
                 data.add(r1 * sin);
+                data.add(h1);
 
                 data.add(r2 * cos);
-                data.add(h2);
                 data.add(r2 * sin);
+                data.add(h2);
 
             }
         }
@@ -99,7 +84,6 @@ public class Ball extends Shape{
             vertex[i]=data.get(i);
         }
         Vsize=vertex.length/3;
-
 
         float normal[]=new float[data.size()];
         for(int i=0;i<normal.length;i++){
@@ -142,16 +126,21 @@ public class Ball extends Shape{
             for (float j = 0.0f; j <360.0f+step; j +=step2 ) {
                 cos = (float) Math.cos(j * Math.PI / 180.0);
                 sin = -(float) Math.sin(j * Math.PI / 180.0);
-                float x1=r1*cos;
-                float y1=h1;
-                float z1=r1*sin;
-                float x2=r2*cos;
-                float y2=h2;
-                float z2=r2*sin;
-                float texU1= (float) (Math.atan((y1/x1))/2);
-                float texV1=(float)(Math.asin(z1)+0.5f);
-                float texU2=(float) (Math.atan((y2/x2))/2);
-                float texV2=(float)(Math.asin(z2)+0.5f);
+                float x1=r1 * cos;
+                float y1=r1 * sin;
+                float z1=h1;
+
+                float x2=r2 * cos;
+                float y2=r2 * sin;
+                float z2=h2;
+               /* float texV1= (float) (i/180+0.5f);
+                float texU1=(float)(j/360);
+                float texV2=(float) ((i+step)/180+0.5f);
+                float texU2=(float)((j)/360);*/
+                float texU1 = j/2.0f/180;
+                float texV1 = i/180.0f+0.5f;
+                float texU2 = j/2.0f/180;
+                float texV2 = (i+step)/180.0f+0.5f;
                 tex.add(texU1);
                 tex.add(texV1);
                 tex.add(texU2);;
