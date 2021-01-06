@@ -24,6 +24,7 @@ public abstract class Shape {
     protected FloatBuffer normalBuffer;
     protected DrawMethod method = DrawMethod.SIMPLE;
     protected ShapeType type;
+    protected boolean isChosen = false;
 
     protected int mProgram;
 
@@ -140,5 +141,13 @@ public abstract class Shape {
 
     public ShapeType getType() {
         return type;
+    }
+
+    public boolean isChosen() {
+        return isChosen;
+    }
+
+    public void setChosen(boolean chosen) {
+        isChosen = chosen;
     }
 }

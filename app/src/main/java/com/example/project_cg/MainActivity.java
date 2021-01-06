@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
         findViewById(R.id.img_0).setOnClickListener(notUsed -> {
                 // Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
 
-                ValueAnimator animator = mMenu.isOpen()?ValueAnimator.ofFloat(200f,0f):ValueAnimator.ofFloat(0f,200f);
+                ValueAnimator animator = mMenu.isOpen()?ValueAnimator.ofFloat(230f,0f):ValueAnimator.ofFloat(0f,230f);
                 animator.setDuration(600);
                 animator.addUpdateListener(a -> {
                     Float animateVal = (Float)a.getAnimatedValue();
@@ -140,10 +140,10 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
                         v.setRotation(360f * a.getAnimatedFraction());
 
                         if(animateVal > 0) {
-                            v.setScaleX(animateVal / 200f);
-                            v.setScaleY(animateVal / 200f);
+                            v.setScaleX(animateVal / 230f);
+                            v.setScaleY(animateVal / 230f);
 
-                            v.setAlpha(animateVal / 200f);
+                            v.setAlpha(animateVal / 230f);
                         }
                     }
                 });
@@ -232,28 +232,12 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
                 }.execute(this);
          */
 
-    class ExportObj extends AsyncTask<Object, Void, Void> {
-        @Override
-        protected Void doInBackground(Object... voids) {
-            Activity activity = (Activity) voids[0];
-            ArrayList<Shape> list = (ArrayList<Shape>) voids[1];
-            if (ActivityCompat.checkSelfPermission(activity, "android.permission.WRITE_EXTERNAL_STORAGE")
-                    == PackageManager.PERMISSION_GRANTED) {
-                try {
-                    FileOutputStream fos = openFileOutput("res.obj", MODE_PRIVATE);
-
-                    Model.writeObject(list, fos);
-                    Log.i("Storage", getFilesDir().getAbsolutePath());
-                    fos.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-    }
 
     public GLSurfaceView getmGlSurfaceView() {
         return mGlSurfaceView;
+    }
+
+    public MainRender getmRender() {
+        return mRender;
     }
 }

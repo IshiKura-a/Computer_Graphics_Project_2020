@@ -32,26 +32,34 @@
             android:layout_marginTop="20dp">
             <ImageView
                 android:id="@+id/img_1"
-                android:layout_width="30dp"
+                android:layout_width="25dp"
                 android:layout_gravity="start"
                 android:src="@drawable/light"
-                android:layout_height="30dp"
+                android:layout_height="25dp"
                 android:contentDescription="@string/menu"
                 />
             <ImageView
                 android:id="@+id/img_2"
-                android:layout_width="30dp"
+                android:layout_width="25dp"
                 android:layout_gravity="start"
                 android:src="@drawable/camera"
-                android:layout_height="30dp"
+                android:layout_height="25dp"
                 android:contentDescription="@string/menu"
                 />
             <ImageView
                 android:id="@+id/img_3"
-                android:layout_width="30dp"
+                android:layout_width="25dp"
                 android:layout_gravity="start"
                 android:src="@drawable/open"
-                android:layout_height="30dp"
+                android:layout_height="25dp"
+                android:contentDescription="@string/menu"
+                />
+            <ImageView
+                android:id="@+id/img_4"
+                android:layout_width="25dp"
+                android:layout_gravity="start"
+                android:src="@drawable/export"
+                android:layout_height="25dp"
                 android:contentDescription="@string/menu"
                 />
             <ImageView

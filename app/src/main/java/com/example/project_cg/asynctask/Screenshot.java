@@ -47,7 +47,7 @@ public class Screenshot extends AsyncTask<Object, Void, MainActivity> {
                 // image naming and path  to include sd card  appending name you choose for file
                 mPath = date + ".jpg";
                 ScreenShotUtil.path = date + ".jpg";
-                File file = new File(activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES), mPath);
+                File file = new File(activity.getExternalFilesDir(Environment.DIRECTORY_SCREENSHOTS), mPath);
                 ScreenShotUtil.bos = new BufferedOutputStream(new FileOutputStream(file));
                 // create bitmap screen capture
 

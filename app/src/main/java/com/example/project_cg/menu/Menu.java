@@ -13,7 +13,9 @@ import android.widget.Toast;
 
 import com.example.project_cg.MainActivity;
 import com.example.project_cg.R;
+import com.example.project_cg.asynctask.ExportObj;
 import com.example.project_cg.asynctask.Screenshot;
+import com.example.project_cg.util.ExportObjUtil;
 import com.example.project_cg.util.ScreenShotUtil;
 
 import java.io.File;
@@ -63,6 +65,20 @@ public class Menu {
         });
         menuList.add(v);
 
+        v = activity.findViewById(R.id.img_4);
+        v.setVisibility(View.GONE);
+        v.setOnClickListener(notUsed -> {
+            new ExportObj(){
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    Toast.makeText(activity, ExportObjUtil.path.isEmpty() ?
+                            "Please select some objectes first!" :
+                            "Save as " + ExportObjUtil.path, Toast.LENGTH_SHORT).show();
+                    super.onPostExecute(aVoid);
+                }
+            }.execute(activity);
+        });
+        menuList.add(v);
         this.activity = activity;
     }
 
