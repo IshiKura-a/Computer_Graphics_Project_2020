@@ -1,6 +1,7 @@
 package com.example.project_cg.asynctask;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
@@ -46,8 +47,8 @@ public class Screenshot extends AsyncTask<Object, Void, MainActivity> {
                 // image naming and path  to include sd card  appending name you choose for file
                 mPath = date + ".jpg";
                 ScreenShotUtil.path = date + ".jpg";
-
-                ScreenShotUtil.bos = new BufferedOutputStream(activity.openFileOutput(mPath, activity.MODE_PRIVATE));
+                File file = new File(activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES), mPath);
+                ScreenShotUtil.bos = new BufferedOutputStream(new FileOutputStream(file));
                 // create bitmap screen capture
 
                 DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -59,7 +60,7 @@ public class Screenshot extends AsyncTask<Object, Void, MainActivity> {
 
                 ScreenShotUtil.toScreenShot = true;
 
-                Log.i("Save", mPath);
+                Log.i("Save", file.getAbsolutePath());
             } catch (Throwable e) {
                 // Several error may come out with file handling or DOM
                 e.printStackTrace();
