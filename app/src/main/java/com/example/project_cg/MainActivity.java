@@ -20,6 +20,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.example.project_cg.asynctask.CheckStorage;
@@ -30,6 +31,7 @@ import com.example.project_cg.menu.Menu;
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shader.ShaderMap;
+import com.example.project_cg.shader.ShaderType;
 import com.example.project_cg.shape.Model;
 import com.example.project_cg.shape.Shape;
 import com.example.project_cg.texture.TextureManager;
@@ -112,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
 
 
     private void initView() {
-        // findViewById(R.id.btn_1).setOnClickListener(this);
         ((JoystickView)findViewById(R.id.joystick)).setOnMoveListener(
                 (angle, strength) -> {
                     double theta = Math.toRadians(angle);
@@ -123,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
         findViewById(R.id.img_0).setOnClickListener(notUsed -> {
                 // Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
 
-                ValueAnimator animator = mMenu.isOpen()?ValueAnimator.ofFloat(200f,0f):ValueAnimator.ofFloat(0f,200f);
+            ValueAnimator animator = mMenu.isOpen() ? ValueAnimator.ofFloat(300f, 0f) : ValueAnimator.ofFloat(0f, 250f);
                 animator.setDuration(600);
                 animator.addUpdateListener(a -> {
                     Float animateVal = (Float)a.getAnimatedValue();
@@ -140,10 +141,10 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
                         v.setRotation(360f * a.getAnimatedFraction());
 
                         if(animateVal > 0) {
-                            v.setScaleX(animateVal / 200f);
-                            v.setScaleY(animateVal / 200f);
+                            v.setScaleX(animateVal / 250f);
+                            v.setScaleY(animateVal / 250f);
 
-                            v.setAlpha(animateVal / 200f);
+                            v.setAlpha(animateVal / 250f);
                         }
                     }
                 });
@@ -155,15 +156,14 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
         mLightRecyclerAdapter.setOnItemClickListener(this);
 
         mLightRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mLightRecyclerView.addItemDecoration(new LinearItemDecoration(Color.rgb(168,165,181)));
+        mLightRecyclerView.addItemDecoration(new LinearItemDecoration(Color.rgb(168, 165, 181)));
         mLightRecyclerView.swapAdapter(mLightRecyclerAdapter, true);
 
         mObjectRecyclerAdapter.setOnItemClickListener(this);
 
         mObjectRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mObjectRecyclerView.addItemDecoration(new LinearItemDecoration(Color.rgb(168,165,181)));
+        mObjectRecyclerView.addItemDecoration(new LinearItemDecoration(Color.rgb(168, 165, 181)));
         mObjectRecyclerView.swapAdapter(mObjectRecyclerAdapter, true);
-
 
     }
 
@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
 
         mGlSurfaceView = findViewById(R.id.glSurfaceView);
 
+        while(ShaderMap.get("object", ShaderType.FRAG) == null);
         mRender = new MainRender();
         mGlSurfaceView.setEGLContextClientVersion(2);
         mGlSurfaceView.setRenderer(mRender);
@@ -222,38 +223,11 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
     }
 
 
-        /*
-        new CheckStorage() {
-                    @Override
-                    protected void onPostExecute(MainActivity activity) {
-                        super.onPostExecute(activity);
-                        new ExportObj().execute(activity, new ArrayList<>(render.getShapes().subList(0, 3)));
-                    }
-                }.execute(this);
-         */
-
-    class ExportObj extends AsyncTask<Object, Void, Void> {
-        @Override
-        protected Void doInBackground(Object... voids) {
-            Activity activity = (Activity) voids[0];
-            ArrayList<Shape> list = (ArrayList<Shape>) voids[1];
-            if (ActivityCompat.checkSelfPermission(activity, "android.permission.WRITE_EXTERNAL_STORAGE")
-                    == PackageManager.PERMISSION_GRANTED) {
-                try {
-                    FileOutputStream fos = openFileOutput("res.obj", MODE_PRIVATE);
-
-                    Model.writeObject(list, fos);
-                    Log.i("Storage", getFilesDir().getAbsolutePath());
-                    fos.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-    }
-
     public GLSurfaceView getmGlSurfaceView() {
         return mGlSurfaceView;
+    }
+
+    public MainRender getmRender() {
+        return mRender;
     }
 }

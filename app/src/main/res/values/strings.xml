@@ -2,4 +2,6 @@
     <string name="app_name">CG Demo</string>
     <string name="menu">MENU</string>
     <string name="icon">ICON</string>
+    <string name="confirm">confirm</string>
+    <string name="cancel">cancel</string>
 </resources>

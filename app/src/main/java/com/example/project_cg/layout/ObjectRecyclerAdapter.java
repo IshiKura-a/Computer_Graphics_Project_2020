@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,12 +32,14 @@ public class ObjectRecyclerAdapter extends RecyclerView.Adapter<ObjectRecyclerAd
         private final TextView objectIndex;
         private final ImageView objectIcon;
         private final View contentView;
+        private final CheckBox isChosen;
 
         public RecyclerViewHolder(View v) {
             super(v);
             contentView = v;
             objectIcon = v.findViewById(R.id.objectIcon);
             objectIndex = v.findViewById(R.id.objectIndex);
+            isChosen = v.findViewById(R.id.isChosen);
         }
 
         @RequiresApi(api = Build.VERSION_CODES.O)
@@ -67,6 +71,9 @@ public class ObjectRecyclerAdapter extends RecyclerView.Adapter<ObjectRecyclerAd
 
             objectIndex.setText("#"+(position+1)+" "+shape.getType().getName());
             objectIndex.setTypeface(FontUtil.gillSans);
+            isChosen.setOnCheckedChangeListener((btn, flag) -> {
+                shape.setChosen(flag);
+            });
         }
 
         public void setOnClickListener(View.OnClickListener listener) {
