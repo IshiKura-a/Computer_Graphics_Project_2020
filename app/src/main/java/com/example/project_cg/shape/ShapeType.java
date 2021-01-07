@@ -18,4 +18,13 @@ public enum ShapeType {
     public String getName() {
         return name;
     }
+
+    public static ShapeType getShapeType(String name) {
+        for(ShapeType st: values()) {
+            if(st.getName().compareTo(name) == 0) {
+                return st;
+            }
+        }
+        return null;
+    }
 }
