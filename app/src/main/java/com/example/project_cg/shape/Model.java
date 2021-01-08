@@ -31,7 +31,6 @@ public class Model extends Shape {
     ArrayList<Float> vertex = new ArrayList<>();
     ArrayList<Float> normal = new ArrayList<>();
     ArrayList<Float> texture = new ArrayList<>();
-    private float[] color;
 
     public Model() {
         type = ShapeType.MODEL;
@@ -62,8 +61,8 @@ public class Model extends Shape {
         GLES20.glLinkProgram(mProgram);
     }
 
-    public static Model readObject(BufferedReader br) {
-        Model model = new Model();
+
+    public static Model readObject(Model model, BufferedReader br) {
         ArrayList<Float> tmpVertex = new ArrayList<>();
         ArrayList<Float> tmpNormal = new ArrayList<>();
         ArrayList<Float> tmpTexture = new ArrayList<>();

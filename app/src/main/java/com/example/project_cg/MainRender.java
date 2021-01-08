@@ -22,7 +22,11 @@ import com.example.project_cg.util.ScreenShotUtil;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -64,7 +68,7 @@ public class MainRender implements Renderer {
 
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(TextureManager.getAssetManager().open("object/Cube.obj")));
-            Model model = Model.readObject(br);
+            Model model = Model.readObject(new Model(), br);
             model.setMtl(new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
                     new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 30));
             model.setColor(new float[]{0.9f, 0.1f, 0.3f, 1.0f});
@@ -73,8 +77,10 @@ public class MainRender implements Renderer {
             model.setRotateY(-90);
             shapes.add(model);
 
-            br = new BufferedReader(new InputStreamReader(TextureManager.getAssetManager().open("object/Chair.obj")));
-            model = Model.readObject(br);
+
+            /*
+            br = new BufferedReader(new InputStreamReader(new FileInputStream("/storage/emulated/0/Android/data/com.example.project_cg/files/Models/2021-01-09_12:14:10.obj")));
+            model = Model.readObject(new Model(), br);
             model.setMtl(new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
                     new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 30));
             model.setColor(new float[]{0.3f, 0.3f, 0.3f, 1.0f});
@@ -82,6 +88,10 @@ public class MainRender implements Renderer {
             model.setShapePara(new float[]{0.5f, 0.5f, 0.5f, 1});
             model.setRotateY(-90);
             shapes.add(model);
+
+             */
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -117,7 +127,7 @@ public class MainRender implements Renderer {
             shapes.get(0).setRotateX(cnt % 360);
             shapes.get(1).setRotateX(cnt % 360);
             shapes.get(1).setRotateY(cnt % 360);
-            shapes.get(2).setRotateY(cnt % 360);
+            // shapes.get(2).setRotateY(cnt % 360);
 
             if(used == 1) {
                 if(RenderUtil.type == ShapeType.CUBE) {
@@ -125,6 +135,24 @@ public class MainRender implements Renderer {
                 }
                 else if(RenderUtil.type == ShapeType.BALL) {
                     shapes.add(new Ball(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
+                }
+                else if(RenderUtil.type == ShapeType.MODEL) {
+                    BufferedReader br = null;
+                    try {
+                        br = new BufferedReader(new InputStreamReader(new FileInputStream(RenderUtil.path)));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    Model model = Model.readObject(new Model(), br);
+                    model.setMtl(RenderUtil.mtlInfo);
+                    model.setColor(RenderUtil.color);
+                    model.setBasePara(RenderUtil.base);
+                    model.setShapePara(RenderUtil.shape);
+                    model.setRotateX(RenderUtil.dir[0]);
+                    model.setRotateY(RenderUtil.dir[1]-90);
+                    model.setRotateZ(RenderUtil.dir[2]);
+                    shapes.add(model);
                 }
                 used--;
             }
