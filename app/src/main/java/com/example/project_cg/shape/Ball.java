@@ -24,6 +24,7 @@ public class Ball extends Shape{
     {
         color = rgba.clone();
         method = DrawMethod.FAN;
+        type = ShapeType.BALL;
         this.mtl = mtl;
 
         setRotateX(90 + dir[0]);

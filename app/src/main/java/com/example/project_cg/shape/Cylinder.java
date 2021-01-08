@@ -19,6 +19,7 @@ public class Cylinder extends Shape {
     public Cylinder(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
         color = rgba.clone();
         method = DrawMethod.STRIPE;
+        type = ShapeType.CYLINDER;
         this.mtl = mtl;
         float height=1f;
         float radius=1f;

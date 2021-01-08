@@ -23,6 +23,7 @@ public class Prismbottom extends Shape {
     public Prismbottom(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int edge) {
         color = rgba.clone();
         method = DrawMethod.FAN;
+        type = ShapeType.PRISMBOTTOM;
         this.mtl = mtl;
         float radius=1f;
         setRotateX(90 + dir[0]);

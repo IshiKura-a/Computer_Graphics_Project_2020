@@ -79,36 +79,35 @@
         function onChange(id) {
             let selector = document.getElementById(id);
             let index = selector.selectedIndex;
+            let val = selector.options[index].value;
 
             let Width = document.getElementsByClassName('Width')[0];
             let Length = document.getElementsByClassName('Length')[0];
             let Height = document.getElementsByClassName('Height')[0];
-            let Radius = document.getElementsByClassName('Radius')[0];
+            let Fraction = document.getElementsByClassName('Fraction')[0];
             let Edges = document.getElementsByClassName('Edges')[0];
 
-            selector.setAttribute("choose", selector.options[index].value);
-            if (index == 0 || index == 1) {
-                // Cube/Ball
+            // alert(val);
+            selector.setAttribute("choose", val);
+            if (val.match(/^((Cube)|(Ball)|(Cone)|(Cylinder))$/g)) {
                 Width.style.display = "inline";
                 Length.style.display = "inline";
                 Height.style.display = "inline";
-                Radius.style.display = "none";
+                Fraction.style.display = "none";
                 Edges.style.display = "none";
             }
-            else if (index == 2 || index == 3) {
-                // Cone/Cylinder
-                Width.style.display = "none";
-                Length.style.display = "none";
+            else if (val.match(/^((Prism)|(Pyramid))$/g)) {
+                Width.style.display = "inline";
+                Length.style.display = "inline";
                 Height.style.display = "inline";
-                Radius.style.display = "inline";
-                Edges.style.display = "none";
+                Fraction.style.display = "none";
+                Edges.style.display = "inline";
             }
-            else if (index == 4 || index == 5) {
-                // Prism/Pyramid
-                Width.style.display = "none";
-                Length.style.display = "none";
+            else if (val.match(/^((Frustum))$/g)) {
+                Width.style.display = "inline";
+                Length.style.display = "inline";
                 Height.style.display = "inline";
-                Radius.style.display = "inline";
+                Fraction.style.display = "inline";
                 Edges.style.display = "inline";
             }
             else {
@@ -132,6 +131,7 @@
             <option value="Cylinder">Cylinder</option>
             <option value="Prism">Prism</option>
             <option value="Pyramid">Pyramid</option>
+            <option value="Frustum">Frustum</option>
         </select>
     </div>
     <p></p>
@@ -180,10 +180,10 @@
         Height:
         <input id="height" type="text" onkeyup="checkFloat('height')" value=1 />
     </div>
-    <div class="Radius" style="display: none;">
+    <div class="Fraction" style="display: none;">
         <p></p>
-        Radius:
-        <input id="radius" type="text" onkeyup="checkFloat('radius')" value=1 />
+        Fraction:
+        <input id="fraction" type="text" onkeyup="checkFloat('fraction')" value=0.5 />
     </div>
     <div class="Edges" style="display: none;">
         <p></p>

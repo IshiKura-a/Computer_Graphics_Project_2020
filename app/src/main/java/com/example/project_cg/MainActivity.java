@@ -264,10 +264,6 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
                         RenderUtil.dir = new float[]{0, 0, 0};
                         RenderUtil.shape = new float[]{0.5f, 0.5f, 0.5f, 1};
                         RenderUtil.path = path;
-                        RenderUtil.br = new BufferedReader(new InputStreamReader(
-                                new FileInputStream(path)
-                        ));
-                        RenderUtil.model = Model.readObject(new Model(), RenderUtil.br);
                         mRender.addShape();
                     }
                 } catch (Exception e) {

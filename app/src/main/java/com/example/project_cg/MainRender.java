@@ -9,11 +9,16 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.project_cg.shape.Ball;
+import com.example.project_cg.shape.Cone;
+import com.example.project_cg.shape.Cylinder;
+import com.example.project_cg.shape.Frustum;
 import com.example.project_cg.shape.Model;
 import com.example.project_cg.shape.MtlInfo;
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shape.Cube;
+import com.example.project_cg.shape.Prism;
+import com.example.project_cg.shape.Pyramid;
 import com.example.project_cg.shape.Shape;
 import com.example.project_cg.shape.ShapeType;
 import com.example.project_cg.texture.TextureManager;
@@ -130,13 +135,22 @@ public class MainRender implements Renderer {
             // shapes.get(2).setRotateY(cnt % 360);
 
             if(used == 1) {
-                if(RenderUtil.type == ShapeType.CUBE) {
+                if (RenderUtil.type == ShapeType.CUBE) {
                     shapes.add(new Cube(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
-                }
-                else if(RenderUtil.type == ShapeType.BALL) {
+                } else if (RenderUtil.type == ShapeType.BALL) {
                     shapes.add(new Ball(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
-                }
-                else if(RenderUtil.type == ShapeType.MODEL) {
+                } else if (RenderUtil.type == ShapeType.CONE) {
+                    shapes.add(new Cone(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
+                } else if (RenderUtil.type == ShapeType.CYLINDER) {
+                    shapes.add(new Cylinder(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
+                } else if (RenderUtil.type == ShapeType.PRISM) {
+                    shapes.add(new Prism(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo, RenderUtil.edges));
+                } else if (RenderUtil.type == ShapeType.PYRAMID) {
+                    shapes.add(new Pyramid(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo, RenderUtil.edges));
+                } else if (RenderUtil.type == ShapeType.FRUSTUM) {
+                    shapes.add(new Frustum(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo,
+                            RenderUtil.fraction, RenderUtil.edges));
+                } else if (RenderUtil.type == ShapeType.MODEL) {
                     BufferedReader br = null;
                     try {
                         br = new BufferedReader(new InputStreamReader(new FileInputStream(RenderUtil.path)));

@@ -17,6 +17,6 @@ public class RenderUtil {
     public static MtlInfo mtlInfo;
     public static ShapeType type;
     public static String path;
-    public static BufferedReader br;
-    public static Model model;
+    public static float fraction;
+    public static int edges;
 }
