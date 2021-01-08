@@ -8,13 +8,16 @@ import android.opengl.GLUtils;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.project_cg.shape.Ball;
 import com.example.project_cg.shape.Model;
 import com.example.project_cg.shape.MtlInfo;
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shape.Cube;
 import com.example.project_cg.shape.Shape;
+import com.example.project_cg.shape.ShapeType;
 import com.example.project_cg.texture.TextureManager;
+import com.example.project_cg.util.RenderUtil;
 import com.example.project_cg.util.ScreenShotUtil;
 
 import java.io.BufferedInputStream;
@@ -25,16 +28,19 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 
 public class MainRender implements Renderer {
-    private ArrayList<Shape> shapes = new ArrayList<>();
+    private LinkedList<Shape> shapes = new LinkedList<>();
     int inc = 0;
     int cnt= 250;
     int dir = 2;
+    int used = 0;
 
     static {
         System.loadLibrary("MainRender");
@@ -80,7 +86,6 @@ public class MainRender implements Renderer {
             e.printStackTrace();
         }
 
-
         ArrayList<Integer> al = new ArrayList<>();
         al.add(0);
         shapes.get(0).setTextureUsed(al);
@@ -88,11 +93,8 @@ public class MainRender implements Renderer {
         ArrayList<Integer> a2 = new ArrayList<>();
         a2.add(2);
         shapes.get(1).setTextureUsed(a2);
-        onSurfaceCreatedCPP();
 
-        for (Shape s : shapes) {
-            s.onSurfaceCreated(gl, config);
-        }
+        flushScreen(gl, config);
     }
 
     @Override
@@ -108,7 +110,7 @@ public class MainRender implements Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         synchronized (Observe.getCamera()) {
-            // GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT)
+            onDrawFrameCPP();
 
             // Observe.getLightList().get(0).setLocation(new float[]{-20 + 0.1f * (cnt % 360), 5, 5, 1});
 
@@ -116,7 +118,17 @@ public class MainRender implements Renderer {
             shapes.get(1).setRotateX(cnt % 360);
             shapes.get(1).setRotateY(cnt % 360);
             shapes.get(2).setRotateY(cnt % 360);
-            onDrawFrameCPP();
+
+            if(used == 1) {
+                if(RenderUtil.type == ShapeType.CUBE) {
+                    shapes.add(new Cube(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
+                }
+                else if(RenderUtil.type == ShapeType.BALL) {
+                    shapes.add(new Ball(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
+                }
+                used--;
+            }
+
             // Shapes should be drawn after the canvus
             for (Shape s : shapes) {
                 s.onDrawFrame(gl);
@@ -125,7 +137,6 @@ public class MainRender implements Renderer {
             cnt += dir * inc;
             inc = (inc + 1) % 2;
             if (cnt == 0 || cnt == 360) dir = -dir;
-
 
             if (ScreenShotUtil.toScreenShot) {
                 ScreenShotUtil.toScreenShot = false;
@@ -176,7 +187,18 @@ public class MainRender implements Renderer {
     private static native void onSurfaceChangedCPP(int width, int height);
     private static native void onDrawFrameCPP();
 
-    public ArrayList<Shape> getShapes() {
+    public LinkedList<Shape> getShapes() {
         return shapes;
+    }
+
+    public void flushScreen(GL10 gl, EGLConfig config) {
+        onSurfaceCreatedCPP();
+        for (Shape s : shapes) {
+            s.onSurfaceCreated(gl, config);
+        }
+    }
+
+    public void addShape() {
+        used++;
     }
 }

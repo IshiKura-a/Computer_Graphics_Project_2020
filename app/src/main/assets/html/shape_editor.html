@@ -87,20 +87,12 @@
             let Edges = document.getElementsByClassName('Edges')[0];
 
             selector.setAttribute("choose", selector.options[index].value);
-            if (index == 0) {
-                // Cube
+            if (index == 0 || index == 1) {
+                // Cube/Ball
                 Width.style.display = "inline";
                 Length.style.display = "inline";
                 Height.style.display = "inline";
                 Radius.style.display = "none";
-                Edges.style.display = "none";
-            }
-            else if (index == 1) {
-                // Ball
-                Width.style.display = "none";
-                Length.style.display = "none";
-                Height.style.display = "none";;
-                Radius.style.display = "inline";
                 Edges.style.display = "none";
             }
             else if (index == 2 || index == 3) {

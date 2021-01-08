@@ -151,7 +151,6 @@ public class Cube extends Shape {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         // enable depth test to see the depth of object
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         updateTexture();
     }
 

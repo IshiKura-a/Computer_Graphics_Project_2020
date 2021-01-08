@@ -19,12 +19,13 @@ import com.example.project_cg.shape.ShapeType;
 import com.example.project_cg.util.FontUtil;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class ObjectRecyclerAdapter extends RecyclerView.Adapter<ObjectRecyclerAdapter.RecyclerViewHolder> {
     private ObjectOnItemClickListener mItemClickListener;
-    private ArrayList<Shape> mShapes;
+    private LinkedList<Shape> mShapes;
 
-    public ObjectRecyclerAdapter(ArrayList<Shape> shapes) {
+    public ObjectRecyclerAdapter(LinkedList<Shape> shapes) {
         mShapes = shapes;
     }
 
