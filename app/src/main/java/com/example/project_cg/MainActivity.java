@@ -1,5 +1,6 @@
 package com.example.project_cg;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GestureDetectorCompat;
@@ -7,14 +8,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileUtils;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -33,12 +38,20 @@ import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shader.ShaderMap;
 import com.example.project_cg.shader.ShaderType;
 import com.example.project_cg.shape.Model;
+import com.example.project_cg.shape.MtlInfo;
 import com.example.project_cg.shape.Shape;
+import com.example.project_cg.shape.ShapeType;
 import com.example.project_cg.texture.TextureManager;
 import com.example.project_cg.util.FontUtil;
+import com.example.project_cg.util.RenderUtil;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -229,5 +242,39 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
 
     public MainRender getmRender() {
         return mRender;
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == 0) {
+            if (resultCode == RESULT_OK) {
+                // Get the Uri of the selected file
+                try {
+                    String path = Environment.getExternalStorageDirectory().getCanonicalPath()
+                            + "/" + data.getData().getPath().split(":", 2)[1];
+                    Log.i("Select", path);
+
+                    if (path.matches(".*\\.(obj)")) {
+                        RenderUtil.type = ShapeType.MODEL;
+                        RenderUtil.mtlInfo = new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
+                                new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 30);
+                        RenderUtil.color = new float[]{0.8f, 0.5f, 0.3f, 1.0f};
+                        RenderUtil.base = new float[]{0, 0, 0, 1};
+                        RenderUtil.dir = new float[]{0, 0, 0};
+                        RenderUtil.shape = new float[]{0.5f, 0.5f, 0.5f, 1};
+                        RenderUtil.path = path;
+                        RenderUtil.br = new BufferedReader(new InputStreamReader(
+                                new FileInputStream(path)
+                        ));
+                        RenderUtil.model = Model.readObject(new Model(), RenderUtil.br);
+                        mRender.addShape();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

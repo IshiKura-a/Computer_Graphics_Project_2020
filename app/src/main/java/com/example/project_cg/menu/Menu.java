@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -105,6 +106,8 @@ public class Menu {
 
                 if (res.compareTo("Shape") == 0) {
                     ShapeEdit();
+                } else if (res.compareTo("Model") == 0) {
+                    LoadModel();
                 }
             });
 
@@ -142,6 +145,21 @@ public class Menu {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
-        dialog.getWindow().setLayout((int)(displayMetrics.widthPixels / 1.5f), (int) (displayMetrics.heightPixels / 1.3f));
+        dialog.getWindow().setLayout((int) (displayMetrics.widthPixels / 1.5f), (int) (displayMetrics.heightPixels / 1.3f));
+    }
+
+    private void LoadModel() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+
+        try {
+            activity.startActivityForResult(
+                    Intent.createChooser(intent, "Select a File to Upload"), 0);
+        } catch (android.content.ActivityNotFoundException ex) {
+            // Potentially direct the user to the Market with a Dialog
+            Toast.makeText(activity, "Please Install a File Manager.", Toast.LENGTH_SHORT).show();
+        }
     }
 }
