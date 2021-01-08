@@ -18,12 +18,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.example.project_cg.html.JSInterfaceGetHTML;
+import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shader.ShaderType;
+import com.example.project_cg.shape.Ball;
 import com.example.project_cg.shape.Cube;
 import com.example.project_cg.shape.MtlInfo;
 import com.example.project_cg.shape.Shape;
 import com.example.project_cg.shape.ShapeType;
 import com.example.project_cg.util.ColorUtil;
+import com.example.project_cg.util.RenderUtil;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -131,26 +134,49 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
         float[] specular = ColorUtil.parseRGBA(document.getElementById("specular").attributes().get("value"));
         float shininess = Float.parseFloat(document.getElementById("shininess").attributes().get("value"));
 
-        MtlInfo mtlInfo = new MtlInfo(ambient, diffuse, specular, shininess);
+        RenderUtil.base = new float[]{baseX, baseY, baseZ, 1.0f};
+        RenderUtil.dir = new float[]{rotateX, rotateY, rotateZ};
+        RenderUtil.color = color;
+        RenderUtil.mtlInfo = new MtlInfo(ambient, diffuse, specular, shininess);
 
         if(type == ShapeType.CUBE) {
             if(toEdit != null) {
                 Cube cube = (Cube)toEdit;
-                cube.setBasePara(new float[]{baseX, baseY, baseZ, 1.0f});
+                cube.setBasePara(RenderUtil.base);
                 cube.setColor(color);
                 cube.setRotateX(rotateX);
                 cube.setRotateY(rotateY);
                 cube.setRotateZ(rotateZ);
 
-                cube.setMtl(mtlInfo);
-                cube.setShapePara(new float[]{width, length, width, 1f});
+                cube.setMtl(RenderUtil.mtlInfo);
+                cube.setShapePara(new float[]{width, length, height, 1f});
             }
             else {
-                ((MainActivity)activity).getmRender().getShapes().add(0,
-                        new Cube(new float[]{baseX, baseY, baseZ, 1.0f}, new float[]{width, length, width, 1f},
-                                new float[]{rotateX, rotateY, rotateZ}, color, mtlInfo)
-                );
-                Log.i("Create", ""+((MainActivity)activity).getmRender().getShapes().size());
+                RenderUtil.shape = new float[]{width, length, height, 1f};
+                RenderUtil.type = ShapeType.CUBE;
+                ((MainActivity)activity).getmRender().addShape();
+
+                Log.i("Create", "a cube");
+            }
+        }
+        else if(type == ShapeType.BALL) {
+            if(toEdit != null) {
+                Ball ball = (Ball)toEdit;
+                ball.setBasePara(RenderUtil.base);
+                ball.setColor(color);
+                ball.setRotateX(rotateX);
+                ball.setRotateY(rotateY);
+                ball.setRotateZ(rotateZ);
+
+                ball.setMtl(RenderUtil.mtlInfo);
+                ball.setShapePara(new float[]{width, length, height, 1f});
+            }
+            else {
+                RenderUtil.shape = new float[]{width, length, height, 1f};
+                RenderUtil.type = ShapeType.BALL;
+                ((MainActivity)activity).getmRender().addShape();
+
+                Log.i("Create", "a ball");
             }
         }
     }
