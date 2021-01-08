@@ -16,15 +16,15 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class Prism extends Shape {
     private float vertex[];
-    private float normalX;
-    private float normalY;
-    private float normalZ;
-
-    public Prism(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float height, float radius1, float radius2, int edge) {
+    public Prism(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int edge) {
         color = rgba.clone();
         method = DrawMethod.STRIPE;
         this.mtl = mtl;
-
+        float height=1f;
+        float radius=1f;
+        setRotateX(90 + dir[0]);
+        setRotateY(dir[1]);
+        setRotateZ(dir[2]);
 
         basePara = new float[4];
         shapePara = new float[4];
@@ -51,11 +51,11 @@ public class Prism extends Shape {
         ArrayList<Float> pos=new ArrayList<>();
         float angDegSpan=360f/edge;
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
-            pos.add((float) (base[0]+radius1*Math.sin(i*Math.PI/180f)));
-            pos.add((float)(base[1]+radius1*Math.cos(i*Math.PI/180f)));
+            pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
+            pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
             pos.add(base[2]+height);
-            pos.add((float) (base[0]+radius2*Math.sin(i*Math.PI/180f)));
-            pos.add((float)(base[1]+radius2*Math.cos(i*Math.PI/180f)));
+            pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
+            pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
             pos.add(base[2]);
         }
         vertex=new float[pos.size()];    //所有的顶点
@@ -65,39 +65,25 @@ public class Prism extends Shape {
         }
         int vSize=vertex.length/3;
 
-
         ArrayList<Float> tex=new ArrayList<>();
-        tex.add(0f);
-        tex.add(1f);
-        tex.add(0f);
-        tex.add(0f);
-        int flag=0;
-        for(int i=0;i<edge;i+=1)
+        for(int j=0;j<3;j+=1)
         {
-            if(flag==0)
-            {
-                flag=1;
-                tex.add(1f);
-                tex.add(1f);
-                tex.add(1f);
-                tex.add(0f);
-            }
-            else
-            {
-                flag=0;
-                tex.add(0f);
-                tex.add(1f);
-                tex.add(0f);
-                tex.add(0f);
+            for(float i=0;i<360;i+=18){
+                tex.add((float) ((i)/360));
+                tex.add((float)(1));
+                tex.add((float) ((i)/360));
+                tex.add((float)(0));
             }
         }
+        tex.add(1f);
+        tex.add(1f);
+        tex.add(1f);
+        tex.add(0f);
         float[] texture = new float[tex.size()];
         for (int i=0;i<texture.length;i++)
         {
             texture[i]=tex.get(i);
         }
-
-
         //法向量
         float normal[]=new float[pos.size()];
         for(int i=0;i<normal.length;i++){
@@ -220,17 +206,5 @@ public class Prism extends Shape {
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertex.length / 3);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
-    }
-    private void normalCalculate(int Index1,int Index2)
-    {
-        float vector1X=vertex[Index1*3]-vertex[0];
-        float vector1Y=vertex[Index1*3+1]-vertex[1];
-        float vector1Z=vertex[Index1*3+2]-vertex[2];
-        float vector2X=vertex[Index2*3]-vertex[0];
-        float vector2Y=vertex[Index2*3+1]-vertex[1];
-        float vector2Z=vertex[Index2*3+2]-vertex[2];
-        normalX=vector1Y*vector2Z-vector2Y*vector1Z;
-        normalY=vector1Z*vector2X-vector1X*vector2Z;
-        normalZ=vector1X*vector2Y-vector1Y*vector2X;
     }
 }

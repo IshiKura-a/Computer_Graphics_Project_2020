@@ -20,11 +20,15 @@ public class Cone extends Shape {
     private float normalX;
     private float normalY;
     private float normalZ;
-    public Cone(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float height, float radius) {
+    public Cone(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
         color = rgba.clone();
         method = DrawMethod.FAN;
+        float height=1f;
+        float radius=1f;
         this.mtl = mtl;
-
+        setRotateX(90 + dir[0]);
+        setRotateY(dir[1]);
+        setRotateZ(dir[2]);
 
         basePara = new float[4];
         shapePara = new float[4];
