@@ -16,11 +16,15 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class Cylinder extends Shape {
     private float vertex[];
-    public Cylinder(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float height, float radius) {
+    public Cylinder(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
         color = rgba.clone();
         method = DrawMethod.STRIPE;
         this.mtl = mtl;
-
+        float height=1f;
+        float radius=1f;
+        setRotateX(90 + dir[0]);
+        setRotateY(dir[1]);
+        setRotateZ(dir[2]);
 
         basePara = new float[4];
         shapePara = new float[4];
