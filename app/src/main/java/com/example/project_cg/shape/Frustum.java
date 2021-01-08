@@ -1,7 +1,6 @@
 package com.example.project_cg.shape;
 
 import android.opengl.GLES20;
-import android.util.Log;
 
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
@@ -10,26 +9,27 @@ import com.example.project_cg.shader.ShaderType;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class Ball extends Shape{
+public class Frustum extends Shape {
+    private float vertex[];
+    private float normalX;
+    private float normalY;
+    private float normalZ;
 
-    private int Vsize;
-    public Ball(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl)
-    {
+    public Frustum(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float fraction,int edge) {
         color = rgba.clone();
-        method = DrawMethod.FAN;
+        method = DrawMethod.STRIPE;
         this.mtl = mtl;
-
+        float height=1f;
+        float radius2=1f;
+        float radius1=radius2*fraction;
         setRotateX(90 + dir[0]);
         setRotateY(dir[1]);
         setRotateZ(dir[2]);
-
         basePara = new float[4];
         shapePara = new float[4];
 
@@ -52,97 +52,97 @@ public class Ball extends Shape{
         textureUsed = new ArrayList<>();
 
         updateModelMatrix();
+        ArrayList<Float> pos=new ArrayList<>();
+        float angDegSpan=360f/edge;
+        for(float i=0;i<360+angDegSpan;i+=angDegSpan){
+            pos.add((float) (base[0]+radius1*Math.sin(i*Math.PI/180f)));
+            pos.add((float)(base[1]+radius1*Math.cos(i*Math.PI/180f)));
+            pos.add(base[2]+height);
+            pos.add((float) (base[0]+radius2*Math.sin(i*Math.PI/180f)));
+            pos.add((float)(base[1]+radius2*Math.cos(i*Math.PI/180f)));
+            pos.add(base[2]);
+        }
+        vertex=new float[pos.size()];    //所有的顶点
+        for (int i=0;i<vertex.length;i++)
+        {
+            vertex[i]=pos.get(i);
+        }
+        int vSize=vertex.length/3;
 
 
-        float step=1f;
-        ArrayList<Float> data=new ArrayList<>();
-        float r1,r2;
-        float h1,h2;
-        float sin,cos;
-        for(float i=-90;i<90+step;i+=step){
-            r1 = (float)Math.cos(i * Math.PI / 180.0);
-            r2 = (float)Math.cos((i + step) * Math.PI / 180.0);
-            h1 = (float)Math.sin(i * Math.PI / 180.0);
-            h2 = (float)Math.sin((i + step) * Math.PI / 180.0);
-            // 固定纬度, 360 度旋转遍历一条纬线
-            float step2=step*2;
-            for (float j = 0.0f; j <360.0f+step; j +=step2 ) {
-                cos = (float) Math.cos(j * Math.PI / 180.0);
-                sin = -(float) Math.sin(j * Math.PI / 180.0);
-                data.add(r1 * cos);
-                data.add(r1 * sin);
-                data.add(h1);
-
-                data.add(r2 * cos);
-                data.add(r2 * sin);
-                data.add(h2);
-
+        ArrayList<Float> tex=new ArrayList<>();
+        tex.add(0f);
+        tex.add(1f);
+        tex.add(0f);
+        tex.add(0f);
+        int flag=0;
+        for(int i=0;i<edge;i+=1)
+        {
+            if(flag==0)
+            {
+                flag=1;
+                tex.add(1f);
+                tex.add(1f);
+                tex.add(1f);
+                tex.add(0f);
+            }
+            else
+            {
+                flag=0;
+                tex.add(0f);
+                tex.add(1f);
+                tex.add(0f);
+                tex.add(0f);
             }
         }
-        float vertex[]=new float[data.size()];
-        for(int i=0;i<vertex.length;i++){
-            vertex[i]=data.get(i);
+        float[] texture = new float[tex.size()];
+        for (int i=0;i<texture.length;i++)
+        {
+            texture[i]=tex.get(i);
         }
-        Vsize=vertex.length/3;
 
-        float normal[]=new float[data.size()];
+
+        //法向量
+        float normal[]=new float[pos.size()];
         for(int i=0;i<normal.length;i++){
             normal[i]=vertex[i];
         }
 
-
-        vertexBuffer = ByteBuffer.allocateDirect(vertex.length/3 *4*4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-        normalBuffer = ByteBuffer.allocateDirect(normal.length/3 *4*4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-        textureBuffer = ByteBuffer.allocateDirect(vertex.length/3 *4*2)
+        vertexBuffer = ByteBuffer.allocateDirect(vertex.length /3*4*4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
 
+        normalBuffer = ByteBuffer.allocateDirect(normal.length/3*4*4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+
+        textureBuffer = ByteBuffer.allocateDirect(vertex.length/3*8)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
 
         int cntVertex = 0, cntNormal = 0, cntTexture = 0;
-        for (int i = 0; i < Vsize; i++) {
+        for (int i = 0; i < vSize; i++) {
             vertexBuffer.put(cntVertex++, vertex[3*i]);
             vertexBuffer.put(cntVertex++, vertex[3*i+1]);
             vertexBuffer.put(cntVertex++, vertex[3*i+2]);
             vertexBuffer.put(cntVertex++, 1.0f);
-
-            normalBuffer.put(cntNormal++, normal[3*i]);
-            normalBuffer.put(cntNormal++, normal[3*i+1]);
-            normalBuffer.put(cntNormal++, normal[3*i+2]);
-            normalBuffer.put(cntNormal++, 1.0f);
         }
-
-        ArrayList<Float> tex=new ArrayList<>();
-        for(float i=-90;i<90+step;i+=step){
-            // 固定纬度, 360 度旋转遍历一条纬线
-            float step2=step*2;
-            for (float j = 0.0f; j <360.0f+step; j +=step2 ) {
-                float texU1 = j/360.0f;
-                float texV1 = i/180.0f+0.5f;
-                float texU2 = j/360.0f;
-                float texV2 = (i+step)/180.0f+0.5f;
-                tex.add(texU1);
-                tex.add(texV1);
-                tex.add(texU2);;
-                tex.add(texV2);
-            }
-        }
-        float texture[]=new float[tex.size()];
-        for(int i=0;i<tex.size();i++)
+        for(int i=0;i<normal.length/3;i++)
         {
-            texture[i]=tex.get(i);
+            normalBuffer.put(cntNormal++,normal[3*i]);
+            normalBuffer.put(cntNormal++,normal[3*i+1]);
+            normalBuffer.put(cntNormal++,normal[3*i+2]);
+            normalBuffer.put(cntNormal++,1f);
         }
-        for (int i = 0; i < Vsize; i++) {
+        for(int i=0;i<texture.length/2;i++)
+        {
             textureBuffer.put(cntTexture++,texture[2*i]);
             textureBuffer.put(cntTexture++,texture[2*i+1]);
         }
-
         vertexBuffer.position(0);
         normalBuffer.position(0);
         textureBuffer.position(0);
+
 
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER,
                 ShaderMap.get("object", ShaderType.VERT));
@@ -154,9 +154,9 @@ public class Ball extends Shape{
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
-
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         updateTexture();
     }
 
@@ -222,8 +222,19 @@ public class Ball extends Shape{
         GLES20.glEnableVertexAttribArray(iTextureCoordHandle);
         GLES20.glVertexAttribPointer(iTextureCoordHandle, 2, GLES20.GL_FLOAT, false, 0, textureBuffer);
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, Vsize);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertex.length / 3);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
     }
+    private void normalCalculate(int Index1,int Index2)
+    {
+        float vector1X=vertex[Index1*3]-vertex[0];
+        float vector1Y=vertex[Index1*3+1]-vertex[1];
+        float vector1Z=vertex[Index1*3+2]-vertex[2];
+        float vector2X=vertex[Index2*3]-vertex[0];
+        float vector2Y=vertex[Index2*3+1]-vertex[1];
+        float vector2Z=vertex[Index2*3+2]-vertex[2];
+        normalX=vector1Y*vector2Z-vector2Y*vector1Z;
+        normalY=vector1Z*vector2X-vector1X*vector2Z;
+        normalZ=vector1X*vector2Y-vector1Y*vector2X;
+    }
 }
-

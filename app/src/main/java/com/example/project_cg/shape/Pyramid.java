@@ -20,11 +20,12 @@ public class Pyramid extends Shape {
     private float normalY;
     private float normalZ;
 
-    public Pyramid(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float height, float radius, int edge) {
+    public Pyramid(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, int edge) {
         color = rgba.clone();
         method = DrawMethod.FAN;
         this.mtl = mtl;
-
+        float radius=1f;
+        float height=1f;
         setRotateX(90 + dir[0]);
         setRotateY(dir[1]);
         setRotateZ(dir[2]);

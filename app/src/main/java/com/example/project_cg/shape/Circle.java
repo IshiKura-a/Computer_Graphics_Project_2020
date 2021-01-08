@@ -20,11 +20,14 @@ public class Circle extends Shape {
     private float normalX;
     private float normalY;
     private float normalZ;
-    public Circle(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float radius) {
+    public Circle(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
         color = rgba.clone();
         method = DrawMethod.FAN;
+        float radius=1f;
         this.mtl = mtl;
-
+        setRotateX(90 + dir[0]);
+        setRotateY(dir[1]);
+        setRotateZ(dir[2]);
 
         basePara = new float[4];
         shapePara = new float[4];
@@ -152,7 +155,6 @@ public class Circle extends Shape {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         updateTexture();
     }
 

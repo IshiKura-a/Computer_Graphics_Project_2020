@@ -20,11 +20,14 @@ public class Prismbottom extends Shape {
     private float normalY;
     private float normalZ;
 
-    public Prismbottom(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float radius, int edge) {
+    public Prismbottom(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int edge) {
         color = rgba.clone();
         method = DrawMethod.FAN;
         this.mtl = mtl;
-
+        float radius=1f;
+        setRotateX(90 + dir[0]);
+        setRotateY(dir[1]);
+        setRotateZ(dir[2]);
         setRotateX(90 + dir[0]);
         setRotateY(dir[1]);
         setRotateZ(dir[2]);
