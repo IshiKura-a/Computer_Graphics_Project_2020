@@ -8,7 +8,9 @@ public enum ShapeType {
     CONE("Cone"),
     CYLINDER("Cylinder"),
     PRISM("Prism"),
-    PYRAMID("Pyramid");
+    PYRAMID("Pyramid"),
+    PRISMBOTTOM("Prismbottom");
+
 
     private String name;
     ShapeType(String name) {
