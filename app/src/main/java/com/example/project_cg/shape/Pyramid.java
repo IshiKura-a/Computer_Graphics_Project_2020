@@ -23,6 +23,7 @@ public class Pyramid extends Shape {
     public Pyramid(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, int edge) {
         color = rgba.clone();
         method = DrawMethod.FAN;
+        type = ShapeType.PYRAMID;
         this.mtl = mtl;
         float radius=1f;
         float height=1f;

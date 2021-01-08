@@ -19,6 +19,7 @@ public class Prism extends Shape {
     public Prism(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int edge) {
         color = rgba.clone();
         method = DrawMethod.STRIPE;
+        type = ShapeType.PRISM;
         this.mtl = mtl;
         float height=1f;
         float radius=1f;

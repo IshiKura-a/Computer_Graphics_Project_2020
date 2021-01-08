@@ -23,6 +23,7 @@ public class Circle extends Shape {
     public Circle(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
         color = rgba.clone();
         method = DrawMethod.FAN;
+        type = ShapeType.CIRCLE;
         float radius=1f;
         this.mtl = mtl;
         setRotateX(90 + dir[0]);

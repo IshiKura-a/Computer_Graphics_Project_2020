@@ -23,6 +23,7 @@ public class Frustum extends Shape {
     public Frustum(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float fraction,int edge) {
         color = rgba.clone();
         method = DrawMethod.STRIPE;
+        type = ShapeType.FRUSTUM;
         this.mtl = mtl;
         float height=1f;
         float radius2=1f;

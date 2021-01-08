@@ -126,7 +126,7 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
         float width = Float.parseFloat(document.getElementById("width").attributes().get("value"));
         float height = Float.parseFloat(document.getElementById("height").attributes().get("value"));
         float length = Float.parseFloat(document.getElementById("length").attributes().get("value"));
-        float radius = Float.parseFloat(document.getElementById("radius").attributes().get("value"));
+        float fraction = Float.parseFloat(document.getElementById("fraction").attributes().get("value"));
         int edges = Integer.parseInt(document.getElementById("edges").attributes().get("value"));
 
         float[] ambient = ColorUtil.parseRGBA(document.getElementById("ambient").attributes().get("value"));
@@ -138,46 +138,16 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
         RenderUtil.dir = new float[]{rotateX, rotateY, rotateZ};
         RenderUtil.color = color;
         RenderUtil.mtlInfo = new MtlInfo(ambient, diffuse, specular, shininess);
+        RenderUtil.shape = new float[]{width, length, height, 1f};
+        RenderUtil.fraction = fraction;
+        RenderUtil.edges = edges;
+        RenderUtil.type = type;
 
-        if(type == ShapeType.CUBE) {
-            if(toEdit != null) {
-                Cube cube = (Cube)toEdit;
-                cube.setBasePara(RenderUtil.base);
-                cube.setColor(color);
-                cube.setRotateX(rotateX);
-                cube.setRotateY(rotateY);
-                cube.setRotateZ(rotateZ);
-
-                cube.setMtl(RenderUtil.mtlInfo);
-                cube.setShapePara(new float[]{width, length, height, 1f});
-            }
-            else {
-                RenderUtil.shape = new float[]{width, length, height, 1f};
-                RenderUtil.type = ShapeType.CUBE;
-                ((MainActivity)activity).getmRender().addShape();
-
-                Log.i("Create", "a cube");
-            }
+        if(toEdit != null) {
+            //todo
         }
-        else if(type == ShapeType.BALL) {
-            if(toEdit != null) {
-                Ball ball = (Ball)toEdit;
-                ball.setBasePara(RenderUtil.base);
-                ball.setColor(color);
-                ball.setRotateX(rotateX);
-                ball.setRotateY(rotateY);
-                ball.setRotateZ(rotateZ);
-
-                ball.setMtl(RenderUtil.mtlInfo);
-                ball.setShapePara(new float[]{width, length, height, 1f});
-            }
-            else {
-                RenderUtil.shape = new float[]{width, length, height, 1f};
-                RenderUtil.type = ShapeType.BALL;
-                ((MainActivity)activity).getmRender().addShape();
-
-                Log.i("Create", "a ball");
-            }
+        else {
+            ((MainActivity)activity).getmRender().addShape();
         }
     }
 }

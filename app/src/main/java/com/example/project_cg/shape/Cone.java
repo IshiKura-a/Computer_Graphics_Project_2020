@@ -23,6 +23,7 @@ public class Cone extends Shape {
     public Cone(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
         color = rgba.clone();
         method = DrawMethod.FAN;
+        type = ShapeType.CONE;
         float height=1f;
         float radius=1f;
         this.mtl = mtl;
