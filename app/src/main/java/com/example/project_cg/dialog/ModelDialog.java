@@ -1,29 +1,21 @@
-package com.example.project_cg;
+package com.example.project_cg.dialog;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import com.example.project_cg.html.JSInterfaceGetHTML;
-import com.example.project_cg.observe.Observe;
-import com.example.project_cg.shader.ShaderType;
-import com.example.project_cg.shape.Ball;
-import com.example.project_cg.shape.Cube;
+import com.example.project_cg.MainActivity;
+import com.example.project_cg.R;
 import com.example.project_cg.shape.MtlInfo;
-import com.example.project_cg.shape.Shape;
 import com.example.project_cg.shape.ShapeType;
 import com.example.project_cg.util.ColorUtil;
 import com.example.project_cg.util.RenderUtil;
@@ -34,19 +26,19 @@ import org.jsoup.nodes.Document;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ShapeDialog extends Dialog implements View.OnClickListener {
+public class ModelDialog extends Dialog implements View.OnClickListener {
     private Activity activity;
     private Button confirm, cancel;
     private WebView webView;
-    private Shape toEdit = null;
+    private int toEdit = -1;
     private String content;
 
-    public ShapeDialog(Activity activity) {
+    public ModelDialog(Activity activity) {
         super(activity);
         this.activity = activity;
     }
 
-    public ShapeDialog(Activity activity, Shape toEdit) {
+    public ModelDialog(Activity activity, int toEdit) {
         super(activity);
         this.activity = activity;
         this.toEdit = toEdit;
@@ -92,8 +84,8 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
                             }
                             m.appendTail(buf);
                             content = buf.toString().substring(1, buf.length())
-                            .replaceAll("\\\\n","\n")
-                            .replaceAll("\\\\\"","\"");
+                                    .replaceAll("\\\\n","\n")
+                                    .replaceAll("\\\\\"","\"");
 
                             assignValue();
                         });
@@ -143,7 +135,7 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
         RenderUtil.edges = edges;
         RenderUtil.type = type;
 
-        if(toEdit != null) {
+        if(toEdit == -1) {
             //todo
         }
         else {

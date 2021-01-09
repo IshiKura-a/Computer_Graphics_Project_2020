@@ -20,4 +20,16 @@ public class ColorUtil {
         Log.i("Parse", r+":"+g+":"+b+":"+a);
         return new float[]{r, g, b, a};
     }
+
+    public static String parseFloat(float[] rgba) {
+        int r = (int)(rgba[0] * 255) % 256;
+        int g = (int)(rgba[1] * 255) % 256;
+        int b = (int)(rgba[2] * 255) % 256;
+        int a = (int)(rgba[3] * 255) % 256;
+
+        String res = String.format("#%02X%02X%02X%02X", r,g,b,a);
+        Log.i("Parse", r+":"+g+":"+b+":"+a);
+        Log.i("Parse", res);
+        return res;
+    }
 }

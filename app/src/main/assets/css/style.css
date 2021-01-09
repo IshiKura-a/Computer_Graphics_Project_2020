@@ -1,0 +1,30 @@
+h3 {
+    text-align: center;
+    color: white;
+    background: black;
+}
+
+.ColorDisplayer {
+    display: flex;
+    flex-direction: row;
+}
+
+.ColorDisplayer>.show {
+    border: 2px solid;
+    width: 50px;
+    height: 18px;
+}
+
+.SpecialParams {
+    display: flex;
+    flex-direction: column;
+}
+
+input {
+    width: 80px;
+}
+
+.Texture>.TextureImg {
+    text-align: center;
+    border: 2px solid;
+}

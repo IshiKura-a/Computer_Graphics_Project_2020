@@ -13,8 +13,8 @@ public class Observe {
             .setRight(1)
             .setTop(1)
             .setBottom(-1)
-            .setNear(3)
-            .setFar(20)
+            .setNear(2f)
+            .setFar(1000f)
             .setRatio(1200, 2313);
     private static Projection ortho = new Ortho().setLeft(-3)
             .setRight(3)

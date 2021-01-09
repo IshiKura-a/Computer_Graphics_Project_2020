@@ -19,4 +19,5 @@ public class RenderUtil {
     public static String path;
     public static float fraction;
     public static int edges;
+    public static int texture;
 }

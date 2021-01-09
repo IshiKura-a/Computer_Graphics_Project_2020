@@ -66,11 +66,14 @@ public class ObjectRecyclerAdapter extends RecyclerView.Adapter<ObjectRecyclerAd
             else if(shape.getType() == ShapeType.PYRAMID) {
                 objectIcon.setImageDrawable(v.getResources().getDrawable(R.drawable.pyramid));
             }
+            else if(shape.getType() == ShapeType.FRUSTUM) {
+                objectIcon.setImageDrawable(v.getResources().getDrawable(R.drawable.frustum));
+            }
             else {
                 objectIcon.setImageDrawable(v.getResources().getDrawable(R.drawable.shape));
             }
 
-            objectIndex.setText("#"+(position+1)+" "+shape.getType().getName());
+            objectIndex.setText("#"+position+" "+shape.getType().getName());
             objectIndex.setTypeface(FontUtil.gillSans);
             isChosen.setOnCheckedChangeListener((btn, flag) -> {
                 shape.setChosen(flag);
@@ -88,11 +91,6 @@ public class ObjectRecyclerAdapter extends RecyclerView.Adapter<ObjectRecyclerAd
                 contentView.setOnLongClickListener(listener);
             }
         }
-    }
-
-
-    public void removeData(int position) {
-        // todo
     }
 
     public void setOnItemClickListener(ObjectOnItemClickListener listener) {
@@ -138,5 +136,24 @@ public class ObjectRecyclerAdapter extends RecyclerView.Adapter<ObjectRecyclerAd
         void onItemCLick(int position, Shape shape);
 
         void onItemLongCLick(int position, Shape shape);
+    }
+
+    public void remove(int position) {
+        if (null != mShapes && mShapes.size() > position) {
+            mShapes.remove(position);
+            notifyItemRemoved(position);
+            if (position != mShapes.size()) {
+                //刷新改变位置item下方的所有Item的位置,避免索引错乱
+                notifyItemRangeChanged(position, mShapes.size() - position);
+            }
+        }
+    }
+
+    public void add(int position) {
+        notifyItemInserted(position);
+        if (position != mShapes.size()) {
+            //刷新改变位置item下方的所有Item的位置,避免索引错乱
+            notifyItemRangeChanged(position, mShapes.size() - position);
+        }
     }
 }
