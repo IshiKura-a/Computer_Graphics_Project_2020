@@ -16,12 +16,21 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class Cylinder extends Shape {
     private float vertex[];
+    private Circle top;
+    private Circle bottom;
     public Cylinder(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
+        float height=1f;
+        float radius=1f;
+        float[] basetop=new float[base.length];
+        basetop[0]=base[0];
+        basetop[1]=base[1];
+        basetop[2]=base[2]-height;
+        basetop[3]=base[3];
+        top=new Circle(basetop,shape,dir,rgba,mtl,1);
+        bottom=new Circle(base,shape,dir,rgba,mtl,0);
         color = rgba.clone();
         method = DrawMethod.STRIPE;
         this.mtl = mtl;
-        float height=1f;
-        float radius=1f;
         setRotateX(90 + dir[0]);
         setRotateY(dir[1]);
         setRotateZ(dir[2]);
@@ -53,7 +62,7 @@ public class Cylinder extends Shape {
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-            pos.add(base[2]+height);
+            pos.add(base[2]-height);
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
             pos.add(base[2]);
@@ -136,14 +145,42 @@ public class Cylinder extends Shape {
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
+    public void setRotateX(float rotateX) {
+        this.rotateX = rotateX;
+        top.rotateX=rotateX;
+        bottom.rotateX=rotateX;
+    }
+
+    public void setRotateY(float rotateY) {
+        this.rotateY = rotateY;
+        top.rotateY=rotateY;
+        bottom.rotateY=rotateY;
+    }
+
+    public void setRotateZ(float rotateZ) {
+        this.rotateZ = rotateZ;
+        top.rotateZ=rotateZ;
+        bottom.rotateZ=rotateZ;
+    }
+    public void setTextureUsed(ArrayList<Integer> textureUsed) {
+        top.setTextureUsed(textureUsed);
+        bottom.setTextureUsed(textureUsed);
+        enableTexture();
+        this.textureUsed.clear();
+        this.textureUsed.addAll(textureUsed);
+        updateTexture();
+    }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         updateTexture();
+        top.onSurfaceCreated(gl,config);
+        bottom.onSurfaceCreated(gl, config);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        top.onDrawFrame(gl);
+        bottom.onDrawFrame(gl);
         GLES20.glUseProgram(mProgram);
 
         // get uniform handlers

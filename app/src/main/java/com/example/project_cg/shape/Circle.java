@@ -20,7 +20,9 @@ public class Circle extends Shape {
     private float normalX;
     private float normalY;
     private float normalZ;
-    public Circle(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
+    private int top;
+    public Circle(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int top) {
+        this.top=top;
         color = rgba.clone();
         method = DrawMethod.FAN;
         float radius=1f;
@@ -233,8 +235,17 @@ public class Circle extends Shape {
         float vector2Y=vertex[Index2*3+1]-vertex[1];
         float vector2Z=vertex[Index2*3+2]-vertex[2];
 
-        normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
-        normalY=(vector1Z*vector2X-vector1X*vector2Z);
-        normalZ=(vector1X*vector2Y-vector1Y*vector2X);
+        if(top==0)
+        {
+            normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
+            normalY=-(vector1Z*vector2X-vector1X*vector2Z);
+            normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
+        }
+        else
+        {
+            normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
+            normalY=(vector1Z*vector2X-vector1X*vector2Z);
+            normalZ=(vector1X*vector2Y-vector1Y*vector2X);
+        }
     }
 }

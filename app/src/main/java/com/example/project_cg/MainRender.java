@@ -9,11 +9,16 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.project_cg.shape.Ball;
+import com.example.project_cg.shape.Cone;
+import com.example.project_cg.shape.Cylinder;
+import com.example.project_cg.shape.Frustum;
 import com.example.project_cg.shape.Model;
 import com.example.project_cg.shape.MtlInfo;
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shape.Cube;
+import com.example.project_cg.shape.Prism;
+import com.example.project_cg.shape.Pyramid;
 import com.example.project_cg.shape.Shape;
 import com.example.project_cg.shape.ShapeType;
 import com.example.project_cg.texture.TextureManager;
@@ -58,8 +63,9 @@ public class MainRender implements Renderer {
 
         MtlInfo tmpMtl = new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
                 new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 100);
-        shapes.add(new Cube(new float[]{0, -10, 0, 1}, new float[]{3, 2, 1, 1}, new float[]{0, 0, 0},
+        shapes.add(new Cylinder(new float[]{0, 0, 0, 1}, new float[]{1, 1, 1, 1}, new float[]{0, 0, 0},
                 new float[]{1, 0, 0, 1}, tmpMtl));
+
 
 
         try {
@@ -88,11 +94,11 @@ public class MainRender implements Renderer {
 
         ArrayList<Integer> al = new ArrayList<>();
         al.add(0);
-        shapes.get(0).setTextureUsed(al);
+       // shapes.get(0).setTextureUsed(al);
 
         ArrayList<Integer> a2 = new ArrayList<>();
         a2.add(2);
-        shapes.get(1).setTextureUsed(a2);
+        //shapes.get(1).setTextureUsed(a2);
 
         flushScreen(gl, config);
     }
@@ -114,9 +120,9 @@ public class MainRender implements Renderer {
 
             // Observe.getLightList().get(0).setLocation(new float[]{-20 + 0.1f * (cnt % 360), 5, 5, 1});
 
-            shapes.get(0).setRotateX(cnt % 360);
-            shapes.get(1).setRotateX(cnt % 360);
-            shapes.get(1).setRotateY(cnt % 360);
+            //shapes.get(0).setRotateX(cnt % 360);
+            //shapes.get(1).setRotateX(cnt % 360);
+           // shapes.get(1).setRotateY(cnt % 360);
             shapes.get(2).setRotateY(cnt % 360);
 
             if(used == 1) {

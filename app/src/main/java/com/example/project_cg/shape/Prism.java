@@ -16,7 +16,16 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class Prism extends Shape {
     private float vertex[];
+    private Prismbottom top;
+    private Prismbottom bottom;
     public Prism(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int edge) {
+        float[] basetop=new float[base.length];
+        basetop[0]=base[0];
+        basetop[1]=base[1];
+        basetop[2]=base[2]-1.0f;
+        basetop[3]=base[3];
+        top=new Prismbottom(basetop,shape,dir,rgba,mtl,edge,1);
+        bottom=new Prismbottom(base,shape,dir,rgba,mtl,edge,0);
         color = rgba.clone();
         method = DrawMethod.STRIPE;
         this.mtl = mtl;
@@ -53,7 +62,7 @@ public class Prism extends Shape {
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-            pos.add(base[2]+height);
+            pos.add(base[2]-height);
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
             pos.add(base[2]);
@@ -66,19 +75,30 @@ public class Prism extends Shape {
         int vSize=vertex.length/3;
 
         ArrayList<Float> tex=new ArrayList<>();
-        for(int j=0;j<3;j+=1)
-        {
-            for(float i=0;i<360;i+=18){
-                tex.add((float) ((i)/360));
-                tex.add((float)(1));
-                tex.add((float) ((i)/360));
-                tex.add((float)(0));
-            }
-        }
-        tex.add(1f);
-        tex.add(1f);
+        tex.add(0f);
         tex.add(1f);
         tex.add(0f);
+        tex.add(0f);
+        int flag=0;
+        for(int i=0;i<edge;i+=1)
+        {
+            if(flag==0)
+            {
+                flag=1;
+                tex.add(1f);
+                tex.add(1f);
+                tex.add(1f);
+                tex.add(0f);
+            }
+            else
+            {
+                flag=0;
+                tex.add(0f);
+                tex.add(1f);
+                tex.add(0f);
+                tex.add(0f);
+            }
+        }
         float[] texture = new float[tex.size()];
         for (int i=0;i<texture.length;i++)
         {
@@ -136,14 +156,43 @@ public class Prism extends Shape {
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
+    public void setRotateX(float rotateX) {
+        this.rotateX = rotateX;
+        top.rotateX=rotateX;
+        bottom.rotateX=rotateX;
+    }
+
+    public void setRotateY(float rotateY) {
+        this.rotateY = rotateY;
+        top.rotateY=rotateY;
+        bottom.rotateY=rotateY;
+    }
+
+    public void setRotateZ(float rotateZ) {
+        this.rotateZ = rotateZ;
+        top.rotateZ=rotateZ;
+        bottom.rotateZ=rotateZ;
+    }
+    public void setTextureUsed(ArrayList<Integer> textureUsed) {
+        top.setTextureUsed(textureUsed);
+        bottom.setTextureUsed(textureUsed);
+        enableTexture();
+        this.textureUsed.clear();
+        this.textureUsed.addAll(textureUsed);
+        updateTexture();
+    }
+
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        top.onSurfaceCreated(gl,config);
+        bottom.onSurfaceCreated(gl, config);
         updateTexture();
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        top.onDrawFrame(gl);
+        bottom.onDrawFrame(gl);
         GLES20.glUseProgram(mProgram);
 
         // get uniform handlers

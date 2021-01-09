@@ -19,8 +19,8 @@ public class Prismbottom extends Shape {
     private float normalX;
     private float normalY;
     private float normalZ;
-
-    public Prismbottom(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int edge) {
+    private int top;
+    public Prismbottom(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int edge,int top) {
         color = rgba.clone();
         method = DrawMethod.FAN;
         this.mtl = mtl;
@@ -111,17 +111,17 @@ public class Prismbottom extends Shape {
             normalTmp.add(normalY);
             normalTmp.add(normalZ);
         }
-        float normal[]=new float[normalTmp.size()];
-        for(int i=0;i<normal.length;i++)
-        {
-            normal[i]=normalTmp.get(i);
-        }
+        normalCalculate(1,2);
+        float normal[]=new float[3];
+        normal[0]=normalX;
+        normal[1]=normalY;
+        normal[2]=normalZ;
 
         vertexBuffer = ByteBuffer.allocateDirect(vertex.length /3*4*4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
 
-        normalBuffer = ByteBuffer.allocateDirect(normal.length/3*4*4)
+        normalBuffer = ByteBuffer.allocateDirect(16)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
 
@@ -166,7 +166,6 @@ public class Prismbottom extends Shape {
     }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         updateTexture();
     }
 
@@ -243,8 +242,17 @@ public class Prismbottom extends Shape {
         float vector2X=vertex[Index2*3]-vertex[0];
         float vector2Y=vertex[Index2*3+1]-vertex[1];
         float vector2Z=vertex[Index2*3+2]-vertex[2];
-        normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
-        normalY=(vector1Z*vector2X-vector1X*vector2Z);
-        normalZ=(vector1X*vector2Y-vector1Y*vector2X);
+        if(top==0)
+        {
+            normalX=0;
+            normalY=0;
+            normalZ=-1;
+        }
+        else
+        {
+            normalX=0;
+            normalY=0;
+            normalZ=1;
+        }
     }
 }

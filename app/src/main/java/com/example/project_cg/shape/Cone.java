@@ -20,7 +20,9 @@ public class Cone extends Shape {
     private float normalX;
     private float normalY;
     private float normalZ;
+    private Circle a;
     public Cone(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
+        a=new Circle(base,shape,dir,rgba,mtl,0);
         color = rgba.clone();
         method = DrawMethod.FAN;
         float height=1f;
@@ -57,7 +59,7 @@ public class Cone extends Shape {
         ArrayList<Float> pos=new ArrayList<>();
         pos.add(base[0]);
         pos.add(base[1]);
-        pos.add(base[2]+height);
+        pos.add(base[2]-height);
         float angDegSpan=360f/60;
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
@@ -154,14 +156,36 @@ public class Cone extends Shape {
         GLES20.glLinkProgram(mProgram);
     }
 
+    public void setRotateX(float rotateX) {
+        this.rotateX = rotateX;
+        a.rotateX=rotateX;
+    }
+
+    public void setRotateY(float rotateY) {
+        this.rotateY = rotateY;
+        a.rotateY=rotateY;
+    }
+
+    public void setRotateZ(float rotateZ) {
+        this.rotateZ = rotateZ;
+        a.rotateZ=rotateZ;
+    }
+    public void setTextureUsed(ArrayList<Integer> textureUsed) {
+        a.setTextureUsed(textureUsed);
+        enableTexture();
+        this.textureUsed.clear();
+        this.textureUsed.addAll(textureUsed);
+        updateTexture();
+    }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         updateTexture();
+        a.onSurfaceCreated(gl,config);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        a.onDrawFrame(gl);
         GLES20.glUseProgram(mProgram);
 
         // get uniform handlers
@@ -235,8 +259,8 @@ public class Cone extends Shape {
         float vector2Y=vertex[Index2*3+1]-vertex[1];
         float vector2Z=vertex[Index2*3+2]-vertex[2];
 
-        normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
-        normalY=-(vector1Z*vector2X-vector1X*vector2Z);
-        normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
+        normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
+        normalY=(vector1Z*vector2X-vector1X*vector2Z);
+        normalZ=(vector1X*vector2Y-vector1Y*vector2X);
     }
 }

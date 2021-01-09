@@ -19,8 +19,9 @@ public class Pyramid extends Shape {
     private float normalX;
     private float normalY;
     private float normalZ;
-
+    private Prismbottom a;
     public Pyramid(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, int edge) {
+        a=new Prismbottom(base,shape,dir,rgba,mtl,edge,0);
         color = rgba.clone();
         method = DrawMethod.FAN;
         this.mtl = mtl;
@@ -57,7 +58,7 @@ public class Pyramid extends Shape {
         ArrayList<Float> pos=new ArrayList<>();
         pos.add(base[0]);
         pos.add(base[1]);
-        pos.add(base[2]+height);
+        pos.add(base[2]-height);
         float angDegSpan=360f/edge;
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
@@ -162,14 +163,36 @@ public class Pyramid extends Shape {
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
+    public void setRotateX(float rotateX) {
+        this.rotateX = rotateX;
+        a.rotateX=rotateX;
+    }
+
+    public void setRotateY(float rotateY) {
+        this.rotateY = rotateY;
+        a.rotateY=rotateY;
+    }
+
+    public void setRotateZ(float rotateZ) {
+        this.rotateZ = rotateZ;
+        a.rotateZ=rotateZ;
+    }
+    public void setTextureUsed(ArrayList<Integer> textureUsed) {
+        a.setTextureUsed(textureUsed);
+        enableTexture();
+        this.textureUsed.clear();
+        this.textureUsed.addAll(textureUsed);
+        updateTexture();
+    }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        a.onSurfaceCreated(gl,config);
         updateTexture();
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        a.onDrawFrame(gl);
         GLES20.glUseProgram(mProgram);
 
         // get uniform handlers
@@ -241,8 +264,8 @@ public class Pyramid extends Shape {
         float vector2X=vertex[Index2*3]-vertex[0];
         float vector2Y=vertex[Index2*3+1]-vertex[1];
         float vector2Z=vertex[Index2*3+2]-vertex[2];
-        normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
-        normalY=-(vector1Z*vector2X-vector1X*vector2Z);
-        normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
+        normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
+        normalY=(vector1Z*vector2X-vector1X*vector2Z);
+        normalZ=(vector1X*vector2Y-vector1Y*vector2X);
     }
 }
