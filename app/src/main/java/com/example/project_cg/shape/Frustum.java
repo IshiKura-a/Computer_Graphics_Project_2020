@@ -19,8 +19,12 @@ public class Frustum extends Shape {
     private float normalX;
     private float normalY;
     private float normalZ;
+    private int edge;
+    private float fraction;
 
     public Frustum(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float fraction,int edge) {
+        this.fraction = fraction;
+        this.edge = edge;
         color = rgba.clone();
         method = DrawMethod.STRIPE;
         type = ShapeType.FRUSTUM;
@@ -237,5 +241,13 @@ public class Frustum extends Shape {
         normalX=vector1Y*vector2Z-vector2Y*vector1Z;
         normalY=vector1Z*vector2X-vector1X*vector2Z;
         normalZ=vector1X*vector2Y-vector1Y*vector2X;
+    }
+
+    public int getEdge() {
+        return edge;
+    }
+
+    public float getFraction() {
+        return fraction;
     }
 }

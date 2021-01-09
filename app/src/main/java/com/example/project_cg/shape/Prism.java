@@ -16,7 +16,9 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class Prism extends Shape {
     private float vertex[];
+    private int edge;
     public Prism(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int edge) {
+        this.edge = edge;
         color = rgba.clone();
         method = DrawMethod.STRIPE;
         type = ShapeType.PRISM;
@@ -207,5 +209,9 @@ public class Prism extends Shape {
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertex.length / 3);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
+    }
+
+    public int getEdge() {
+        return edge;
     }
 }

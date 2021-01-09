@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="../css/style.css" rel="stylesheet">
+    <script type="text/javascript" src="../js/formatter.js"></script>
+</head>
+
+<body>
+    <div class="BasicSetting">
+        <h3>
+            Basic Settings
+        </h3>
+
+        <div class="GlobalParams">
+            <div class="Base">
+                Base: X:
+                <input id="baseX" type="text" onkeyup="checkFloat('baseX')" value=0 /> Y:
+                <input id="baseY" type="text" onkeyup="checkFloat('baseY')" value=0 /> Z:
+                <input id="baseZ" type="text" onkeyup="checkFloat('baseZ')" value=0 />
+            </div>
+            <p></p>
+            <div class="Rotate">
+                Rotate: X:
+                <input id="rotateX" type="text" onkeyup="checkFloat('rotateX')" value=0 /> Y:
+                <input id="rotateY" type="text" onkeyup="checkFloat('rotateY')" value=0 /> Z:
+                <input id="rotateZ" type="text" onkeyup="checkFloat('rotateZ')" value=0 />
+            </div>
+            <p></p>
+            <div class="ColorDisplayer">
+                Color(RGBA):
+                <input id="color" type="text" onkeyup="checkRGBA('color', 'colorDisplayer');" value="#FFFFFFFF" />
+                <div id="colorDisplayer" class="show" style="background: #FFFFFFFF"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="SpecialParams">
+        <div class="Width" style="display: inline;">
+            <p></p>
+            Width:
+            <input id="width" type="text" onkeyup="checkFloat('width')" value=1 />
+        </div>
+        <div class="Length" style="display: inline;">
+            <p></p>
+            Length:
+            <input id="length" type="text" onkeyup="checkFloat('length')" value=1 />
+        </div>
+        <div class="Height" style="display: inline;">
+            <p></p>
+            Height:
+            <input id="height" type="text" onkeyup="checkFloat('height')" value=1 />
+        </div>
+    </div>
+
+    <div class="MtlInfo">
+        <h3>
+            MtlInfo
+        </h3>
+        <div class="ColorDisplayer">
+            Ambient(RGBA):
+            <input id="ambient" type="text" onkeyup="checkRGBA('ambient', 'ambientDisplayer');" value="#333333FF" />
+            <div id="ambientDisplayer" class="show" style="background: #333333FF"></div>
+        </div>
+        <p></p>
+        <div class="ColorDisplayer">
+            Diffuse(RGBA):
+            <input id="diffuse" type="text" onkeyup="checkRGBA('diffuse', 'diffuseDisplayer');" value="#CCCCCCFF" />
+            <div id="diffuseDisplayer" class="show" style="background: #CCCCCCFF"></div>
+        </div>
+        <p></p>
+        <div class="ColorDisplayer">
+            Specular(RGBA):
+            <input id="specular" type="text" onkeyup="checkRGBA('specular', 'specularDisplayer');" value="#A6A6A6FF" />
+            <div id="specularDisplayer" class="show" style="background: #A6A6A6FF"></div>
+        </div>
+        <p>
+            Shininess:
+            <input id="shininess" type="text" onkeyup="checkFloat('shininess')" value=100 />
+        </p>
+    </div>
+
+    <div class="Texture">
+        <h3>
+            Texture
+        </h3>
+        Texture:
+        <select id="textureSelector" choose="NotUsed">
+            <option value="NotUsed">Not Used</option>
+        </select>
+        <p></p>
+        <div class="TextureImg">
+            <img src="" />
+        </div>
+    </div>
+</body>
+
+</html>

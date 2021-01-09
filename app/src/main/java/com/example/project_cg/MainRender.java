@@ -129,10 +129,16 @@ public class MainRender implements Renderer {
 
             // Observe.getLightList().get(0).setLocation(new float[]{-20 + 0.1f * (cnt % 360), 5, 5, 1});
 
-            shapes.get(0).setRotateX(cnt % 360);
-            shapes.get(1).setRotateX(cnt % 360);
-            shapes.get(1).setRotateY(cnt % 360);
-            // shapes.get(2).setRotateY(cnt % 360);
+            if(shapes.size() > 0) {
+                shapes.get(0).setRotateX(cnt % 360);
+            }
+            if(shapes.size() > 1) {
+                shapes.get(1).setRotateX(cnt % 360);
+                shapes.get(1).setRotateY(cnt % 360);
+            }
+            if(shapes.size() > 2) {
+                shapes.get(2).setRotateY(cnt % 360);
+            }
 
             if(used == 1) {
                 if (RenderUtil.type == ShapeType.CUBE) {
@@ -200,7 +206,6 @@ public class MainRender implements Renderer {
                                 Bitmap.Config.RGB_565);
                         bitmap.setPixels(pixelsBuffer, screenshotSize - width, -width, 0,
                                 0, width, height);
-                        pixelsBuffer = null;
 
                         short sBuffer[] = new short[screenshotSize];
                         ShortBuffer sb = ShortBuffer.wrap(sBuffer);
@@ -242,5 +247,9 @@ public class MainRender implements Renderer {
 
     public void addShape() {
         used++;
+    }
+
+    public boolean addDone() {
+        return used == 0;
     }
 }

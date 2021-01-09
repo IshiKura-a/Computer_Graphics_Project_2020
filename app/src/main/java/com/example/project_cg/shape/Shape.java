@@ -150,4 +150,32 @@ public abstract class Shape {
     public void setChosen(boolean chosen) {
         isChosen = chosen;
     }
+
+    public float[] getBasePara() {
+        return basePara;
+    }
+
+    public float getRotateX() {
+        return rotateX;
+    }
+
+    public float getRotateY() {
+        return rotateY;
+    }
+
+    public float getRotateZ() {
+        return rotateZ;
+    }
+
+    public float[] getColor() {
+        return color;
+    }
+
+    public float[] getShapePara() {
+        return shapePara;
+    }
+
+    public MtlInfo getMtl() {
+        return mtl;
+    }
 }

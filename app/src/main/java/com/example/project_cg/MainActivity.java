@@ -29,6 +29,8 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.example.project_cg.asynctask.CheckStorage;
+import com.example.project_cg.dialog.ShapeDialog;
+import com.example.project_cg.html.HTMLManager;
 import com.example.project_cg.layout.LightRecyclerAdapter;
 import com.example.project_cg.layout.LinearItemDecoration;
 import com.example.project_cg.layout.ObjectRecyclerAdapter;
@@ -199,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
 
         ShaderMap.readShaders(getApplicationContext());
         TextureManager.readTextures(getApplicationContext());
+        HTMLManager.readHTMLs(getApplicationContext());
 
         FontUtil.init(this);
 
@@ -227,11 +230,14 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
 
     @Override
     public void onItemCLick(int position, Shape shape) {
-        Toast.makeText(this, "object"+(position+1), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Edit Object "+ position, Toast.LENGTH_SHORT).show();
+        ShapeDialog.displayDialog(this, position);
     }
 
     @Override
     public void onItemLongCLick(int position, Shape shape) {
+        Toast.makeText(this, "Delete Object "+ position, Toast.LENGTH_SHORT).show();
+        mObjectRecyclerAdapter.remove(position);
         // do nothing
     }
 
@@ -272,5 +278,9 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void notifyObjectsChanged(int position) {
+        mObjectRecyclerAdapter.add(position);
     }
 }

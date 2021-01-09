@@ -15,6 +15,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class Pyramid extends Shape {
+    private int edge;
     private float vertex[];
     private float normalX;
     private float normalY;
@@ -245,5 +246,9 @@ public class Pyramid extends Shape {
         normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
         normalY=-(vector1Z*vector2X-vector1X*vector2Z);
         normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
+    }
+
+    public int getEdge() {
+        return edge;
     }
 }
