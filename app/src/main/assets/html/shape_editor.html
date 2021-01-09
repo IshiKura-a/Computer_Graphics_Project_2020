@@ -14,13 +14,13 @@
     <div class="Selector">
         Type:
         <select id="typeSelector" onchange="onChange('typeSelector')" choose="Cube">
-            <option value="Cube">Cube</option>
-            <option value="Ball">Ball</option>
-            <option value="Cone">Cone</option>
-            <option value="Cylinder">Cylinder</option>
-            <option value="Prism">Prism</option>
-            <option value="Pyramid">Pyramid</option>
-            <option value="Frustum">Frustum</option>
+            <option id="cube" value="Cube">Cube</option>
+            <option id="ball" value="Ball">Ball</option>
+            <option id="cone" value="Cone">Cone</option>
+            <option id="cylinder" value="Cylinder">Cylinder</option>
+            <option id="prism" value="Prism">Prism</option>
+            <option id="pyramid" value="Pyramid">Pyramid</option>
+            <option id="frustum" value="Frustum">Frustum</option>
         </select>
     </div>
     <p></p>
@@ -109,12 +109,12 @@
         Texture
     </h3>
     Texture:
-    <select id="textureSelector" choose="NotUsed">
-        <option value="NotUsed">Not Used</option>
+    <select id="textureSelector" choose="NotUsed" onchange="updateTexture('textureSelector', 'texture')">
+        <option id="NotUsed" value="NotUsed">Not Used</option>
     </select>
     <p></p>
     <div class="TextureImg">
-        <img src="" />
+        <img id="texture" src="" height="100dp" />
     </div>
 </div>
 </body>

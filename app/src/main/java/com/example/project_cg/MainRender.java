@@ -21,6 +21,7 @@ import com.example.project_cg.shape.Prism;
 import com.example.project_cg.shape.Pyramid;
 import com.example.project_cg.shape.Shape;
 import com.example.project_cg.shape.ShapeType;
+import com.example.project_cg.texture.Texture;
 import com.example.project_cg.texture.TextureManager;
 import com.example.project_cg.util.RenderUtil;
 import com.example.project_cg.util.ScreenShotUtil;
@@ -45,9 +46,10 @@ import javax.microedition.khronos.opengles.GL10;
 
 
 public class MainRender implements Renderer {
+    int cnt = 250;
     private LinkedList<Shape> shapes = new LinkedList<>();
     int inc = 0;
-    int cnt= 250;
+    private MainActivity activity;
     int dir = 2;
     int used = 0;
 
@@ -55,8 +57,34 @@ public class MainRender implements Renderer {
         System.loadLibrary("MainRender");
     }
 
+    public MainRender(MainActivity activity) {
+        this.activity = activity;
+    }
+
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        TextureManager.readTextures(activity);
+        synchronized (TextureManager.bitmapBuffer) {
+            while(TextureManager.bitmapBuffer.size() > 0) {
+                Texture texture = TextureManager.bitmapBuffer.removeFirst();
+
+                if (TextureManager.cnt >= 32) throw new IndexOutOfBoundsException("Exceed maximum texture counts!");
+
+                int[] tmp = new int[1];
+                GLES20.glGenTextures(1, TextureManager.textureIds, TextureManager.cnt);
+                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, TextureManager.textureIds[TextureManager.cnt]);
+
+                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_MIRRORED_REPEAT);
+                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_MIRRORED_REPEAT);
+
+                GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, texture.getBitmap(), 0);
+                TextureManager.textureNames[TextureManager.cnt] = texture.getName();
+                TextureManager.textureNameMap.put(texture.getName(), TextureManager.cnt++);
+                texture.getBitmap().recycle();
+            }
+        }
         // Observe.getCamera().setEye(0,5, 15, 1);
         Observe.setOrtho(false);
         Observe.getLightList().add(new Light()
@@ -79,7 +107,7 @@ public class MainRender implements Renderer {
             model.setColor(new float[]{0.9f, 0.1f, 0.3f, 1.0f});
             model.setBasePara(new float[]{0, -5, 0, 1});
             model.setShapePara(new float[]{1, 1, 1, 1});
-            model.setRotateY(-90);
+            // model.setRotateX(90);
             shapes.add(model);
 
 
@@ -101,11 +129,11 @@ public class MainRender implements Renderer {
             e.printStackTrace();
         }
 
-        ArrayList<Integer> al = new ArrayList<>();
+        LinkedList<Integer> al = new LinkedList<>();
         al.add(0);
         shapes.get(0).setTextureUsed(al);
 
-        ArrayList<Integer> a2 = new ArrayList<>();
+        LinkedList<Integer> a2 = new LinkedList<>();
         a2.add(2);
         shapes.get(1).setTextureUsed(a2);
 
@@ -124,6 +152,26 @@ public class MainRender implements Renderer {
     @SuppressLint("StaticFieldLeak")
     @Override
     public void onDrawFrame(GL10 gl) {
+        synchronized (TextureManager.bitmapBuffer) {
+            while(TextureManager.bitmapBuffer.size() > 0) {
+                Texture texture = TextureManager.bitmapBuffer.removeFirst();
+
+                if (TextureManager.cnt >= 32) throw new IndexOutOfBoundsException("Exceed maximum texture counts!");
+
+                GLES20.glGenTextures(1, TextureManager.textureIds, cnt);
+                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, TextureManager.textureIds[cnt]);
+
+                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_MIRRORED_REPEAT);
+                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_MIRRORED_REPEAT);
+
+                GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, texture.getBitmap(), 0);
+                TextureManager.textureNames[cnt] = texture.getName();
+                TextureManager.textureNameMap.put(texture.getName(), cnt++);
+            }
+        }
+
         synchronized (Observe.getCamera()) {
             onDrawFrameCPP();
 
@@ -133,28 +181,29 @@ public class MainRender implements Renderer {
                 shapes.get(0).setRotateX(cnt % 360);
             }
             if(shapes.size() > 1) {
-                shapes.get(1).setRotateX(cnt % 360);
-                shapes.get(1).setRotateY(cnt % 360);
+                //shapes.get(1).setRotateX(cnt % 360);
+                //shapes.get(1).setRotateY(cnt % 360);
             }
             if(shapes.size() > 2) {
-                shapes.get(2).setRotateY(cnt % 360);
+                //shapes.get(2).setRotateY(cnt % 360);
             }
 
             if(used == 1) {
+                Shape s = null;
                 if (RenderUtil.type == ShapeType.CUBE) {
-                    shapes.add(new Cube(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
+                    shapes.add(s = new Cube(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
                 } else if (RenderUtil.type == ShapeType.BALL) {
-                    shapes.add(new Ball(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
+                    shapes.add(s = new Ball(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
                 } else if (RenderUtil.type == ShapeType.CONE) {
-                    shapes.add(new Cone(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
+                    shapes.add(s = new Cone(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
                 } else if (RenderUtil.type == ShapeType.CYLINDER) {
-                    shapes.add(new Cylinder(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
+                    shapes.add(s = new Cylinder(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo));
                 } else if (RenderUtil.type == ShapeType.PRISM) {
-                    shapes.add(new Prism(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo, RenderUtil.edges));
+                    shapes.add(s = new Prism(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo, RenderUtil.edges));
                 } else if (RenderUtil.type == ShapeType.PYRAMID) {
-                    shapes.add(new Pyramid(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo, RenderUtil.edges));
+                    shapes.add(s = new Pyramid(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo, RenderUtil.edges));
                 } else if (RenderUtil.type == ShapeType.FRUSTUM) {
-                    shapes.add(new Frustum(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo,
+                    shapes.add(s = new Frustum(RenderUtil.base, RenderUtil.shape, RenderUtil.dir, RenderUtil.color, RenderUtil.mtlInfo,
                             RenderUtil.fraction, RenderUtil.edges));
                 } else if (RenderUtil.type == ShapeType.MODEL) {
                     BufferedReader br = null;
@@ -164,16 +213,27 @@ public class MainRender implements Renderer {
                         e.printStackTrace();
                     }
 
-                    Model model = Model.readObject(new Model(), br);
-                    model.setMtl(RenderUtil.mtlInfo);
-                    model.setColor(RenderUtil.color);
-                    model.setBasePara(RenderUtil.base);
-                    model.setShapePara(RenderUtil.shape);
-                    model.setRotateX(RenderUtil.dir[0]);
-                    model.setRotateY(RenderUtil.dir[1]-90);
-                    model.setRotateZ(RenderUtil.dir[2]);
-                    shapes.add(model);
+                    s = Model.readObject(new Model(), br);
+                    s.setMtl(RenderUtil.mtlInfo);
+                    s.setColor(RenderUtil.color);
+                    s.setBasePara(RenderUtil.base);
+                    s.setShapePara(RenderUtil.shape);
+                    s.setRotateX(RenderUtil.dir[0]);
+                    s.setRotateY(RenderUtil.dir[1] - 90);
+                    s.setRotateZ(RenderUtil.dir[2]);
+                    shapes.add(s);
                 }
+
+                if (s != null) {
+                    if (RenderUtil.texture == -1) {
+                        s.disableTexture();
+                    } else {
+                        LinkedList<Integer> tmp = new LinkedList<>();
+                        tmp.add(RenderUtil.texture);
+                        s.setTextureUsed(tmp);
+                    }
+                }
+
                 used--;
             }
 

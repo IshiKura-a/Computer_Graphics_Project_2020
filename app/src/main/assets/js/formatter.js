@@ -78,3 +78,21 @@ function onChange(id) {
         alert("Not Match");
     }
 }
+
+function updateTexture(idx, idy) {
+    let selector = document.getElementById(idx);
+    let displayer = document.getElementById(idy)
+    let index = selector.selectedIndex;
+    let val = selector.options[index].value;
+
+    selector.setAttribute("choose", val);
+    if (val.match(/^(NotUsed)$/g)) {
+        displayer.setAttribute("src", "");
+    }
+    else if (val.match(/^.*\.bmp$/g)) {
+        displayer.setAttribute("src", "../bmp/" + val);
+    }
+    else if (val.match(/^.*\.png$/g)) {
+        displayer.setAttribute("src", "../png/" + val);
+    }
+}

@@ -10,9 +10,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -20,6 +23,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileUtils;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -46,6 +51,7 @@ import com.example.project_cg.shape.ShapeType;
 import com.example.project_cg.texture.TextureManager;
 import com.example.project_cg.util.FontUtil;
 import com.example.project_cg.util.RenderUtil;
+import com.example.project_cg.util.RequestUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -210,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
         mGlSurfaceView = findViewById(R.id.glSurfaceView);
 
         while(ShaderMap.get("object", ShaderType.FRAG) == null);
-        mRender = new MainRender();
+        mRender = new MainRender(this);
         mGlSurfaceView.setEGLContextClientVersion(2);
         mGlSurfaceView.setRenderer(mRender);
 
@@ -231,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
     @Override
     public void onItemCLick(int position, Shape shape) {
         Toast.makeText(this, "Edit Object "+ position, Toast.LENGTH_SHORT).show();
-        ShapeDialog.displayDialog(this, position);
+        if (shape.getType() != ShapeType.MODEL) ShapeDialog.displayDialog(this, position);
     }
 
     @Override
@@ -253,14 +259,13 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
     @SuppressLint("StaticFieldLeak")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == 0) {
-            if (resultCode == RESULT_OK) {
-                // Get the Uri of the selected file
-                try {
+        if (resultCode == RESULT_OK) {
+            try {
+                if (requestCode == RequestUtil.REQUEST_OBJ) {
+                    // Get the Uri of the selected file
                     String path = Environment.getExternalStorageDirectory().getCanonicalPath()
                             + "/" + data.getData().getPath().split(":", 2)[1];
-                    Log.i("Select", path);
-
+                    Log.i("Request File", path);
                     if (path.matches(".*\\.(obj)")) {
                         RenderUtil.type = ShapeType.MODEL;
                         RenderUtil.mtlInfo = new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
@@ -272,9 +277,16 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
                         RenderUtil.path = path;
                         mRender.addShape();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+
+                } else if (requestCode == RequestUtil.REQUEST_PNG) {
+                    Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(data.getData()));
+
+                    FileOutputStream fos = new FileOutputStream("file://android_asset/png/tmp.png");
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.close();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         super.onActivityResult(requestCode, resultCode, data);

@@ -7,12 +7,14 @@ import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shader.ShaderMap;
 import com.example.project_cg.shader.ShaderType;
+import com.example.project_cg.texture.TextureManager;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -62,7 +64,7 @@ public class Cube extends Shape {
         scalePara[2] = 1;
         scalePara[3] = 1;
 
-        textureUsed = new ArrayList<>();
+        textureUsed = new LinkedList<>();
 
         updateModelMatrix();
 
@@ -151,7 +153,6 @@ public class Cube extends Shape {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         // enable depth test to see the depth of object
-        updateTexture();
     }
 
     @Override
@@ -194,14 +195,18 @@ public class Cube extends Shape {
         GLES20.glUniform4fv(uMaterialDiffuseHandler, 1, mtl.kDiffuse, 0);
         GLES20.glUniform4fv(uMaterialAmbientHandler, 1, mtl.kAmbient, 0);
         GLES20.glUniform1i(uUseTextureHandler, useTexture ? 1 : 0);
-        if (useTexture) GLES20.glUniform1i(uTextureHandler, textureUsed.get(0));
+        if (useTexture) {
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE0+textureUsed.get(0));
+            GLES20.glEnable(GLES20.GL_TEXTURE_2D);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, TextureManager.getTextureIdByIndex(textureUsed.get(0)));
+            GLES20.glUniform1i(uTextureHandler, textureUsed.get(0));
+        }
         GLES20.glUniform4fv(uColorHandler, 1, color, 0);
 
 
 
         // get attribute handlers
         int iVertexPositionHandle = GLES20.glGetAttribLocation(mProgram, "iVertexPosition");
-        int iColorHandle = GLES20.glGetAttribLocation(mProgram, "iColor");
         int iNormalHandle = GLES20.glGetAttribLocation(mProgram, "iNormal");
         int iTextureCoordHandle = GLES20.glGetAttribLocation(mProgram, "iTextureCoord");
 

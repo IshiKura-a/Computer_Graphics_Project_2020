@@ -23,12 +23,14 @@ import com.example.project_cg.shape.Prism;
 import com.example.project_cg.shape.Pyramid;
 import com.example.project_cg.shape.Shape;
 import com.example.project_cg.shape.ShapeType;
+import com.example.project_cg.texture.TextureManager;
 import com.example.project_cg.util.ColorUtil;
 import com.example.project_cg.util.RenderUtil;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,7 +73,12 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
         webView.setWebViewClient(new WebViewClient());
         webView.setWebChromeClient(new WebChromeClient());
 
-        Document document = HTMLManager.get("shape_editor.html");
+        Document document = HTMLManager.get("shape_editor.html").clone();
+
+        for(String html: TextureManager.getAll()) {
+            document.getElementById("textureSelector").append(html);
+        }
+
         if(toEdit != -1) {
             Shape s = ((MainActivity)activity).getmRender().getShapes().get(toEdit);
             float[] base = s.getBasePara();
@@ -91,6 +98,10 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
             document.getElementById("rotateX").attr("value", ""+rotateX);
             document.getElementById("rotateY").attr("value", ""+rotateY);
             document.getElementById("rotateZ").attr("value", ""+rotateZ);
+
+            document.getElementById("width").attr("value", ""+(shape[0]/shape[3]));
+            document.getElementById("length").attr("value", ""+(shape[1]/shape[3]));
+            document.getElementById("height").attr("value", ""+(shape[2]/shape[3]));
 
             document.getElementById("color").attr("value", color);
             String style = document.getElementById("colorDisplayer").attributes().get("style");
@@ -119,6 +130,20 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
 
             document.getElementById("typeSelector").attr("disabled", true);
             document.getElementById("typeSelector").attr("choose", type.getName());
+            document.getElementById(type.getName().toLowerCase()).attr("selected", true);
+
+            String textureName = TextureManager.getTextureNameByIndex(s.getTextureIndex());
+            document.getElementById(textureName).attr("selected", true);
+            document.getElementById("textureSelector").attr("choose", textureName);
+            if(textureName.matches(".*\\.bmp")) {
+                document.getElementById("texture").attr("src", "../bmp/"+textureName);
+            }
+            else if(textureName.matches(".*\\.png")) {
+                document.getElementById("texture").attr("src", "../png/"+textureName);
+            }
+            else {
+                document.getElementById("texture").attr("src", "");
+            }
 
             if(type.getName().matches("(Prism|Pyramid|Frustum)")) {
                 style = document.getElementsByClass("Edges").get(0).attributes().get("style");
@@ -199,6 +224,7 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
         float length = Float.parseFloat(document.getElementById("length").attributes().get("value"));
         float fraction = Float.parseFloat(document.getElementById("fraction").attributes().get("value"));
         int edges = Integer.parseInt(document.getElementById("edges").attributes().get("value"));
+        Integer texture = TextureManager.textureNameMap.get(document.getElementById("textureSelector").attributes().get("choose"));
 
         float[] ambient = ColorUtil.parseRGBA(document.getElementById("ambient").attributes().get("value"));
         float[] diffuse = ColorUtil.parseRGBA(document.getElementById("diffuse").attributes().get("value"));
@@ -213,6 +239,7 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
         RenderUtil.fraction = fraction;
         RenderUtil.edges = edges;
         RenderUtil.type = type;
+        RenderUtil.texture = texture==null?-1:texture;
 
         if(toEdit != -1) {
             Shape s = ((MainActivity)activity).getmRender().getShapes().get(toEdit);
@@ -223,6 +250,15 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
             s.setRotateX(rotateX);
             s.setRotateY(rotateY);
             s.setRotateZ(rotateZ);
+
+            if(texture == null) {
+                s.disableTexture();
+            }
+            else {
+                LinkedList<Integer> res = new LinkedList<>();
+                res.add(texture);
+                s.setTextureUsed(res);
+            }
         }
         else {
             int position = ((MainActivity)activity).getmRender().getShapes().size();

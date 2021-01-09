@@ -10,6 +10,7 @@ import com.example.project_cg.texture.TextureManager;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -34,13 +35,12 @@ public abstract class Shape {
     protected float[] basePara, shapePara;
     protected float[] model, affine, color;
 
-    protected ArrayList<Integer> textureUsed = new ArrayList<>();
+    protected LinkedList<Integer> textureUsed = new LinkedList<>();
 
-    public void setTextureUsed(ArrayList<Integer> textureUsed) {
-        enableTexture();
-        this.textureUsed.clear();
+    public void setTextureUsed(LinkedList<Integer> textureUsed) {
+        if(this.textureUsed.size() > 0) this.textureUsed.clear();
         this.textureUsed.addAll(textureUsed);
-        updateTexture();
+        enableTexture();
     }
     public void enableTexture() {
         useTexture = true;
@@ -113,20 +113,6 @@ public abstract class Shape {
         Matrix.scaleM(affine, 0, scalePara[0] / scalePara[3], scalePara[1] / scalePara[3], scalePara[2] / scalePara[3]);
     }
 
-    public void updateTexture() {
-        if(useTexture)
-            for(Integer i: textureUsed) {
-                GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
-                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, i);
-                GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, TextureManager.getTexture(i).getBitmap(), 0);
-
-                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_MIRRORED_REPEAT);
-                GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_MIRRORED_REPEAT);
-            }
-    }
-
     public void setMtl(MtlInfo mtl) {
         this.mtl = mtl;
     }
@@ -177,5 +163,14 @@ public abstract class Shape {
 
     public MtlInfo getMtl() {
         return mtl;
+    }
+
+    public int getTextureIndex() {
+        if(useTexture && textureUsed.size() > 0) {
+            return textureUsed.get(0);
+        }
+        else {
+            return -1;
+        }
     }
 }
