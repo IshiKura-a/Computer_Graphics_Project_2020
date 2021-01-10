@@ -6,8 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.util.Base64;
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +27,7 @@ public class TextureManager {
     public static int[] textureIds = new int[32];
     public static String[] textureNames = new String[32];
     public static HashMap<String, Integer> textureNameMap = new HashMap<>();
+    public static HashMap<String, String> textureBase64Map = new HashMap<>();
     public static final LinkedList<Texture> bitmapBuffer = new LinkedList<>();
 
     public static void readTextures(Context context) {
@@ -62,7 +65,7 @@ public class TextureManager {
 
     private static native int getHeightCPP();
 
-    public static ArrayList<String> getAll() {
+    public static ArrayList<String> getAllOptions() {
         ArrayList<String> res = new ArrayList<>();
         for (String s : textureNameMap.keySet()) {
             res.add("<option id=\"" + s + "\" value=\"" + s + "\">" + s + "</option>");
@@ -87,6 +90,22 @@ public class TextureManager {
     public static void loadTexture(Bitmap bitmap, String name) {
         synchronized (bitmapBuffer) {
             bitmapBuffer.add(new Texture(bitmap, name));
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+            byte[] byteArray = byteArrayOutputStream.toByteArray();
+            String imgageBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
+            String image = "data:image/png;base64," + imgageBase64;
+
+            textureBase64Map.put(name, image);
         }
+    }
+
+    public static ArrayList<String> getAllImgs() {
+        ArrayList<String> res = new ArrayList<>();
+        for (String s : textureNameMap.keySet()) {
+            res.add("<img id=\"img_" + s + "\" src=\"" + textureBase64Map.get(s) +
+                    "\"height=\"100dp\" style=\"display: none;\"/>");
+        }
+        return res;
     }
 }

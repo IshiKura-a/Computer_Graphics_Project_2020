@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -31,6 +33,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.project_cg.asynctask.CheckStorage;
@@ -59,6 +62,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
@@ -237,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
     @Override
     public void onItemCLick(int position, Shape shape) {
         Toast.makeText(this, "Edit Object "+ position, Toast.LENGTH_SHORT).show();
-        if (shape.getType() != ShapeType.MODEL) ShapeDialog.displayDialog(this, position);
+        ShapeDialog.displayDialog(this, position);
     }
 
     @Override
@@ -267,23 +271,23 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
                             + "/" + data.getData().getPath().split(":", 2)[1];
                     Log.i("Request File", path);
                     if (path.matches(".*\\.(obj)")) {
-                        RenderUtil.type = ShapeType.MODEL;
-                        RenderUtil.mtlInfo = new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
-                                new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 30);
-                        RenderUtil.color = new float[]{0.8f, 0.5f, 0.3f, 1.0f};
-                        RenderUtil.base = new float[]{0, 0, 0, 1};
-                        RenderUtil.dir = new float[]{0, 0, 0};
-                        RenderUtil.shape = new float[]{0.5f, 0.5f, 0.5f, 1};
                         RenderUtil.path = path;
-                        mRender.addShape();
+                        ShapeDialog.displayDialog(this, -2);
                     }
 
                 } else if (requestCode == RequestUtil.REQUEST_PNG) {
                     Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(data.getData()));
 
-                    FileOutputStream fos = new FileOutputStream("file://android_asset/png/tmp.png");
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    fos.close();
+                    final EditText text = new EditText(this);
+                    text.setText("tmp");
+
+                    new AlertDialog.Builder(this).setTitle("命名纹理（重名会覆盖）")
+                            .setIcon(android.R.drawable.ic_menu_add).setView(text)
+                            .setPositiveButton("CONFIRM", (notUsed1, notUsed2) ->
+                                    TextureManager.loadTexture(bitmap, text.getText().toString()))
+                            .setNegativeButton("CANCEL", null).show();
+
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();

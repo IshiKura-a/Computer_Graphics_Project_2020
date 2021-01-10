@@ -75,12 +75,16 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
 
         Document document = HTMLManager.get("shape_editor.html").clone();
 
-        for(String html: TextureManager.getAll()) {
+        for (String html : TextureManager.getAllOptions()) {
             document.getElementById("textureSelector").append(html);
         }
 
-        if(toEdit != -1) {
-            Shape s = ((MainActivity)activity).getmRender().getShapes().get(toEdit);
+        for (String html : TextureManager.getAllImgs()) {
+            document.getElementById("textureImg").append(html);
+        }
+
+        if (toEdit >= 0) {
+            Shape s = ((MainActivity) activity).getmRender().getShapes().get(toEdit);
             float[] base = s.getBasePara();
             float[] shape = s.getShapePara();
             float rotateX = s.getRotateX();
@@ -134,16 +138,20 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
 
             String textureName = TextureManager.getTextureNameByIndex(s.getTextureIndex());
             document.getElementById(textureName).attr("selected", true);
-            document.getElementById("textureSelector").attr("choose", textureName);
-            if(textureName.matches(".*\\.bmp")) {
-                document.getElementById("texture").attr("src", "../bmp/"+textureName);
+            document.getElementById("textureSelector")
+                    .attr("choose", textureName);
+
+            if(textureName.compareTo("NotUsed") != 0) {
+                style = document.getElementById("img_NotUsed").attributes().get("style");
+                style = style.replaceAll("display: (none|inline);", "display: none;");
+                document.getElementById("img_NotUsed").attr("style", style);
+
+                style = document.getElementById("img_" + textureName).attributes().get("style");
+                style = style.replaceAll("display: (none|inline);", "display: inline;");
+                document.getElementById("img_" + textureName).attr("style", style);
             }
-            else if(textureName.matches(".*\\.png")) {
-                document.getElementById("texture").attr("src", "../png/"+textureName);
-            }
-            else {
-                document.getElementById("texture").attr("src", "");
-            }
+
+
 
             if(type.getName().matches("(Prism|Pyramid|Frustum)")) {
                 style = document.getElementsByClass("Edges").get(0).attributes().get("style");
@@ -167,6 +175,11 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
                     document.getElementsByClass("Fraction").get(0).attr("style", style);
                 }
             }
+        }
+        if(toEdit == -2) {
+            document.getElementById("typeSelector").attr("disabled", true);
+            document.getElementById("typeSelector").attr("choose", ShapeType.MODEL.getName());
+            document.getElementById(ShapeType.MODEL.getName().toLowerCase()).attr("selected", true);
         }
         webView.loadDataWithBaseURL("file:///android_asset/html/", document.html(), "text/html", "utf-8", null);
     }
@@ -241,7 +254,7 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
         RenderUtil.type = type;
         RenderUtil.texture = texture==null?-1:texture;
 
-        if(toEdit != -1) {
+        if(toEdit >= 0) {
             Shape s = ((MainActivity)activity).getmRender().getShapes().get(toEdit);
             s.setBasePara(RenderUtil.base);
             s.setColor(RenderUtil.color);
@@ -273,11 +286,11 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
     }
 
     public static void displayDialog(Activity activity, int toEdit) {
-        ShapeDialog dialog = new ShapeDialog(activity, toEdit);
-        dialog.show();
-
         DisplayMetrics displayMetrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        ShapeDialog dialog = new ShapeDialog(activity, toEdit);
+        dialog.show();
 
         dialog.getWindow().setLayout((int) (displayMetrics.widthPixels / 1.5f), (int) (displayMetrics.heightPixels / 1.3f));
     }

@@ -21,6 +21,7 @@
             <option id="prism" value="Prism">Prism</option>
             <option id="pyramid" value="Pyramid">Pyramid</option>
             <option id="frustum" value="Frustum">Frustum</option>
+            <option id="model" value="Model">Model</option>
         </select>
     </div>
     <p></p>
@@ -109,12 +110,12 @@
         Texture
     </h3>
     Texture:
-    <select id="textureSelector" choose="NotUsed" onchange="updateTexture('textureSelector', 'texture')">
+    <select id="textureSelector" choose="NotUsed" onchange="updateTexture('textureSelector')">
         <option id="NotUsed" value="NotUsed">Not Used</option>
     </select>
     <p></p>
-    <div class="TextureImg">
-        <img id="texture" src="" height="100dp" />
+    <div id="textureImg" class="TextureImg">
+        <img id="img_NotUsed" src="" height="100dp" style="display: inline;"/>
     </div>
 </div>
 </body>

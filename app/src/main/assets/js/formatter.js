@@ -56,7 +56,7 @@ function onChange(id) {
 
     // alert(val);
     selector.setAttribute("choose", val);
-    if (val.match(/^((Cube)|(Ball)|(Cone)|(Cylinder))$/g)) {
+    if (val.match(/^((Cube)|(Ball)|(Cone)|(Cylinder)|(Model))$/g)) {
         Width.style.display = "inline";
         Length.style.display = "inline";
         Height.style.display = "inline";
@@ -79,20 +79,21 @@ function onChange(id) {
     }
 }
 
-function updateTexture(idx, idy) {
+function updateTexture(idx) {
     let selector = document.getElementById(idx);
-    let displayer = document.getElementById(idy)
     let index = selector.selectedIndex;
     let val = selector.options[index].value;
 
     selector.setAttribute("choose", val);
-    if (val.match(/^(NotUsed)$/g)) {
-        displayer.setAttribute("src", "");
-    }
-    else if (val.match(/^.*\.bmp$/g)) {
-        displayer.setAttribute("src", "../bmp/" + val);
-    }
-    else if (val.match(/^.*\.png$/g)) {
-        displayer.setAttribute("src", "../png/" + val);
+
+    let i;
+    for (i = 0; i < selector.length; i++) {
+        let img = selector.options[i].value;
+        if (img == val) {
+            document.getElementById("img_" + img).style.display = "inline";
+        }
+        else {
+            document.getElementById("img_" + img).style.display = "none";
+        }
     }
 }
