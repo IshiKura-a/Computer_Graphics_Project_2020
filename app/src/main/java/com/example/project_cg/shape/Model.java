@@ -240,7 +240,7 @@ public class Model extends Shape {
         color = rgba.clone();
     }
 
-    public static void writeObject(ArrayList<Shape> shapes, FileOutputStream fos) throws IOException {
+    public static void writeObject(LinkedList<Shape> shapes, FileOutputStream fos) throws IOException {
         int base = 1;
         for (Shape s : shapes) {
             s.updateModelMatrix();

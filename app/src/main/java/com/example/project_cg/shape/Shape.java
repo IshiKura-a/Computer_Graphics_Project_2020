@@ -6,6 +6,7 @@ import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import com.example.project_cg.observe.Observe;
 import com.example.project_cg.texture.TextureManager;
 
 import java.nio.FloatBuffer;
@@ -134,7 +135,9 @@ public abstract class Shape {
     }
 
     public void setChosen(boolean chosen) {
-        isChosen = chosen;
+        synchronized(Observe.getCamera()) {
+            isChosen = chosen;
+        }
     }
 
     public float[] getBasePara() {
