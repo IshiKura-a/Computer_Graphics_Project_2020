@@ -8,7 +8,7 @@
     app:columnCount="2"
     >
     <WebView
-        android:id="@+id/shapeEditor"
+        android:id="@+id/editor"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         app:layout_row="0"
@@ -19,22 +19,22 @@
         android:focusableInTouchMode="true"
         />
     <Button
-        android:id="@+id/confirmShape"
+        android:id="@+id/confirmBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_row="1"
-        app:layout_column="0"
+        app:layout_column="1"
         android:gravity="center_horizontal"
         app:layout_columnWeight="1"
         android:text="@string/confirm"
         android:textAlignment="center"
         />
     <Button
-        android:id="@+id/cancelShape"
+        android:id="@+id/cancelBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_row="1"
-        app:layout_column="1"
+        app:layout_column="0"
         android:gravity="center_horizontal"
         app:layout_columnWeight="1"
         android:text="@string/cancel"

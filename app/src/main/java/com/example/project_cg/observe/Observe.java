@@ -3,9 +3,10 @@ package com.example.project_cg.observe;
 import android.opengl.Matrix;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Observe {
-    private static ArrayList<Light> lightList = new ArrayList<>();
+    private static LinkedList<Light> lightList = new LinkedList<>();
     private static Camera camera = new Camera().setEye(0, 5, 15, 1)
             .setCenter(0, 0, 0, 1)
             .setUp(0, 1, 0, 1);
@@ -49,7 +50,7 @@ public class Observe {
         isOrtho = flag;
     }
 
-    public static ArrayList<Light> getLightList() {
+    public static LinkedList<Light> getLightList() {
         return lightList;
     }
 }

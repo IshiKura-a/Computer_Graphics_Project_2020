@@ -34,9 +34,11 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.example.project_cg.asynctask.CheckStorage;
+import com.example.project_cg.dialog.LightDialog;
 import com.example.project_cg.dialog.ShapeDialog;
 import com.example.project_cg.html.HTMLManager;
 import com.example.project_cg.layout.LightRecyclerAdapter;
@@ -138,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
     };
 
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initView() {
         ((JoystickView)findViewById(R.id.joystick)).setOnMoveListener(
                 (angle, strength) -> {
@@ -147,36 +150,36 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
                 });
 
         findViewById(R.id.img_0).setOnClickListener(notUsed -> {
-                // Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
 
             ValueAnimator animator = mMenu.isOpen() ? ValueAnimator.ofFloat(300f, 0f) : ValueAnimator.ofFloat(0f, 250f);
-                animator.setDuration(600);
-                animator.addUpdateListener(a -> {
-                    Float animateVal = (Float)a.getAnimatedValue();
-                    for(int i = 0; i< mMenu.getMenuList().size(); i++) {
-                        View v = mMenu.getMenuList().get(i);
+            animator.setDuration(600);
+            animator.addUpdateListener(a -> {
+                Float animateVal = (Float)a.getAnimatedValue();
+                for(int i = 0; i< mMenu.getMenuList().size(); i++) {
+                    View v = mMenu.getMenuList().get(i);
 
-                        v.setVisibility(mMenu.isOpen()?View.VISIBLE:View.GONE);
+                    v.setVisibility(mMenu.isOpen()?View.VISIBLE:View.GONE);
 
-                        float degree = 120.0f / mMenu.getMenuList().size() * i;
+                    float degree = 120.0f / mMenu.getMenuList().size() * i;
 
-                        v.setTranslationX((float) (animateVal * Math.cos(Math.toRadians(degree))));
-                        v.setTranslationY((float) (animateVal * Math.sin(Math.toRadians(degree))));
+                    v.setTranslationX((float) (animateVal * Math.cos(Math.toRadians(degree))));
+                    v.setTranslationY((float) (animateVal * Math.sin(Math.toRadians(degree))));
 
-                        v.setRotation(360f * a.getAnimatedFraction());
+                    v.setRotation(360f * a.getAnimatedFraction());
 
-                        if(animateVal > 0) {
-                            v.setScaleX(animateVal / 250f);
-                            v.setScaleY(animateVal / 250f);
+                    if(animateVal > 0) {
+                        v.setScaleX(animateVal / 250f);
+                        v.setScaleY(animateVal / 250f);
 
-                            v.setAlpha(animateVal / 250f);
-                        }
+                        v.setAlpha(animateVal / 250f);
                     }
-                });
-                mMenu.setOpen(!mMenu.isOpen());
-
-                animator.start();
+                }
             });
+            mMenu.setOpen(!mMenu.isOpen());
+
+            animator.start();
+        });
 
         mLightRecyclerAdapter.setOnItemClickListener(this);
 
@@ -189,17 +192,18 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
         mObjectRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mObjectRecyclerView.addItemDecoration(new LinearItemDecoration(Color.rgb(168, 165, 181)));
         mObjectRecyclerView.swapAdapter(mObjectRecyclerAdapter, true);
-
     }
 
     @Override
     public void onItemCLick(int position, Light light) {
-        Toast.makeText(this, "light"+(position+1), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Edit Light "+ position, Toast.LENGTH_SHORT).show();
+        LightDialog.displayDialog(this, position);
     }
 
     @Override
     public void onItemLongCLick(int position, Light light) {
-        // ignore
+        Toast.makeText(this, "Delete Light "+ position, Toast.LENGTH_SHORT).show();
+        mLightRecyclerAdapter.remove(position);
     }
 
     @Override
@@ -248,7 +252,6 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
     public void onItemLongCLick(int position, Shape shape) {
         Toast.makeText(this, "Delete Object "+ position, Toast.LENGTH_SHORT).show();
         mObjectRecyclerAdapter.remove(position);
-        // do nothing
     }
 
 
@@ -296,7 +299,15 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void notifyObjectsChanged(int position) {
+    public void notifyObjectsAdded(int position) {
         mObjectRecyclerAdapter.add(position);
+    }
+
+    public void notifyLightsAdded(int position) {
+        mLightRecyclerAdapter.add(position);
+    }
+
+    public void notifyLightsChanged(int position) {
+        mLightRecyclerAdapter.notifyItemChanged(position);
     }
 }

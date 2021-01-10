@@ -60,10 +60,10 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
         setCancelable(true);
         setCanceledOnTouchOutside(false);
 
-        setContentView(R.layout.shape_editor);
-        confirm = findViewById(R.id.confirmShape);
-        cancel = findViewById(R.id.cancelShape);
-        webView = findViewById(R.id.shapeEditor);
+        setContentView(R.layout.editor);
+        confirm = findViewById(R.id.confirmBtn);
+        cancel = findViewById(R.id.cancelBtn);
+        webView = findViewById(R.id.editor);
 
         confirm.setOnClickListener(this);
         cancel.setOnClickListener(this);
@@ -188,7 +188,7 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.confirmShape: {
+            case R.id.confirmBtn: {
                 webView.evaluateJavascript(
                         "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();",
                         html -> {
@@ -209,7 +209,7 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
                 this.dismiss();
                 break;
             }
-            case R.id.cancelShape: {
+            case R.id.cancelBtn: {
                 this.dismiss();
                 break;
             }
@@ -277,7 +277,7 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
             int position = ((MainActivity)activity).getmRender().getShapes().size();
             ((MainActivity)activity).getmRender().addShape();
             while(!((MainActivity)activity).getmRender().addDone());
-            ((MainActivity)activity).notifyObjectsChanged(position);
+            ((MainActivity)activity).notifyObjectsAdded(position);
         }
     }
 

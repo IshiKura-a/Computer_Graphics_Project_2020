@@ -192,7 +192,12 @@ public class Pyramid extends Shape {
         int uAffineHandler = GLES20.glGetUniformLocation(mProgram, "uAffine");
         int uColorHandler = GLES20.glGetUniformLocation(mProgram, "uColor");
 
-        Light light = Observe.getLightList().get(0);
+        LinkedList<Light> lightList;
+        synchronized (Observe.getLightList()) {
+            lightList = new LinkedList<>(Observe.getLightList());
+        }
+        Light light = lightList.get(0);
+
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
