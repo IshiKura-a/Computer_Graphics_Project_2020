@@ -48,11 +48,11 @@ function onChange(id) {
     let index = selector.selectedIndex;
     let val = selector.options[index].value;
 
-    let Width = document.getElementsByClassName('Width')[0];
-    let Length = document.getElementsByClassName('Length')[0];
-    let Height = document.getElementsByClassName('Height')[0];
-    let Fraction = document.getElementsByClassName('Fraction')[0];
-    let Edges = document.getElementsByClassName('Edges')[0];
+    const Width = document.getElementsByClassName('Width')[0];
+    const Length = document.getElementsByClassName('Length')[0];
+    const Height = document.getElementsByClassName('Height')[0];
+    const Fraction = document.getElementsByClassName('Fraction')[0];
+    const Edges = document.getElementsByClassName('Edges')[0];
 
     // alert(val);
     selector.setAttribute("choose", val);
