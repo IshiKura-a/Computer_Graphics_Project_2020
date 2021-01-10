@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.example.project_cg.MainActivity;
 import com.example.project_cg.R;
+import com.example.project_cg.dialog.LightDialog;
 import com.example.project_cg.dialog.ShapeDialog;
 import com.example.project_cg.asynctask.ExportObj;
 import com.example.project_cg.asynctask.Screenshot;
@@ -101,6 +102,9 @@ public class Menu {
                 }
                 else if(res.compareTo("Texture") == 0) {
                     loadTexture();
+                }
+                else if(res.compareTo("Light") == 0) {
+                    LightDialog.displayDialog(activity);
                 }
             });
 

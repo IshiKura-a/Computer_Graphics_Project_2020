@@ -158,8 +158,9 @@ public class MainRender implements Renderer {
 
                 if (TextureManager.cnt >= 32) throw new IndexOutOfBoundsException("Exceed maximum texture counts!");
 
-                GLES20.glGenTextures(1, TextureManager.textureIds, cnt);
-                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, TextureManager.textureIds[cnt]);
+                int[] tmp = new int[1];
+                GLES20.glGenTextures(1, TextureManager.textureIds, TextureManager.cnt);
+                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, TextureManager.textureIds[TextureManager.cnt]);
 
                 GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
                 GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
@@ -167,8 +168,9 @@ public class MainRender implements Renderer {
                 GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_MIRRORED_REPEAT);
 
                 GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, texture.getBitmap(), 0);
-                TextureManager.textureNames[cnt] = texture.getName();
-                TextureManager.textureNameMap.put(texture.getName(), cnt++);
+                TextureManager.textureNames[TextureManager.cnt] = texture.getName();
+                TextureManager.textureNameMap.put(texture.getName(), TextureManager.cnt++);
+                texture.getBitmap().recycle();
             }
         }
 

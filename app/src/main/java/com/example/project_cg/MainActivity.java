@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -31,9 +33,12 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.example.project_cg.asynctask.CheckStorage;
+import com.example.project_cg.dialog.LightDialog;
 import com.example.project_cg.dialog.ShapeDialog;
 import com.example.project_cg.html.HTMLManager;
 import com.example.project_cg.layout.LightRecyclerAdapter;
@@ -59,6 +64,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
@@ -134,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
     };
 
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initView() {
         ((JoystickView)findViewById(R.id.joystick)).setOnMoveListener(
                 (angle, strength) -> {
@@ -143,36 +150,36 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
                 });
 
         findViewById(R.id.img_0).setOnClickListener(notUsed -> {
-                // Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
 
             ValueAnimator animator = mMenu.isOpen() ? ValueAnimator.ofFloat(300f, 0f) : ValueAnimator.ofFloat(0f, 250f);
-                animator.setDuration(600);
-                animator.addUpdateListener(a -> {
-                    Float animateVal = (Float)a.getAnimatedValue();
-                    for(int i = 0; i< mMenu.getMenuList().size(); i++) {
-                        View v = mMenu.getMenuList().get(i);
+            animator.setDuration(600);
+            animator.addUpdateListener(a -> {
+                Float animateVal = (Float)a.getAnimatedValue();
+                for(int i = 0; i< mMenu.getMenuList().size(); i++) {
+                    View v = mMenu.getMenuList().get(i);
 
-                        v.setVisibility(mMenu.isOpen()?View.VISIBLE:View.GONE);
+                    v.setVisibility(mMenu.isOpen()?View.VISIBLE:View.GONE);
 
-                        float degree = 120.0f / mMenu.getMenuList().size() * i;
+                    float degree = 120.0f / mMenu.getMenuList().size() * i;
 
-                        v.setTranslationX((float) (animateVal * Math.cos(Math.toRadians(degree))));
-                        v.setTranslationY((float) (animateVal * Math.sin(Math.toRadians(degree))));
+                    v.setTranslationX((float) (animateVal * Math.cos(Math.toRadians(degree))));
+                    v.setTranslationY((float) (animateVal * Math.sin(Math.toRadians(degree))));
 
-                        v.setRotation(360f * a.getAnimatedFraction());
+                    v.setRotation(360f * a.getAnimatedFraction());
 
-                        if(animateVal > 0) {
-                            v.setScaleX(animateVal / 250f);
-                            v.setScaleY(animateVal / 250f);
+                    if(animateVal > 0) {
+                        v.setScaleX(animateVal / 250f);
+                        v.setScaleY(animateVal / 250f);
 
-                            v.setAlpha(animateVal / 250f);
-                        }
+                        v.setAlpha(animateVal / 250f);
                     }
-                });
-                mMenu.setOpen(!mMenu.isOpen());
-
-                animator.start();
+                }
             });
+            mMenu.setOpen(!mMenu.isOpen());
+
+            animator.start();
+        });
 
         mLightRecyclerAdapter.setOnItemClickListener(this);
 
@@ -185,17 +192,18 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
         mObjectRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mObjectRecyclerView.addItemDecoration(new LinearItemDecoration(Color.rgb(168, 165, 181)));
         mObjectRecyclerView.swapAdapter(mObjectRecyclerAdapter, true);
-
     }
 
     @Override
     public void onItemCLick(int position, Light light) {
-        Toast.makeText(this, "light"+(position+1), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Edit Light "+ position, Toast.LENGTH_SHORT).show();
+        LightDialog.displayDialog(this, position);
     }
 
     @Override
     public void onItemLongCLick(int position, Light light) {
-        // ignore
+        Toast.makeText(this, "Delete Light "+ position, Toast.LENGTH_SHORT).show();
+        mLightRecyclerAdapter.remove(position);
     }
 
     @Override
@@ -237,14 +245,13 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
     @Override
     public void onItemCLick(int position, Shape shape) {
         Toast.makeText(this, "Edit Object "+ position, Toast.LENGTH_SHORT).show();
-        if (shape.getType() != ShapeType.MODEL) ShapeDialog.displayDialog(this, position);
+        ShapeDialog.displayDialog(this, position);
     }
 
     @Override
     public void onItemLongCLick(int position, Shape shape) {
         Toast.makeText(this, "Delete Object "+ position, Toast.LENGTH_SHORT).show();
         mObjectRecyclerAdapter.remove(position);
-        // do nothing
     }
 
 
@@ -267,23 +274,23 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
                             + "/" + data.getData().getPath().split(":", 2)[1];
                     Log.i("Request File", path);
                     if (path.matches(".*\\.(obj)")) {
-                        RenderUtil.type = ShapeType.MODEL;
-                        RenderUtil.mtlInfo = new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
-                                new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 30);
-                        RenderUtil.color = new float[]{0.8f, 0.5f, 0.3f, 1.0f};
-                        RenderUtil.base = new float[]{0, 0, 0, 1};
-                        RenderUtil.dir = new float[]{0, 0, 0};
-                        RenderUtil.shape = new float[]{0.5f, 0.5f, 0.5f, 1};
                         RenderUtil.path = path;
-                        mRender.addShape();
+                        ShapeDialog.displayDialog(this, -2);
                     }
 
                 } else if (requestCode == RequestUtil.REQUEST_PNG) {
                     Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(data.getData()));
 
-                    FileOutputStream fos = new FileOutputStream("file://android_asset/png/tmp.png");
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    fos.close();
+                    final EditText text = new EditText(this);
+                    text.setText("tmp");
+
+                    new AlertDialog.Builder(this).setTitle("命名纹理（重名会覆盖）")
+                            .setIcon(android.R.drawable.ic_menu_add).setView(text)
+                            .setPositiveButton("CONFIRM", (notUsed1, notUsed2) ->
+                                    TextureManager.loadTexture(bitmap, text.getText().toString()))
+                            .setNegativeButton("CANCEL", null).show();
+
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -292,7 +299,15 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void notifyObjectsChanged(int position) {
+    public void notifyObjectsAdded(int position) {
         mObjectRecyclerAdapter.add(position);
+    }
+
+    public void notifyLightsAdded(int position) {
+        mLightRecyclerAdapter.add(position);
+    }
+
+    public void notifyLightsChanged(int position) {
+        mLightRecyclerAdapter.notifyItemChanged(position);
     }
 }

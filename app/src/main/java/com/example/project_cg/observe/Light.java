@@ -4,6 +4,12 @@ public class Light {
     private float[] location;
     private float[] ambient, diffuse, specular;
 
+    public Light(float[] location, float[] ambient, float[] diffuse, float[] specular) {
+        setLocation(location).setAmbient(ambient).setDiffuse(diffuse).setSpecular(specular);
+    }
+
+    public Light(){}
+
     public Light setAmbient(float[] ambient) {
         this.ambient = ambient.clone();
         return this;
