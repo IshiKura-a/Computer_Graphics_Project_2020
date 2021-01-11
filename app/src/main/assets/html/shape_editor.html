@@ -2,120 +2,7 @@
 <html>
 
 <head>
-    <style>
-        h3 {
-            text-align: center;
-            color: white;
-            background: black;
-        }
-
-        .ColorDisplayer {
-            display: flex;
-            flex-direction: row;
-        }
-
-        .ColorDisplayer>.show {
-            border: 2px solid;
-            width: 50px;
-            height: 18px;
-        }
-
-        .SpecialParams {
-            display: flex;
-            flex-direction: column;
-        }
-
-        input {
-            width: 80px;
-        }
-
-        .Texture>.TextureImg {
-            text-align: center;
-            border: 2px solid;
-        }
-    </style>
-    <script>
-        function checkRGBA(id, displayer) {
-            let re = /^#[0-9a-fA-F]{0,8}$/g;
-            let value = document.getElementById(id).value;
-            let padding = "FFFFFFFF";
-
-            if (value != null && value.length > 0) {
-                while (value.length > 0 && !re.test(value)) {
-                    value = value.substr(0, value.length - 1);
-                }
-                document.getElementById(id).setAttribute("value", value);
-                document.getElementById(id).value = value;
-                setColor(displayer, value + padding.substring(0, 9 - value.length));
-            }
-
-        }
-        function checkFloat(id) {
-            let re = /(^-|^-?(0|[1-9][0-9]*)(\.[0-9]*)?)$/g;
-            let value = document.getElementById(id).value;
-            if (value != null && value.length > 0) {
-                while (value.length > 0 && !re.test(value)) {
-                    value = value.substr(0, value.length - 1);
-                }
-                document.getElementById(id).setAttribute("value", value);
-                document.getElementById(id).value = value;
-            }
-        }
-        function checkNonNegInteger(id) {
-            let re = /(^0|^[1-9][0-9]*)$/g;
-            let value = document.getElementById(id).value;
-            if (value != null && value.length > 0) {
-                while (value.length > 0 && !re.test(value)) {
-                    value = value.substr(0, value.length - 1);
-                }
-                document.getElementById(id).setAttribute("value", value);
-                document.getElementById(id).value = value;
-            }
-        }
-        function setColor(id, rgba) {
-            let show = document.getElementById(id);
-            show.setAttribute("style", "background: " + rgba);
-        }
-        function onChange(id) {
-            let selector = document.getElementById(id);
-            let index = selector.selectedIndex;
-
-            let Width = document.getElementsByClassName('Width')[0];
-            let Length = document.getElementsByClassName('Length')[0];
-            let Height = document.getElementsByClassName('Height')[0];
-            let Radius = document.getElementsByClassName('Radius')[0];
-            let Edges = document.getElementsByClassName('Edges')[0];
-
-            selector.setAttribute("choose", selector.options[index].value);
-            if (index == 0 || index == 1) {
-                // Cube/Ball
-                Width.style.display = "inline";
-                Length.style.display = "inline";
-                Height.style.display = "inline";
-                Radius.style.display = "none";
-                Edges.style.display = "none";
-            }
-            else if (index == 2 || index == 3) {
-                // Cone/Cylinder
-                Width.style.display = "none";
-                Length.style.display = "none";
-                Height.style.display = "inline";
-                Radius.style.display = "inline";
-                Edges.style.display = "none";
-            }
-            else if (index == 4 || index == 5) {
-                // Prism/Pyramid
-                Width.style.display = "none";
-                Length.style.display = "none";
-                Height.style.display = "inline";
-                Radius.style.display = "inline";
-                Edges.style.display = "inline";
-            }
-            else {
-                alert("Not Match");
-            }
-        }
-    </script>
+    <link href="../css/style.css" rel="stylesheet">
 </head>
 
 <body>
@@ -126,12 +13,14 @@
     <div class="Selector">
         Type:
         <select id="typeSelector" onchange="onChange('typeSelector')" choose="Cube">
-            <option value="Cube">Cube</option>
-            <option value="Ball">Ball</option>
-            <option value="Cone">Cone</option>
-            <option value="Cylinder">Cylinder</option>
-            <option value="Prism">Prism</option>
-            <option value="Pyramid">Pyramid</option>
+            <option id="cube" value="Cube">Cube</option>
+            <option id="ball" value="Ball">Ball</option>
+            <option id="cone" value="Cone">Cone</option>
+            <option id="cylinder" value="Cylinder">Cylinder</option>
+            <option id="prism" value="Prism">Prism</option>
+            <option id="pyramid" value="Pyramid">Pyramid</option>
+            <option id="frustum" value="Frustum">Frustum</option>
+            <option id="model" value="Model">Model</option>
         </select>
     </div>
     <p></p>
@@ -139,26 +28,22 @@
     <div class="GlobalParams">
         <div class="Base">
             Base: X:
-            <input id="baseX" type="text" onkeyup="checkFloat('baseX')" value=0 />
-            Y:
-            <input id="baseY" type="text" onkeyup="checkFloat('baseY')" value=0 />
-            Z:
+            <input id="baseX" type="text" onkeyup="checkFloat('baseX')" value=0 /> Y:
+            <input id="baseY" type="text" onkeyup="checkFloat('baseY')" value=0 /> Z:
             <input id="baseZ" type="text" onkeyup="checkFloat('baseZ')" value=0 />
         </div>
         <p></p>
         <div class="Rotate">
             Rotate: X:
-            <input id="rotateX" type="text" onkeyup="checkFloat('rotateX')" value=0 />
-            Y:
-            <input id="rotateY" type="text" onkeyup="checkFloat('rotateY')" value=0 />
-            Z:
+            <input id="rotateX" type="text" onkeyup="checkFloat('rotateX')" value=0 /> Y:
+            <input id="rotateY" type="text" onkeyup="checkFloat('rotateY')" value=0 /> Z:
             <input id="rotateZ" type="text" onkeyup="checkFloat('rotateZ')" value=0 />
         </div>
         <p></p>
         <div class="ColorDisplayer">
             Color(RGBA):
             <input id="color" type="text" onkeyup="checkRGBA('color', 'colorDisplayer');" value="#FFFFFFFF" />
-            <div id="colorDisplayer" class="show" style="background: #FFFFFFFF"></div>
+            <div id="colorDisplayer" class="show" style="background: #FFFFFFFF;"></div>
         </div>
     </div>
 
@@ -180,10 +65,10 @@
         Height:
         <input id="height" type="text" onkeyup="checkFloat('height')" value=1 />
     </div>
-    <div class="Radius" style="display: none;">
+    <div class="Fraction" style="display: none;">
         <p></p>
-        Radius:
-        <input id="radius" type="text" onkeyup="checkFloat('radius')" value=1 />
+        Fraction:
+        <input id="fraction" type="text" onkeyup="checkFloat('fraction')" value=0.5 />
     </div>
     <div class="Edges" style="display: none;">
         <p></p>
@@ -199,19 +84,19 @@
     <div class="ColorDisplayer">
         Ambient(RGBA):
         <input id="ambient" type="text" onkeyup="checkRGBA('ambient', 'ambientDisplayer');" value="#333333FF" />
-        <div id="ambientDisplayer" class="show" style="background: #333333FF"></div>
+        <div id="ambientDisplayer" class="show" style="background: #333333FF;"></div>
     </div>
     <p></p>
     <div class="ColorDisplayer">
         Diffuse(RGBA):
         <input id="diffuse" type="text" onkeyup="checkRGBA('diffuse', 'diffuseDisplayer');" value="#CCCCCCFF" />
-        <div id="diffuseDisplayer" class="show" style="background: #CCCCCCFF"></div>
+        <div id="diffuseDisplayer" class="show" style="background: #CCCCCCFF;"></div>
     </div>
     <p></p>
     <div class="ColorDisplayer">
         Specular(RGBA):
         <input id="specular" type="text" onkeyup="checkRGBA('specular', 'specularDisplayer');" value="#A6A6A6FF" />
-        <div id="specularDisplayer" class="show" style="background: #A6A6A6FF"></div>
+        <div id="specularDisplayer" class="show" style="background: #A6A6A6FF;"></div>
     </div>
     <p>
         Shininess:
@@ -224,14 +109,15 @@
         Texture
     </h3>
     Texture:
-    <select id="textureSelector" choose="NotUsed">
-        <option value="NotUsed">Not Used</option>
+    <select id="textureSelector" choose="NotUsed" onchange="updateTexture('textureSelector')">
+        <option id="NotUsed" value="NotUsed">Not Used</option>
     </select>
     <p></p>
-    <div class="TextureImg">
-        <img src="" />
+    <div id="textureImg" class="TextureImg">
+        <img id="img_NotUsed" src="" height="100dp" style="display: inline;"/>
     </div>
 </div>
+<script type="text/javascript" src="../js/formatter.js"></script>
 </body>
 
 </html>

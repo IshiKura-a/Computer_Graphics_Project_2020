@@ -10,6 +10,7 @@ import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shader.ShaderMap;
 import com.example.project_cg.shader.ShaderType;
+import com.example.project_cg.texture.TextureManager;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -22,6 +23,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Locale;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -31,7 +33,6 @@ public class Model extends Shape {
     ArrayList<Float> vertex = new ArrayList<>();
     ArrayList<Float> normal = new ArrayList<>();
     ArrayList<Float> texture = new ArrayList<>();
-    private float[] color;
 
     public Model() {
         type = ShapeType.MODEL;
@@ -49,7 +50,7 @@ public class Model extends Shape {
         scalePara[2] = 1;
         scalePara[3] = 1;
 
-        textureUsed = new ArrayList<>();
+        textureUsed = new LinkedList<>();
 
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER,
                 ShaderMap.get("object", ShaderType.VERT));
@@ -62,8 +63,8 @@ public class Model extends Shape {
         GLES20.glLinkProgram(mProgram);
     }
 
-    public static Model readObject(BufferedReader br) {
-        Model model = new Model();
+
+    public static Model readObject(Model model, BufferedReader br) {
         ArrayList<Float> tmpVertex = new ArrayList<>();
         ArrayList<Float> tmpNormal = new ArrayList<>();
         ArrayList<Float> tmpTexture = new ArrayList<>();
@@ -158,8 +159,6 @@ public class Model extends Shape {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        // enable depth test to see the depth of object
-        updateTexture();
     }
 
     @Override
@@ -184,7 +183,12 @@ public class Model extends Shape {
         int uAffineHandler = GLES20.glGetUniformLocation(mProgram, "uAffine");
         int uColorHandler = GLES20.glGetUniformLocation(mProgram, "uColor");
 
-        Light light = Observe.getLightList().get(0);
+        LinkedList<Light> lightList;
+        synchronized (Observe.getLightList()) {
+            lightList = new LinkedList<>(Observe.getLightList());
+        }
+        Light light = lightList.get(0);
+
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
@@ -202,7 +206,12 @@ public class Model extends Shape {
         GLES20.glUniform4fv(uMaterialDiffuseHandler, 1, mtl.kDiffuse, 0);
         GLES20.glUniform4fv(uMaterialAmbientHandler, 1, mtl.kAmbient, 0);
         GLES20.glUniform1i(uUseTextureHandler, useTexture ? 1 : 0);
-        if (useTexture) GLES20.glUniform1i(uTextureHandler, textureUsed.get(0));
+        if (useTexture) {
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE0+textureUsed.get(0));
+            GLES20.glEnable(GLES20.GL_TEXTURE_2D);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, TextureManager.getTextureIdByIndex(textureUsed.get(0)));
+            GLES20.glUniform1i(uTextureHandler, textureUsed.get(0));
+        }
         GLES20.glUniform4fv(uColorHandler, 1, color, 0);
 
 
@@ -231,7 +240,7 @@ public class Model extends Shape {
         color = rgba.clone();
     }
 
-    public static void writeObject(ArrayList<Shape> shapes, FileOutputStream fos) throws IOException {
+    public static void writeObject(LinkedList<Shape> shapes, FileOutputStream fos) throws IOException {
         int base = 1;
         for (Shape s : shapes) {
             s.updateModelMatrix();
@@ -283,7 +292,15 @@ public class Model extends Shape {
                     int k = i + 2;
                     fos.write(String.format(Locale.getDefault(), "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i, i, i, j, j, j, k, k, k).getBytes());
                 }
-            } else {
+            } else if (s.method == DrawMethod.FAN) {
+                int i = base;
+                for(int index = 1; index < vertexBuffer.limit() / 4; index += 2) {
+                    int j = i + index;
+                    int k = j + 1;
+                    fos.write(String.format(Locale.getDefault(), "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i, i, i, j, j, j, k, k, k).getBytes());
+                }
+            }
+            else {
                 Log.e("Error", "DrawMethod not supported");
             }
             base += vertexBuffer.limit() / 4;

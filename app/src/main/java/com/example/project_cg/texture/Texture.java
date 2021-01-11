@@ -4,11 +4,17 @@ import android.graphics.Bitmap;
 
 public class Texture {
     private Bitmap bitmap;
-    Texture(Bitmap bm) {
+    private String name;
+    Texture(Bitmap bm, String name) {
         this.bitmap = bm;
+        this.name = name;
     }
 
     public Bitmap getBitmap() {
         return bitmap;
+    }
+
+    public String getName() {
+        return name;
     }
 }

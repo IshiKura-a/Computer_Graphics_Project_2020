@@ -9,7 +9,8 @@ public enum ShapeType {
     CYLINDER("Cylinder"),
     PRISM("Prism"),
     PYRAMID("Pyramid"),
-    PRISMBOTTOM("Prismbottom");
+    PRISMBOTTOM("Prismbottom"),
+    FRUSTUM("Frustum");
 
 
     private String name;

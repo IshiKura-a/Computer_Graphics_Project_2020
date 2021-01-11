@@ -38,7 +38,7 @@ public class LightRecyclerAdapter extends RecyclerView.Adapter<LightRecyclerAdap
 
         @RequiresApi(api = Build.VERSION_CODES.O)
         public void onBind(int position, Light light, View v) {
-            lightIndex.setText("#"+(position+1));
+            lightIndex.setText("#"+position);
             lightIndex.setTypeface(FontUtil.gillSans);
 
             ambient.setBackgroundColor(Color.argb(light.getAmbient()[3],light.getAmbient()[0],light.getAmbient()[1],light.getAmbient()[2]));
@@ -60,8 +60,15 @@ public class LightRecyclerAdapter extends RecyclerView.Adapter<LightRecyclerAdap
     }
 
 
-    public void removeData(int position) {
-        // todo
+    public void remove(int position) {
+        synchronized(Observe.getLightList()) {
+            Observe.getLightList().remove(position);
+            notifyItemRemoved(position);
+            if (position != Observe.getLightList().size()) {
+                //刷新改变位置item下方的所有Item的位置,避免索引错乱
+                notifyItemRangeChanged(position, Observe.getLightList().size() - position);
+            }
+        }
     }
 
     public void setOnItemClickListener(LightOnItemClickListener listener) {
@@ -112,4 +119,16 @@ public class LightRecyclerAdapter extends RecyclerView.Adapter<LightRecyclerAdap
 
         void onItemLongCLick(int position, Light light);
     }
+
+    public void add(int position) {
+        notifyItemInserted(position);
+        synchronized (Observe.getLightList()) {
+            if (position != Observe.getLightList().size()) {
+                //刷新改变位置item下方的所有Item的位置,避免索引错乱
+                notifyItemRangeChanged(position, Observe.getLightList().size() - position);
+            }
+        }
+    }
+
+
 }

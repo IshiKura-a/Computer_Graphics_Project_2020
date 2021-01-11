@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="Location">
+        <h3>
+            Location
+        </h3>
+        X:
+        <input id="locationX" type="text" onkeyup="checkFloat('locationX')" value=0 />
+        Y:
+        <input id="locationY" type="text" onkeyup="checkFloat('locationY')" value=0 />
+        Z:
+        <input id="locationZ" type="text" onkeyup="checkFloat('locationZ')" value=0 />
+    </div>
+    <div class="MtlInfo">
+        <h3>
+            MtlInfo
+        </h3>
+        <div class="ColorDisplayer">
+            Ambient(RGBA):
+            <input id="ambient" type="text" onkeyup="checkRGBA('ambient', 'ambientDisplayer');" value="#FFFFFFFF" />
+            <div id="ambientDisplayer" class="show" style="background: #FFFFFFFF;"></div>
+        </div>
+        <p></p>
+        <div class="ColorDisplayer">
+            Diffuse(RGBA):
+            <input id="diffuse" type="text" onkeyup="checkRGBA('diffuse', 'diffuseDisplayer');" value="#FFFFFFFF" />
+            <div id="diffuseDisplayer" class="show" style="background: #FFFFFFFF;"></div>
+        </div>
+        <p></p>
+        <div class="ColorDisplayer">
+            Specular(RGBA):
+            <input id="specular" type="text" onkeyup="checkRGBA('specular', 'specularDisplayer');" value="#FFFFFFFF" />
+            <div id="specularDisplayer" class="show" style="background: #FFFFFFFF;"></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="../js/formatter.js"></script>
+</body>
+
+</html>

@@ -10,6 +10,7 @@ import android.util.Log;
 import androidx.core.app.ActivityCompat;
 
 import com.example.project_cg.MainActivity;
+import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shape.Model;
 import com.example.project_cg.shape.Shape;
 import com.example.project_cg.util.ExportObjUtil;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 
 
 public class ExportObj extends AsyncTask<Activity, Void, Void> {
@@ -25,10 +27,12 @@ public class ExportObj extends AsyncTask<Activity, Void, Void> {
     protected Void doInBackground(Activity... voids) {
         ExportObjUtil.path = "";
         MainActivity activity = (MainActivity) voids[0];
-        ArrayList<Shape> list = new ArrayList<>();
-        for (Shape s : activity.getmRender().getShapes()) {
-            if (s.isChosen()) {
-                list.add(s);
+        LinkedList<Shape> list = new LinkedList<>();
+        synchronized(Observe.getCamera()) {
+            for (Shape s : activity.getmRender().getShapes()) {
+                if (s.isChosen()) {
+                    list.add(s);
+                }
             }
         }
         if (list.size() == 0) return null;
