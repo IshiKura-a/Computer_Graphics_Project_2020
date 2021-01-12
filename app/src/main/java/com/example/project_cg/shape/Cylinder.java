@@ -18,14 +18,23 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class Cylinder extends Shape {
     private float vertex[];
+    private Circle top;
+    private Circle bottom;
     public Cylinder(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
-        color = rgba.clone();
-        method = DrawMethod.STRIPE;
-        type = ShapeType.CYLINDER;
-        this.mtl = mtl;
+        this.type=ShapeType.CYLINDER;
         float height=1f;
         float radius=1f;
-        setRotateX(90 + dir[0]);
+        float[] basetop=new float[base.length];
+        basetop[0]=base[0];
+        basetop[1]=base[1];
+        basetop[2]=base[2]-height;
+        basetop[3]=base[3];
+        top=new Circle(base,shape,dir,rgba,mtl,1);
+        bottom=new Circle(base,shape,dir,rgba,mtl,0);
+        color = rgba.clone();
+        method = DrawMethod.STRIPE;
+        this.mtl = mtl;
+        setRotateX(-90 + dir[0]);
         setRotateY(dir[1]);
         setRotateZ(dir[2]);
 
@@ -139,16 +148,50 @@ public class Cylinder extends Shape {
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
+    public void setChosen(boolean chosen) {
+        top.setChosen(chosen);
+        bottom.setChosen(chosen);
+        synchronized(Observe.getCamera()) {
+            isChosen = chosen;
+        }
+    }
+    public void setRotateX(float rotateX) {
+        this.rotateX = rotateX;
+        top.rotateX=rotateX;
+        bottom.rotateX=rotateX;
+    }
+
+    public void setRotateY(float rotateY) {
+        this.rotateY = rotateY;
+        top.rotateY=rotateY;
+        bottom.rotateY=rotateY;
+    }
+
+    public void setRotateZ(float rotateZ) {
+        this.rotateZ = rotateZ;
+        top.rotateZ=rotateZ;
+        bottom.rotateZ=rotateZ;
+    }
+    public void setTextureUsed(LinkedList<Integer> textureUsed) {
+        top.setTextureUsed(textureUsed);
+        bottom.setTextureUsed(textureUsed);
+        if(this.textureUsed.size() > 0) this.textureUsed.clear();
+        this.textureUsed.addAll(textureUsed);
+        enableTexture();
+    }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-
+        top.onSurfaceCreated(gl,config);
+        bottom.onSurfaceCreated(gl, config);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        GLES20.glUseProgram(mProgram);
-
+        top.onDrawFrame(gl);
+        bottom.onDrawFrame(gl);
         // get uniform handlers
+        GLES20.glUseProgram(mProgram);
+        int flag=GLES20.glGetUniformLocation(mProgram, "ischosen");
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
         int uViewHandler = GLES20.glGetUniformLocation(mProgram, "uView");
         int uProjectionHandler = GLES20.glGetUniformLocation(mProgram, "uProjection");
@@ -175,6 +218,16 @@ public class Cylinder extends Shape {
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
+        float chosenflag=0;
+        if(isChosen)
+        {
+            chosenflag=1.0f;
+        }
+        else
+        {
+            chosenflag=0f;
+        }
+        GLES20.glUniform1f(flag,chosenflag);
         GLES20.glUniformMatrix4fv(uModelHandler, 1, false, model, 0);
         GLES20.glUniformMatrix4fv(uAffineHandler, 1, false, affine, 0);
         GLES20.glUniformMatrix4fv(uViewHandler, 1, false, Observe.getViewMatrix(), 0);

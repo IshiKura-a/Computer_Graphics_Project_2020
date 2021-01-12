@@ -21,17 +21,14 @@ public class Prismbottom extends Shape {
     private float normalX;
     private float normalY;
     private float normalZ;
-
-    public Prismbottom(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int edge) {
+    private int top;
+    public Prismbottom(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int edge,int top,float fraction) {
         color = rgba.clone();
         method = DrawMethod.FAN;
-        type = ShapeType.PRISMBOTTOM;
         this.mtl = mtl;
-        float radius=1f;
-        setRotateX(90 + dir[0]);
-        setRotateY(dir[1]);
-        setRotateZ(dir[2]);
-        setRotateX(90 + dir[0]);
+        this.top=top;
+        float radius=1f*fraction;
+        setRotateX(-90 + dir[0]);
         setRotateY(dir[1]);
         setRotateZ(dir[2]);
 
@@ -57,20 +54,33 @@ public class Prismbottom extends Shape {
         textureUsed = new LinkedList<>();
 
         updateModelMatrix();
-
-
         ArrayList<Float> pos=new ArrayList<>();
-        pos.add(base[0]);
-        pos.add(base[1]);
-        pos.add(base[2]);
-        float angDegSpan=360f/edge;
-        for(float i=0;i<360+angDegSpan;i+=angDegSpan){
-            pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
-            pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-            pos.add(base[2]);
+        if(top==1)
+        {
+            pos.add(base[0]);
+            pos.add(base[1]);
+            pos.add(base[2]+1f);
+            float angDegSpan=360f/edge;
+            for(float i=0;i<360+angDegSpan;i+=angDegSpan){
+                pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
+                pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
+                pos.add(base[2]+1f);
+            }
         }
-        vertex=new float[pos.size()];    //所有的顶点
+        else
+        {
+            pos.add(base[0]);
+            pos.add(base[1]);
+            pos.add(base[2]);
+            float angDegSpan=360f/edge;
+            for(float i=0;i<360+angDegSpan;i+=angDegSpan){
+                pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
+                pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
+                pos.add(base[2]);
+            }
+        }
 
+        vertex=new float[pos.size()];    //所有的顶点
         for (int i=0;i<vertex.length;i++)
         {
             vertex[i]=pos.get(i);
@@ -106,7 +116,7 @@ public class Prismbottom extends Shape {
 
         //法向量
         ArrayList<Float> normalTmp=new ArrayList<>();
-        for(int i=0;i<edge;i++)
+        for(int i=0;i<vertex.length/3-1;i++)
         {
             if(i+2>edge) normalCalculate(i+1,1);
             else normalCalculate(i+1,i+2);
@@ -167,15 +177,16 @@ public class Prismbottom extends Shape {
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
+
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        GLES20.glUseProgram(mProgram);
-
         // get uniform handlers
+        GLES20.glUseProgram(mProgram);
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
         int uViewHandler = GLES20.glGetUniformLocation(mProgram, "uView");
         int uProjectionHandler = GLES20.glGetUniformLocation(mProgram, "uProjection");
@@ -192,6 +203,7 @@ public class Prismbottom extends Shape {
         int uTextureHandler = GLES20.glGetUniformLocation(mProgram, "uTexture");
         int uAffineHandler = GLES20.glGetUniformLocation(mProgram, "uAffine");
         int uColorHandler = GLES20.glGetUniformLocation(mProgram, "uColor");
+        int flag=GLES20.glGetUniformLocation(mProgram, "ischosen");
 
         LinkedList<Light> lightList;
         synchronized (Observe.getLightList()) {
@@ -202,6 +214,16 @@ public class Prismbottom extends Shape {
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
+        float chosenflag=0;
+        if(isChosen)
+        {
+            chosenflag=1.0f;
+        }
+        else
+        {
+            chosenflag=0f;
+        }
+        GLES20.glUniform1f(flag,chosenflag);
         GLES20.glUniformMatrix4fv(uModelHandler, 1, false, model, 0);
         GLES20.glUniformMatrix4fv(uAffineHandler, 1, false, affine, 0);
         GLES20.glUniformMatrix4fv(uViewHandler, 1, false, Observe.getViewMatrix(), 0);
@@ -253,8 +275,17 @@ public class Prismbottom extends Shape {
         float vector2X=vertex[Index2*3]-vertex[0];
         float vector2Y=vertex[Index2*3+1]-vertex[1];
         float vector2Z=vertex[Index2*3+2]-vertex[2];
-        normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
-        normalY=(vector1Z*vector2X-vector1X*vector2Z);
-        normalZ=(vector1X*vector2Y-vector1Y*vector2X);
+        if(top==1)
+        {
+            normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
+            normalY=-(vector1Z*vector2X-vector1X*vector2Z);
+            normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
+        }
+        else if(top==0)
+        {
+            normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
+            normalY=(vector1Z*vector2X-vector1X*vector2Z);
+            normalZ=(vector1X*vector2Y-vector1Y*vector2X);
+        }
     }
 }

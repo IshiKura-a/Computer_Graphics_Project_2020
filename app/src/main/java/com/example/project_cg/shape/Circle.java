@@ -22,13 +22,14 @@ public class Circle extends Shape {
     private float normalX;
     private float normalY;
     private float normalZ;
-    public Circle(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
+    private int top;
+    public Circle(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int top) {
+        this.top=top;
         color = rgba.clone();
         method = DrawMethod.FAN;
-        type = ShapeType.CIRCLE;
         float radius=1f;
         this.mtl = mtl;
-        setRotateX(90 + dir[0]);
+        setRotateX(-90 + dir[0]);
         setRotateY(dir[1]);
         setRotateZ(dir[2]);
 
@@ -57,14 +58,29 @@ public class Circle extends Shape {
 
 
         ArrayList<Float> pos=new ArrayList<>();
-        pos.add(base[0]);
-        pos.add(base[1]);
-        pos.add(base[2]);
-        float angDegSpan=360f/60;
-        for(float i=0;i<360+angDegSpan;i+=angDegSpan){
-            pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
-            pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
+        if(top==1)
+        {
+            pos.add(base[0]);
+            pos.add(base[1]);
+            pos.add(base[2]+1f);
+            float angDegSpan=360f/60;
+            for(float i=0;i<360+angDegSpan;i+=angDegSpan){
+                pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
+                pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
+                pos.add(base[2]+1f);
+            }
+        }
+        else
+        {
+            pos.add(base[0]);
+            pos.add(base[1]);
             pos.add(base[2]);
+            float angDegSpan=360f/60;
+            for(float i=0;i<360+angDegSpan;i+=angDegSpan){
+                pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
+                pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
+                pos.add(base[2]);
+            }
         }
         vertex=new float[pos.size()];    //所有的顶点
 
@@ -164,8 +180,8 @@ public class Circle extends Shape {
     @Override
     public void onDrawFrame(GL10 gl) {
         GLES20.glUseProgram(mProgram);
-
         // get uniform handlers
+        int flag=GLES20.glGetUniformLocation(mProgram, "ischosen");
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
         int uViewHandler = GLES20.glGetUniformLocation(mProgram, "uView");
         int uProjectionHandler = GLES20.glGetUniformLocation(mProgram, "uProjection");
@@ -192,6 +208,16 @@ public class Circle extends Shape {
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
+        float chosenflag=0;
+        if(isChosen)
+        {
+            chosenflag=1.0f;
+        }
+        else
+        {
+            chosenflag=0f;
+        }
+        GLES20.glUniform1f(flag,chosenflag);
         GLES20.glUniformMatrix4fv(uModelHandler, 1, false, model, 0);
         GLES20.glUniformMatrix4fv(uAffineHandler, 1, false, affine, 0);
         GLES20.glUniformMatrix4fv(uViewHandler, 1, false, Observe.getViewMatrix(), 0);
@@ -231,7 +257,6 @@ public class Circle extends Shape {
 
         GLES20.glEnableVertexAttribArray(iTextureCoordHandle);
         GLES20.glVertexAttribPointer(iTextureCoordHandle, 2, GLES20.GL_FLOAT, false, 0, textureBuffer);
-
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, vertex.length / 3);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
     }
@@ -245,8 +270,17 @@ public class Circle extends Shape {
         float vector2Y=vertex[Index2*3+1]-vertex[1];
         float vector2Z=vertex[Index2*3+2]-vertex[2];
 
-        normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
-        normalY=(vector1Z*vector2X-vector1X*vector2Z);
-        normalZ=(vector1X*vector2Y-vector1Y*vector2X);
+        if(top==0)
+        {
+            normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
+            normalY=(vector1Z*vector2X-vector1X*vector2Z);
+            normalZ=(vector1X*vector2Y-vector1Y*vector2X);
+        }
+        else
+        {
+            normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
+            normalY=-(vector1Z*vector2X-vector1X*vector2Z);
+            normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
+        }
     }
 }

@@ -95,7 +95,7 @@ public class MainRender implements Renderer {
 
         MtlInfo tmpMtl = new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
                 new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 100);
-        shapes.add(new Cube(new float[]{0, -10, 0, 1}, new float[]{3, 2, 1, 1}, new float[]{0, 0, 0},
+        shapes.add(new Cube(new float[]{0, -1, 0, 1}, new float[]{3, 2, 1, 1}, new float[]{0, 0, 0},
                 new float[]{1, 0, 0, 1}, tmpMtl));
 
 
@@ -121,7 +121,6 @@ public class MainRender implements Renderer {
             model.setShapePara(new float[]{0.5f, 0.5f, 0.5f, 1});
             model.setRotateY(-90);
             shapes.add(model);
-
              */
 
 

@@ -17,20 +17,22 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class Pyramid extends Shape {
-    private int edge;
     private float vertex[];
     private float normalX;
     private float normalY;
     private float normalZ;
-
+    private Prismbottom a;
+    private int edge;
     public Pyramid(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, int edge) {
+        this.type=ShapeType.PYRAMID;
+        a=new Prismbottom(base,shape,dir,rgba,mtl,edge,0,1f);
+        this.edge=edge;
         color = rgba.clone();
         method = DrawMethod.FAN;
-        type = ShapeType.PYRAMID;
         this.mtl = mtl;
         float radius=1f;
         float height=1f;
-        setRotateX(90 + dir[0]);
+        setRotateX(-90 + dir[0]);
         setRotateY(dir[1]);
         setRotateZ(dir[2]);
 
@@ -166,15 +168,42 @@ public class Pyramid extends Shape {
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
+    public void setRotateX(float rotateX) {
+        this.rotateX = rotateX;
+        a.rotateX=rotateX;
+    }
+
+    public void setRotateY(float rotateY) {
+        this.rotateY = rotateY;
+        a.rotateY=rotateY;
+    }
+
+    public void setRotateZ(float rotateZ) {
+        this.rotateZ = rotateZ;
+        a.rotateZ=rotateZ;
+    }
+    public void setTextureUsed(LinkedList<Integer> textureUsed) {
+        a.setTextureUsed(textureUsed);
+        if(this.textureUsed.size() > 0) this.textureUsed.clear();
+        this.textureUsed.addAll(textureUsed);
+        enableTexture();
+    }
+    public void setChosen(boolean chosen) {
+        a.setChosen(chosen);
+        synchronized(Observe.getCamera()) {
+            isChosen = chosen;
+        }
+    }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        a.onSurfaceCreated(gl,config);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        GLES20.glUseProgram(mProgram);
-
+        a.onDrawFrame(gl);
         // get uniform handlers
+        GLES20.glUseProgram(mProgram);
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
         int uViewHandler = GLES20.glGetUniformLocation(mProgram, "uView");
         int uProjectionHandler = GLES20.glGetUniformLocation(mProgram, "uProjection");
@@ -191,7 +220,7 @@ public class Pyramid extends Shape {
         int uTextureHandler = GLES20.glGetUniformLocation(mProgram, "uTexture");
         int uAffineHandler = GLES20.glGetUniformLocation(mProgram, "uAffine");
         int uColorHandler = GLES20.glGetUniformLocation(mProgram, "uColor");
-
+        int flag=GLES20.glGetUniformLocation(mProgram, "ischosen");
         LinkedList<Light> lightList;
         synchronized (Observe.getLightList()) {
             lightList = new LinkedList<>(Observe.getLightList());
@@ -201,6 +230,16 @@ public class Pyramid extends Shape {
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
+        float chosenflag=0;
+        if(isChosen)
+        {
+            chosenflag=1.0f;
+        }
+        else
+        {
+            chosenflag=0f;
+        }
+        GLES20.glUniform1f(flag,chosenflag);
         GLES20.glUniformMatrix4fv(uModelHandler, 1, false, model, 0);
         GLES20.glUniformMatrix4fv(uAffineHandler, 1, false, affine, 0);
         GLES20.glUniformMatrix4fv(uViewHandler, 1, false, Observe.getViewMatrix(), 0);
@@ -252,12 +291,12 @@ public class Pyramid extends Shape {
         float vector2X=vertex[Index2*3]-vertex[0];
         float vector2Y=vertex[Index2*3+1]-vertex[1];
         float vector2Z=vertex[Index2*3+2]-vertex[2];
-        normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
-        normalY=-(vector1Z*vector2X-vector1X*vector2Z);
-        normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
+        normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
+        normalY=(vector1Z*vector2X-vector1X*vector2Z);
+        normalZ=(vector1X*vector2Y-vector1Y*vector2X);
     }
-
-    public int getEdge() {
-        return edge;
+    public int getEdge()
+    {
+        return this.edge;
     }
 }

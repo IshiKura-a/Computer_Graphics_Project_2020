@@ -23,18 +23,21 @@ public class Frustum extends Shape {
     private float normalZ;
     private int edge;
     private float fraction;
-
+    private Prismbottom top;
+    private Prismbottom bottom;
     public Frustum(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, float fraction,int edge) {
-        this.fraction = fraction;
-        this.edge = edge;
+        this.type=ShapeType.FRUSTUM;
         color = rgba.clone();
         method = DrawMethod.STRIPE;
-        type = ShapeType.FRUSTUM;
+        top=new Prismbottom(base,shape,dir,rgba,mtl,edge,1,fraction);
+        bottom=new Prismbottom(base,shape,dir,rgba,mtl,edge,0,1f);
+        this.edge=edge;
+        this.fraction=fraction;
         this.mtl = mtl;
         float height=1f;
         float radius2=1f;
         float radius1=radius2*fraction;
-        setRotateX(90 + dir[0]);
+        setRotateX(-90 + dir[0]);
         setRotateY(dir[1]);
         setRotateZ(dir[2]);
         basePara = new float[4];
@@ -161,14 +164,48 @@ public class Frustum extends Shape {
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
+
+    public void setRotateX(float rotateX) {
+        this.rotateX = rotateX;
+        top.rotateX=rotateX;
+        bottom.rotateX=rotateX;
+    }
+    public void setChosen(boolean chosen) {
+        top.setChosen(chosen);
+        bottom.setChosen(chosen);
+        synchronized(Observe.getCamera()) {
+            isChosen = chosen;
+        }
+    }
+    public void setRotateY(float rotateY) {
+        this.rotateY = rotateY;
+        top.rotateY=rotateY;
+        bottom.rotateY=rotateY;
+    }
+
+    public void setRotateZ(float rotateZ) {
+        this.rotateZ = rotateZ;
+        top.rotateZ=rotateZ;
+        bottom.rotateZ=rotateZ;
+    }
+    public void setTextureUsed(LinkedList<Integer> textureUsed) {
+        top.setTextureUsed(textureUsed);
+        bottom.setTextureUsed(textureUsed);
+        if(this.textureUsed.size() > 0) this.textureUsed.clear();
+        this.textureUsed.addAll(textureUsed);
+        enableTexture();
+    }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        top.onSurfaceCreated(gl,config);
+        bottom.onSurfaceCreated(gl,config);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        top.onDrawFrame(gl);
+        bottom.onDrawFrame(gl);
         GLES20.glUseProgram(mProgram);
-
         // get uniform handlers
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
         int uViewHandler = GLES20.glGetUniformLocation(mProgram, "uView");
@@ -186,6 +223,7 @@ public class Frustum extends Shape {
         int uTextureHandler = GLES20.glGetUniformLocation(mProgram, "uTexture");
         int uAffineHandler = GLES20.glGetUniformLocation(mProgram, "uAffine");
         int uColorHandler = GLES20.glGetUniformLocation(mProgram, "uColor");
+        int flag=GLES20.glGetUniformLocation(mProgram, "ischosen");
 
         LinkedList<Light> lightList;
         synchronized (Observe.getLightList()) {
@@ -196,6 +234,16 @@ public class Frustum extends Shape {
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
+        float chosenflag=0;
+        if(isChosen)
+        {
+            chosenflag=1.0f;
+        }
+        else
+        {
+            chosenflag=0f;
+        }
+        GLES20.glUniform1f(flag,chosenflag);
         GLES20.glUniformMatrix4fv(uModelHandler, 1, false, model, 0);
         GLES20.glUniformMatrix4fv(uAffineHandler, 1, false, affine, 0);
         GLES20.glUniformMatrix4fv(uViewHandler, 1, false, Observe.getViewMatrix(), 0);
@@ -251,12 +299,14 @@ public class Frustum extends Shape {
         normalY=vector1Z*vector2X-vector1X*vector2Z;
         normalZ=vector1X*vector2Y-vector1Y*vector2X;
     }
-
-    public int getEdge() {
+    public int getEdge()
+    {
         return edge;
     }
-
-    public float getFraction() {
+    public float getFraction()
+    {
         return fraction;
     }
+
+
 }

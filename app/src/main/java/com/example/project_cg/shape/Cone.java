@@ -22,14 +22,16 @@ public class Cone extends Shape {
     private float normalX;
     private float normalY;
     private float normalZ;
+    private Circle a;
     public Cone(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
+        a=new Circle(base,shape,dir,rgba,mtl,0);
         color = rgba.clone();
         method = DrawMethod.FAN;
-        type = ShapeType.CONE;
         float height=1f;
         float radius=1f;
         this.mtl = mtl;
-        setRotateX(90 + dir[0]);
+        this.type=ShapeType.CONE;
+        setRotateX(-90 + dir[0]);
         setRotateY(dir[1]);
         setRotateZ(dir[2]);
 
@@ -156,17 +158,43 @@ public class Cone extends Shape {
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
+    public void setChosen(boolean chosen) {
+        a.setChosen(chosen);
+        synchronized(Observe.getCamera()) {
+            isChosen = chosen;
+        }
+    }
+    public void setRotateX(float rotateX) {
+        this.rotateX = rotateX;
+        a.rotateX=rotateX;
+    }
 
+    public void setRotateY(float rotateY) {
+        this.rotateY = rotateY;
+        a.rotateY=rotateY;
+    }
+
+    public void setRotateZ(float rotateZ) {
+        this.rotateZ = rotateZ;
+        a.rotateZ=rotateZ;
+    }
+    public void setTextureUsed(LinkedList<Integer> textureUsed) {
+        a.setTextureUsed(textureUsed);
+        if(this.textureUsed.size() > 0) this.textureUsed.clear();
+        this.textureUsed.addAll(textureUsed);
+        enableTexture();
+    }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-
+        a.onSurfaceCreated(gl,config);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        GLES20.glUseProgram(mProgram);
-
+        a.onDrawFrame(gl);
         // get uniform handlers
+        GLES20.glUseProgram(mProgram);
+        int flag=GLES20.glGetUniformLocation(mProgram, "ischosen");
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
         int uViewHandler = GLES20.glGetUniformLocation(mProgram, "uView");
         int uProjectionHandler = GLES20.glGetUniformLocation(mProgram, "uProjection");
@@ -193,6 +221,16 @@ public class Cone extends Shape {
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
+        float chosenflag=0;
+        if(isChosen)
+        {
+            chosenflag=1.0f;
+        }
+        else
+        {
+            chosenflag=0f;
+        }
+        GLES20.glUniform1f(flag,chosenflag);
         GLES20.glUniformMatrix4fv(uModelHandler, 1, false, model, 0);
         GLES20.glUniformMatrix4fv(uAffineHandler, 1, false, affine, 0);
         GLES20.glUniformMatrix4fv(uViewHandler, 1, false, Observe.getViewMatrix(), 0);
