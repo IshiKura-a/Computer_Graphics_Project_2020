@@ -121,7 +121,7 @@ public class ObjectRecyclerAdapter extends RecyclerView.Adapter<ObjectRecyclerAd
             if (mItemClickListener != null) {
                 mItemClickListener.onItemLongCLick(position, mShapes.get(position));
             }
-            return false;
+            return true;
         });
     }
 

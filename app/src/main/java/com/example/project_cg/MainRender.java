@@ -53,7 +53,7 @@ public class MainRender implements Renderer {
     private MainActivity activity;
     int dir = 2;
     int used = 0;
-    float traflag=0.01f;
+    float traflag=0.005f;
     int flag=0;
 
     static {
@@ -235,7 +235,7 @@ public class MainRender implements Renderer {
 
             cnt += dir * inc;
             inc = (inc + 1) % 2;
-            if (cnt == 0 || cnt == 360) dir = -dir;
+            if (cnt % 360 == 0) dir = -dir;
 
             tra+=traflag;
             flag+=1;
