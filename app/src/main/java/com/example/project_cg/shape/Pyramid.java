@@ -194,6 +194,37 @@ public class Pyramid extends Shape {
             isChosen = chosen;
         }
     }
+    public void setRotatePara(float[] rotatePara) {
+        this.rotatePara = rotatePara;
+        a.setRotatePara(rotatePara);
+    }
+
+    public void setScalePara(float[] scalePara) {
+        this.scalePara = scalePara;
+        a.setScalePara(scalePara);
+    }
+
+    public void setTranslatePara(float[] translatePara) {
+        this.translatePara = translatePara;
+        a.setTranslatePara(translatePara);
+    }
+
+    public void setBasePara(float[] basePara) {
+        this.basePara = basePara;
+        a.setBasePara(basePara);
+    }
+    public void enableTexture() {
+        useTexture = true;
+        a.enableTexture();
+    }
+    public void disableTexture() {
+        useTexture = false;
+        a.disableTexture();
+    }
+    public void setShapePara(float[] shapePara) {
+        this.shapePara = shapePara;
+        a.setShapePara(shapePara);
+    }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         a.onSurfaceCreated(gl,config);
