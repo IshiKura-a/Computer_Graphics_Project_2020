@@ -116,10 +116,12 @@ public class Prismbottom extends Shape {
 
         //法向量
         ArrayList<Float> normalTmp=new ArrayList<>();
-        for(int i=0;i<vertex.length/3-1;i++)
-        {
-            if(i+2>edge) normalCalculate(i+1,1);
-            else normalCalculate(i+1,i+2);
+        normalCalculate(1,2);
+        normalTmp.add(normalX);
+        normalTmp.add(normalY);
+        normalTmp.add(normalZ);
+        float angDegSpan=360f/edge;
+        for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             normalTmp.add(normalX);
             normalTmp.add(normalY);
             normalTmp.add(normalZ);
@@ -277,15 +279,15 @@ public class Prismbottom extends Shape {
         float vector2Z=vertex[Index2*3+2]-vertex[2];
         if(top==1)
         {
-            normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
-            normalY=-(vector1Z*vector2X-vector1X*vector2Z);
-            normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
+            normalX=0;
+            normalY=0;
+            normalZ=1;
         }
         else if(top==0)
         {
-            normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
-            normalY=(vector1Z*vector2X-vector1X*vector2Z);
-            normalZ=(vector1X*vector2Y-vector1Y*vector2X);
+            normalX=0;
+            normalY=0;
+            normalZ=-1;
         }
     }
 }
