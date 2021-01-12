@@ -6,10 +6,12 @@ import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shader.ShaderMap;
 import com.example.project_cg.shader.ShaderType;
+import com.example.project_cg.texture.TextureManager;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -20,14 +22,17 @@ public class Pyramid extends Shape {
     private float normalY;
     private float normalZ;
     private Prismbottom a;
+    private int edge;
     public Pyramid(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, int edge) {
-        a=new Prismbottom(base,shape,dir,rgba,mtl,edge,0);
+        this.type=ShapeType.PYRAMID;
+        a=new Prismbottom(base,shape,dir,rgba,mtl,edge,0,1f);
+        this.edge=edge;
         color = rgba.clone();
         method = DrawMethod.FAN;
         this.mtl = mtl;
         float radius=1f;
         float height=1f;
-        setRotateX(90 + dir[0]);
+        setRotateX(-90 + dir[0]);
         setRotateY(dir[1]);
         setRotateZ(dir[2]);
 
@@ -50,7 +55,7 @@ public class Pyramid extends Shape {
         scalePara[2] = 1;
         scalePara[3] = 1;
 
-        textureUsed = new ArrayList<>();
+        textureUsed = new LinkedList<>();
 
         updateModelMatrix();
 
@@ -58,7 +63,7 @@ public class Pyramid extends Shape {
         ArrayList<Float> pos=new ArrayList<>();
         pos.add(base[0]);
         pos.add(base[1]);
-        pos.add(base[2]-height);
+        pos.add(base[2]+height);
         float angDegSpan=360f/edge;
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
@@ -177,25 +182,22 @@ public class Pyramid extends Shape {
         this.rotateZ = rotateZ;
         a.rotateZ=rotateZ;
     }
-    public void setTextureUsed(ArrayList<Integer> textureUsed) {
+    public void setTextureUsed(LinkedList<Integer> textureUsed) {
         a.setTextureUsed(textureUsed);
-        enableTexture();
-        this.textureUsed.clear();
+        if(this.textureUsed.size() > 0) this.textureUsed.clear();
         this.textureUsed.addAll(textureUsed);
-        updateTexture();
+        enableTexture();
     }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         a.onSurfaceCreated(gl,config);
-        updateTexture();
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         a.onDrawFrame(gl);
-        GLES20.glUseProgram(mProgram);
-
         // get uniform handlers
+        GLES20.glUseProgram(mProgram);
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
         int uViewHandler = GLES20.glGetUniformLocation(mProgram, "uView");
         int uProjectionHandler = GLES20.glGetUniformLocation(mProgram, "uProjection");
@@ -213,7 +215,12 @@ public class Pyramid extends Shape {
         int uAffineHandler = GLES20.glGetUniformLocation(mProgram, "uAffine");
         int uColorHandler = GLES20.glGetUniformLocation(mProgram, "uColor");
 
-        Light light = Observe.getLightList().get(0);
+        LinkedList<Light> lightList;
+        synchronized (Observe.getLightList()) {
+            lightList = new LinkedList<>(Observe.getLightList());
+        }
+        Light light = lightList.get(0);
+
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
@@ -231,14 +238,18 @@ public class Pyramid extends Shape {
         GLES20.glUniform4fv(uMaterialDiffuseHandler, 1, mtl.kDiffuse, 0);
         GLES20.glUniform4fv(uMaterialAmbientHandler, 1, mtl.kAmbient, 0);
         GLES20.glUniform1i(uUseTextureHandler, useTexture ? 1 : 0);
-        if (useTexture) GLES20.glUniform1i(uTextureHandler, textureUsed.get(0));
+        if (useTexture) {
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE0+textureUsed.get(0));
+            GLES20.glEnable(GLES20.GL_TEXTURE_2D);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, TextureManager.getTextureIdByIndex(textureUsed.get(0)));
+            GLES20.glUniform1i(uTextureHandler, textureUsed.get(0));
+        }
         GLES20.glUniform4fv(uColorHandler, 1, color, 0);
 
 
 
         // get attribute handlers
         int iVertexPositionHandle = GLES20.glGetAttribLocation(mProgram, "iVertexPosition");
-        int iColorHandle = GLES20.glGetAttribLocation(mProgram, "iColor");
         int iNormalHandle = GLES20.glGetAttribLocation(mProgram, "iNormal");
         int iTextureCoordHandle = GLES20.glGetAttribLocation(mProgram, "iTextureCoord");
 
@@ -267,5 +278,9 @@ public class Pyramid extends Shape {
         normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
         normalY=(vector1Z*vector2X-vector1X*vector2Z);
         normalZ=(vector1X*vector2Y-vector1Y*vector2X);
+    }
+    public int getEdge()
+    {
+        return this.edge;
     }
 }

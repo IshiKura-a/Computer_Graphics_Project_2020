@@ -6,10 +6,12 @@ import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shader.ShaderMap;
 import com.example.project_cg.shader.ShaderType;
+import com.example.project_cg.texture.TextureManager;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -18,14 +20,12 @@ public class Prism extends Shape {
     private float vertex[];
     private Prismbottom top;
     private Prismbottom bottom;
+    private int edge;
     public Prism(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl,int edge) {
-        float[] basetop=new float[base.length];
-        basetop[0]=base[0];
-        basetop[1]=base[1];
-        basetop[2]=base[2]-1.0f;
-        basetop[3]=base[3];
-        top=new Prismbottom(basetop,shape,dir,rgba,mtl,edge,1);
-        bottom=new Prismbottom(base,shape,dir,rgba,mtl,edge,0);
+        this.type=ShapeType.PRISM;
+        this.edge=edge;
+        top=new Prismbottom(base,shape,dir,rgba,mtl,edge,1,1f);
+        bottom=new Prismbottom(base,shape,dir,rgba,mtl,edge,0,1f);
         color = rgba.clone();
         method = DrawMethod.STRIPE;
         this.mtl = mtl;
@@ -54,7 +54,7 @@ public class Prism extends Shape {
         scalePara[2] = 1;
         scalePara[3] = 1;
 
-        textureUsed = new ArrayList<>();
+        textureUsed = new LinkedList<>();
 
         updateModelMatrix();
         ArrayList<Float> pos=new ArrayList<>();
@@ -62,7 +62,7 @@ public class Prism extends Shape {
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-            pos.add(base[2]-height);
+            pos.add(base[2]+height);
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
             pos.add(base[2]);
@@ -173,29 +173,26 @@ public class Prism extends Shape {
         top.rotateZ=rotateZ;
         bottom.rotateZ=rotateZ;
     }
-    public void setTextureUsed(ArrayList<Integer> textureUsed) {
+    public void setTextureUsed(LinkedList<Integer> textureUsed) {
         top.setTextureUsed(textureUsed);
         bottom.setTextureUsed(textureUsed);
-        enableTexture();
-        this.textureUsed.clear();
+        if(this.textureUsed.size() > 0) this.textureUsed.clear();
         this.textureUsed.addAll(textureUsed);
-        updateTexture();
+        enableTexture();
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         top.onSurfaceCreated(gl,config);
         bottom.onSurfaceCreated(gl, config);
-        updateTexture();
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         top.onDrawFrame(gl);
         bottom.onDrawFrame(gl);
-        GLES20.glUseProgram(mProgram);
-
         // get uniform handlers
+        GLES20.glUseProgram(mProgram);
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
         int uViewHandler = GLES20.glGetUniformLocation(mProgram, "uView");
         int uProjectionHandler = GLES20.glGetUniformLocation(mProgram, "uProjection");
@@ -213,7 +210,12 @@ public class Prism extends Shape {
         int uAffineHandler = GLES20.glGetUniformLocation(mProgram, "uAffine");
         int uColorHandler = GLES20.glGetUniformLocation(mProgram, "uColor");
 
-        Light light = Observe.getLightList().get(0);
+        LinkedList<Light> lightList;
+        synchronized (Observe.getLightList()) {
+            lightList = new LinkedList<>(Observe.getLightList());
+        }
+        Light light = lightList.get(0);
+
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
@@ -231,14 +233,18 @@ public class Prism extends Shape {
         GLES20.glUniform4fv(uMaterialDiffuseHandler, 1, mtl.kDiffuse, 0);
         GLES20.glUniform4fv(uMaterialAmbientHandler, 1, mtl.kAmbient, 0);
         GLES20.glUniform1i(uUseTextureHandler, useTexture ? 1 : 0);
-        if (useTexture) GLES20.glUniform1i(uTextureHandler, textureUsed.get(0));
+        if (useTexture) {
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE0+textureUsed.get(0));
+            GLES20.glEnable(GLES20.GL_TEXTURE_2D);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, TextureManager.getTextureIdByIndex(textureUsed.get(0)));
+            GLES20.glUniform1i(uTextureHandler, textureUsed.get(0));
+        }
         GLES20.glUniform4fv(uColorHandler, 1, color, 0);
 
 
 
         // get attribute handlers
         int iVertexPositionHandle = GLES20.glGetAttribLocation(mProgram, "iVertexPosition");
-        int iColorHandle = GLES20.glGetAttribLocation(mProgram, "iColor");
         int iNormalHandle = GLES20.glGetAttribLocation(mProgram, "iNormal");
         int iTextureCoordHandle = GLES20.glGetAttribLocation(mProgram, "iTextureCoord");
 
@@ -256,4 +262,9 @@ public class Prism extends Shape {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertex.length / 3);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
     }
+    public int getEdge()
+    {
+        return this.edge;
+    }
+
 }

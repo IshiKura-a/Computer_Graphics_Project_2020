@@ -26,10 +26,10 @@ public class Ball extends Shape{
     {
         color = rgba.clone();
         method = DrawMethod.FAN;
-        type = ShapeType.BALL;
         this.mtl = mtl;
+        this.type=ShapeType.BALL;
 
-        setRotateX(90 + dir[0]);
+        setRotateX(-90 + dir[0]);
         setRotateY(dir[1]);
         setRotateZ(dir[2]);
 
@@ -165,9 +165,8 @@ public class Ball extends Shape{
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        GLES20.glUseProgram(mProgram);
-
         // get uniform handlers
+        GLES20.glUseProgram(mProgram);
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
         int uViewHandler = GLES20.glGetUniformLocation(mProgram, "uView");
         int uProjectionHandler = GLES20.glGetUniformLocation(mProgram, "uProjection");
