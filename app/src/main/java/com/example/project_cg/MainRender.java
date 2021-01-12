@@ -47,11 +47,14 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class MainRender implements Renderer {
     int cnt = 250;
+    float tra = -0.5f;
     private LinkedList<Shape> shapes = new LinkedList<>();
     int inc = 0;
     private MainActivity activity;
     int dir = 2;
     int used = 0;
+    float traflag=0.01f;
+    int flag=0;
 
     static {
         System.loadLibrary("MainRender");
@@ -95,33 +98,20 @@ public class MainRender implements Renderer {
 
         MtlInfo tmpMtl = new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
                 new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 100);
-        shapes.add(new Cube(new float[]{0, -1, 0, 1}, new float[]{3, 2, 1, 1}, new float[]{0, 0, 0},
+        shapes.add(new Cube(new float[]{0, 1, 0, 1}, new float[]{3, 2, 1, 1}, new float[]{0, 0, 0},
                 new float[]{1, 0, 0, 1}, tmpMtl));
 
 
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(TextureManager.getAssetManager().open("object/Cube.obj")));
+            BufferedReader br = new BufferedReader(new InputStreamReader(TextureManager.getAssetManager().open("object/Chair.obj")));
             Model model = Model.readObject(new Model(), br);
             model.setMtl(new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
                     new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 30));
             model.setColor(new float[]{0.9f, 0.1f, 0.3f, 1.0f});
             model.setBasePara(new float[]{0, -5, 0, 1});
-            model.setShapePara(new float[]{1, 1, 1, 1});
+            model.setShapePara(new float[]{0.5f, 0.5f, 0.5f, 1});
             // model.setRotateX(90);
             shapes.add(model);
-
-
-            /*
-            br = new BufferedReader(new InputStreamReader(new FileInputStream("/storage/emulated/0/Android/data/com.example.project_cg/files/Models/2021-01-09_12:14:10.obj")));
-            model = Model.readObject(new Model(), br);
-            model.setMtl(new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
-                    new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 30));
-            model.setColor(new float[]{0.3f, 0.3f, 0.3f, 1.0f});
-            model.setBasePara(new float[]{0, 1, 0, 1});
-            model.setShapePara(new float[]{0.5f, 0.5f, 0.5f, 1});
-            model.setRotateY(-90);
-            shapes.add(model);
-             */
 
 
         } catch (IOException e) {
@@ -134,7 +124,7 @@ public class MainRender implements Renderer {
 
         LinkedList<Integer> a2 = new LinkedList<>();
         a2.add(2);
-        shapes.get(1).setTextureUsed(a2);
+        //shapes.get(1).setTextureUsed(a2);
 
         flushScreen(gl, config);
     }
@@ -179,14 +169,14 @@ public class MainRender implements Renderer {
             // Observe.getLightList().get(0).setLocation(new float[]{-20 + 0.1f * (cnt % 360), 5, 5, 1});
 
             if(shapes.size() > 0) {
+                shapes.get(0).setTranslatePara(new float[]{-tra,0,0,1});
                 shapes.get(0).setRotateX(cnt % 360);
             }
             if(shapes.size() > 1) {
-                //shapes.get(1).setRotateX(cnt % 360);
-                //shapes.get(1).setRotateY(cnt % 360);
+                shapes.get(1).setRotateY(cnt % 360);
             }
             if(shapes.size() > 2) {
-                //shapes.get(2).setRotateY(cnt % 360);
+                shapes.get(2).setRotateY(cnt % 360);
             }
 
             if(used == 1) {
@@ -246,6 +236,14 @@ public class MainRender implements Renderer {
             cnt += dir * inc;
             inc = (inc + 1) % 2;
             if (cnt == 0 || cnt == 360) dir = -dir;
+
+            tra+=traflag;
+            flag+=1;
+            if(flag%100==0)
+            {
+                traflag=-traflag;
+            }
+
 
             if (ScreenShotUtil.toScreenShot) {
                 ScreenShotUtil.toScreenShot = false;

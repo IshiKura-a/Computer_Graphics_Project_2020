@@ -187,6 +187,44 @@ public class Prism extends Shape {
             isChosen = chosen;
         }
     }
+    public void setRotatePara(float[] rotatePara) {
+        this.rotatePara = rotatePara;
+        top.setRotatePara(rotatePara);
+        bottom.setRotatePara(rotatePara);
+    }
+
+    public void setScalePara(float[] scalePara) {
+        this.scalePara = scalePara;
+        top.setScalePara(scalePara);
+        bottom.setScalePara(scalePara);
+    }
+
+    public void setTranslatePara(float[] translatePara) {
+        this.translatePara = translatePara;
+        top.setTranslatePara(translatePara);
+        bottom.setTranslatePara(translatePara);
+    }
+
+    public void setBasePara(float[] basePara) {
+        this.basePara = basePara;
+        top.setBasePara(basePara);
+        bottom.setBasePara(basePara);
+    }
+    public void enableTexture() {
+        useTexture = true;
+        top.enableTexture();
+        bottom.enableTexture();
+    }
+    public void disableTexture() {
+        useTexture = false;
+        top.disableTexture();
+        bottom.disableTexture();
+    }
+    public void setShapePara(float[] shapePara) {
+        this.shapePara = shapePara;
+        top.setShapePara(shapePara);
+        bottom.setShapePara(shapePara);
+    }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         top.onSurfaceCreated(gl,config);
