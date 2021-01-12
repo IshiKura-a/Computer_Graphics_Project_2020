@@ -158,7 +158,12 @@ public class Cone extends Shape {
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
-
+    public void setChosen(boolean chosen) {
+        a.setChosen(chosen);
+        synchronized(Observe.getCamera()) {
+            isChosen = chosen;
+        }
+    }
     public void setRotateX(float rotateX) {
         this.rotateX = rotateX;
         a.rotateX=rotateX;
@@ -189,6 +194,7 @@ public class Cone extends Shape {
         a.onDrawFrame(gl);
         // get uniform handlers
         GLES20.glUseProgram(mProgram);
+        int flag=GLES20.glGetUniformLocation(mProgram, "ischosen");
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
         int uViewHandler = GLES20.glGetUniformLocation(mProgram, "uView");
         int uProjectionHandler = GLES20.glGetUniformLocation(mProgram, "uProjection");
@@ -215,6 +221,16 @@ public class Cone extends Shape {
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
+        float chosenflag=0;
+        if(isChosen)
+        {
+            chosenflag=1.0f;
+        }
+        else
+        {
+            chosenflag=0f;
+        }
+        GLES20.glUniform1f(flag,chosenflag);
         GLES20.glUniformMatrix4fv(uModelHandler, 1, false, model, 0);
         GLES20.glUniformMatrix4fv(uAffineHandler, 1, false, affine, 0);
         GLES20.glUniformMatrix4fv(uViewHandler, 1, false, Observe.getViewMatrix(), 0);

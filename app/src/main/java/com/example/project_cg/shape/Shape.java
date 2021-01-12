@@ -29,7 +29,6 @@ public abstract class Shape {
     protected boolean isChosen = false;
 
     protected int mProgram;
-    protected int sobel;
 
     protected MtlInfo mtl;
     protected boolean useTexture = false;

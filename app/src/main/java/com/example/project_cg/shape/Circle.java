@@ -62,12 +62,12 @@ public class Circle extends Shape {
         {
             pos.add(base[0]);
             pos.add(base[1]);
-            pos.add(base[2]-1f);
+            pos.add(base[2]+1f);
             float angDegSpan=360f/60;
             for(float i=0;i<360+angDegSpan;i+=angDegSpan){
                 pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
                 pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-                pos.add(base[2]-1f);
+                pos.add(base[2]+1f);
             }
         }
         else
@@ -181,6 +181,7 @@ public class Circle extends Shape {
     public void onDrawFrame(GL10 gl) {
         GLES20.glUseProgram(mProgram);
         // get uniform handlers
+        int flag=GLES20.glGetUniformLocation(mProgram, "ischosen");
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
         int uViewHandler = GLES20.glGetUniformLocation(mProgram, "uView");
         int uProjectionHandler = GLES20.glGetUniformLocation(mProgram, "uProjection");
@@ -207,6 +208,16 @@ public class Circle extends Shape {
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
+        float chosenflag=0;
+        if(isChosen)
+        {
+            chosenflag=1.0f;
+        }
+        else
+        {
+            chosenflag=0f;
+        }
+        GLES20.glUniform1f(flag,chosenflag);
         GLES20.glUniformMatrix4fv(uModelHandler, 1, false, model, 0);
         GLES20.glUniformMatrix4fv(uAffineHandler, 1, false, affine, 0);
         GLES20.glUniformMatrix4fv(uViewHandler, 1, false, Observe.getViewMatrix(), 0);
@@ -261,15 +272,15 @@ public class Circle extends Shape {
 
         if(top==0)
         {
-            normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
-            normalY=-(vector1Z*vector2X-vector1X*vector2Z);
-            normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
-        }
-        else
-        {
             normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
             normalY=(vector1Z*vector2X-vector1X*vector2Z);
             normalZ=(vector1X*vector2Y-vector1Y*vector2X);
+        }
+        else
+        {
+            normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
+            normalY=-(vector1Z*vector2X-vector1X*vector2Z);
+            normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
         }
     }
 }

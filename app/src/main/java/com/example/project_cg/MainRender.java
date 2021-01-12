@@ -95,8 +95,8 @@ public class MainRender implements Renderer {
 
         MtlInfo tmpMtl = new MtlInfo(new float[]{0.2f, 0.2f, 0.2f, 1},
                 new float[]{0.8f, 0.8f, 0.8f, 1}, new float[]{0.65f, 0.65f, 0.65f, 1}, 100);
-        shapes.add(new Frustum(new float[]{0, -1, 0, 1}, new float[]{3, 2, 1, 1}, new float[]{0, 0, 0},
-                new float[]{1, 0, 0, 1}, tmpMtl,0.5f,3));
+        shapes.add(new Cube(new float[]{0, -1, 0, 1}, new float[]{3, 2, 1, 1}, new float[]{0, 0, 0},
+                new float[]{1, 0, 0, 1}, tmpMtl));
 
 
         try {

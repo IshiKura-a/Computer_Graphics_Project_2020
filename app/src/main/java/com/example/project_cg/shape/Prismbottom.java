@@ -203,6 +203,7 @@ public class Prismbottom extends Shape {
         int uTextureHandler = GLES20.glGetUniformLocation(mProgram, "uTexture");
         int uAffineHandler = GLES20.glGetUniformLocation(mProgram, "uAffine");
         int uColorHandler = GLES20.glGetUniformLocation(mProgram, "uColor");
+        int flag=GLES20.glGetUniformLocation(mProgram, "ischosen");
 
         LinkedList<Light> lightList;
         synchronized (Observe.getLightList()) {
@@ -213,6 +214,16 @@ public class Prismbottom extends Shape {
         updateModelMatrix();
         updateAffineMatrix();
         // set uniform data
+        float chosenflag=0;
+        if(isChosen)
+        {
+            chosenflag=1.0f;
+        }
+        else
+        {
+            chosenflag=0f;
+        }
+        GLES20.glUniform1f(flag,chosenflag);
         GLES20.glUniformMatrix4fv(uModelHandler, 1, false, model, 0);
         GLES20.glUniformMatrix4fv(uAffineHandler, 1, false, affine, 0);
         GLES20.glUniformMatrix4fv(uViewHandler, 1, false, Observe.getViewMatrix(), 0);

@@ -148,6 +148,7 @@ public class Cube extends Shape {
         GLES20.glAttachShader(mProgram, vertexShader);
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
+
     }
 
     @Override
@@ -160,6 +161,7 @@ public class Cube extends Shape {
         GLES20.glUseProgram(mProgram);
 
         // get uniform handlers
+        int flag=GLES20.glGetUniformLocation(mProgram, "ischosen");
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
         int uViewHandler = GLES20.glGetUniformLocation(mProgram, "uView");
         int uProjectionHandler = GLES20.glGetUniformLocation(mProgram, "uProjection");
@@ -181,21 +183,53 @@ public class Cube extends Shape {
         synchronized (Observe.getLightList()) {
             lightList = new LinkedList<>(Observe.getLightList());
         }
+        Light blacklight =new Light()
+                .setAmbient(new float[]{0f, 0f, 0f, 0f})
+                .setDiffuse(new float[]{0f, 0f, 0f, 0f})
+                .setSpecular(new float[]{0f, 0f, 0f, 0f})
+                .setLocation(new float[]{5, 5, 10, 1});
+        int num;
+        if(lightList.size()<10)
+        {
+            num=10-lightList.size();
+            for(int i=0;i<num;i++)
+            {
+                lightList.add(blacklight);
+            }
+        }
         Light light = lightList.get(0);
 
         updateModelMatrix();
         updateAffineMatrix();
+        Light newlight = new Light()
+                .setAmbient(new float[]{1f, 0f, 1f, 1f})
+                .setDiffuse(light.getDiffuse())
+                .setSpecular(light.getSpecular())
+                .setLocation(light.getLocation());
+
         // set uniform data
+        float chosenflag=0;
+        if(isChosen)
+        {
+            chosenflag=1.0f;
+        }
+        else
+        {
+            chosenflag=0f;
+        }
+        GLES20.glUniform1f(flag,chosenflag);
         GLES20.glUniformMatrix4fv(uModelHandler, 1, false, model, 0);
         GLES20.glUniformMatrix4fv(uAffineHandler, 1, false, affine, 0);
         GLES20.glUniformMatrix4fv(uViewHandler, 1, false, Observe.getViewMatrix(), 0);
         GLES20.glUniformMatrix4fv(uProjectionHandler, 1, false, Observe.getProjectionMatrix(), 0);
-        GLES20.glUniform4fv(uLightPositionHandler, 1, light.getLocation(), 0);
         GLES20.glUniform4fv(uCameraPositionHandler, 1, Observe.getCamera().getEye(), 0);
         GLES20.glUniform1f(uShininessHandler, mtl.shininess);
+
+        GLES20.glUniform4fv(uLightPositionHandler, 1, light.getLocation(), 0);
         GLES20.glUniform4fv(uLightSpecularHandler, 1, light.getSpecular(), 0);
         GLES20.glUniform4fv(uLightDiffuseHandler, 1, light.getDiffuse(), 0);
         GLES20.glUniform4fv(uLightAmbientHandler, 1, light.getAmbient(), 0);
+
         GLES20.glUniform4fv(uMaterialSpecularHandler, 1, mtl.kSpecular, 0);
         GLES20.glUniform4fv(uMaterialDiffuseHandler, 1, mtl.kDiffuse, 0);
         GLES20.glUniform4fv(uMaterialAmbientHandler, 1, mtl.kAmbient, 0);
@@ -208,12 +242,15 @@ public class Cube extends Shape {
         }
         GLES20.glUniform4fv(uColorHandler, 1, color, 0);
 
+        //////////////////////////////////////////////////////
+
 
 
         // get attribute handlers
         int iVertexPositionHandle = GLES20.glGetAttribLocation(mProgram, "iVertexPosition");
         int iNormalHandle = GLES20.glGetAttribLocation(mProgram, "iNormal");
         int iTextureCoordHandle = GLES20.glGetAttribLocation(mProgram, "iTextureCoord");
+
 
 
         // set attribute handlers
