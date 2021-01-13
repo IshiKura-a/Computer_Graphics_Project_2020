@@ -34,27 +34,37 @@ public class ExportObj extends AsyncTask<Activity, Void, Void> {
         ExportObjUtil.path = "";
         MainActivity activity = (MainActivity) voids[0];
         LinkedList<Shape> list = new LinkedList<>();
+        LinkedList<float[]> models = new LinkedList<>();
         synchronized(Observe.getCamera()) {
             for (Shape s : activity.getmRender().getShapes()) {
                 if (s.isChosen()) {
                     list.add(s);
+                    models.add(s.getModel());
                     if(s.getType() == ShapeType.CONE) {
-                        list.add(((Cone)s).getBottom());
+                        list.add(((Cone) s).getBottom());
+                        models.add(s.getModel());
                     }
                     else if(s.getType() == ShapeType.CYLINDER) {
-                        list.add(((Cylinder)s).getTop());
-                        list.add(((Cylinder)s).getBottom());
+                        list.add(((Cylinder) s).getTop());
+                        models.add(s.getModel());
+                        list.add(((Cylinder) s).getBottom());
+                        models.add(s.getModel());
                     }
                     else if(s.getType() == ShapeType.FRUSTUM) {
-                        list.add(((Frustum)s).getTop());
-                        list.add(((Frustum)s).getBottom());
+                        list.add(((Frustum) s).getTop());
+                        models.add(s.getModel());
+                        list.add(((Frustum) s).getBottom());
+                        models.add(s.getModel());
                     }
                     else if(s.getType() == ShapeType.PRISM) {
-                        list.add(((Prism)s).getTop());
-                        list.add(((Prism)s).getBottom());
+                        list.add(((Prism) s).getTop());
+                        models.add(s.getModel());
+                        list.add(((Prism) s).getBottom());
+                        models.add(s.getModel());
                     }
                     else if(s.getType() == ShapeType.PYRAMID) {
-                        list.add(((Pyramid)s).getBottom());
+                        list.add(((Pyramid) s).getBottom());
+                        models.add(s.getModel());
                     }
                 }
             }
@@ -67,7 +77,7 @@ public class ExportObj extends AsyncTask<Activity, Void, Void> {
                         android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", new Date()).toString() + ".obj");
                 FileOutputStream fos = new FileOutputStream(file);
 
-                Model.writeObject(list, fos);
+                Model.writeObject(list, models, fos);
                 Log.i("Storage", file.getAbsolutePath());
                 ExportObjUtil.path = file.getName();
                 fos.close();

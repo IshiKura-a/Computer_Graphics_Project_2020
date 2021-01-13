@@ -176,4 +176,8 @@ public abstract class Shape {
             return -1;
         }
     }
+
+    public float[] getModel() {
+        return model;
+    }
 }
