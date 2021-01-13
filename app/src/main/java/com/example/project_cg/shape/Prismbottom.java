@@ -64,7 +64,7 @@ public class Prismbottom extends Shape {
             for(float i=0;i<360+angDegSpan;i+=angDegSpan){
                 pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
                 pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-                pos.add(base[2]+1f);
+                pos.add(base[2]+0.5f);
             }
         }
         else
@@ -76,7 +76,7 @@ public class Prismbottom extends Shape {
             for(float i=0;i<360+angDegSpan;i+=angDegSpan){
                 pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
                 pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-                pos.add(base[2]);
+                pos.add(base[2]-0.5f);
             }
         }
 
@@ -256,7 +256,7 @@ public class Prismbottom extends Shape {
         synchronized (Observe.getLightList()) {
             lightList = new LinkedList<>(Observe.getLightList());
         }
-        Light blacklight =new Light()
+        Light blackLight =new Light()
                 .setAmbient(new float[]{0f, 0f, 0f, 0f})
                 .setDiffuse(new float[]{0f, 0f, 0f, 0f})
                 .setSpecular(new float[]{0f, 0f, 0f, 0f})
@@ -267,7 +267,7 @@ public class Prismbottom extends Shape {
             num=10-lightList.size();
             for(int i=0;i<num;i++)
             {
-                lightList.add(blacklight);
+                lightList.add(blackLight);
             }
         }
         Light light = lightList.get(0);

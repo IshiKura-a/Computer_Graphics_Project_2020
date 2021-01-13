@@ -23,6 +23,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 
@@ -233,7 +234,7 @@ public class Model extends Shape {
         synchronized (Observe.getLightList()) {
             lightList = new LinkedList<>(Observe.getLightList());
         }
-        Light blacklight =new Light()
+        Light blackLight =new Light()
                 .setAmbient(new float[]{0f, 0f, 0f, 0f})
                 .setDiffuse(new float[]{0f, 0f, 0f, 0f})
                 .setSpecular(new float[]{0f, 0f, 0f, 0f})
@@ -244,7 +245,7 @@ public class Model extends Shape {
             num=10-lightList.size();
             for(int i=0;i<num;i++)
             {
-                lightList.add(blacklight);
+                lightList.add(blackLight);
             }
         }
         Light light = lightList.get(0);
@@ -363,11 +364,14 @@ public class Model extends Shape {
         color = rgba.clone();
     }
 
-    public static void writeObject(LinkedList<Shape> shapes, FileOutputStream fos) throws IOException {
+    public static void writeObject(LinkedList<Shape> shapes, LinkedList<float[]> models, FileOutputStream fos) throws IOException {
         int base = 1;
-        for (Shape s : shapes) {
-            s.updateModelMatrix();
-            float[] model = s.model.clone();
+        Iterator<Shape> its = shapes.iterator();
+        Iterator<float[]> itm = models.iterator();
+        while (its.hasNext() && itm.hasNext()) {
+            Shape s = its.next();
+            // s.updateModelMatrix();
+            float[] model = itm.next();
             FloatBuffer vertexBuffer = s.vertexBuffer.asReadOnlyBuffer();
             FloatBuffer normalBuffer = s.normalBuffer.asReadOnlyBuffer();
             FloatBuffer textureBuffer = s.textureBuffer.asReadOnlyBuffer();

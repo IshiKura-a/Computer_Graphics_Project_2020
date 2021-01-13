@@ -62,24 +62,24 @@ public class Circle extends Shape {
         {
             pos.add(base[0]);
             pos.add(base[1]);
-            pos.add(base[2]+1f);
+            pos.add(base[2]+0.5f);
             float angDegSpan=360f/60;
             for(float i=0;i<360+angDegSpan;i+=angDegSpan){
                 pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
                 pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-                pos.add(base[2]+1f);
+                pos.add(base[2]+0.5f);
             }
         }
         else
         {
             pos.add(base[0]);
             pos.add(base[1]);
-            pos.add(base[2]);
+            pos.add(base[2]-0.5f);
             float angDegSpan=360f/60;
             for(float i=0;i<360+angDegSpan;i+=angDegSpan){
                 pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
                 pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-                pos.add(base[2]);
+                pos.add(base[2]-0.5f);
             }
         }
         vertex=new float[pos.size()];    //所有的顶点
@@ -250,7 +250,7 @@ public class Circle extends Shape {
         synchronized (Observe.getLightList()) {
             lightList = new LinkedList<>(Observe.getLightList());
         }
-        Light blacklight =new Light()
+        Light blackLight =new Light()
                 .setAmbient(new float[]{0f, 0f, 0f, 0f})
                 .setDiffuse(new float[]{0f, 0f, 0f, 0f})
                 .setSpecular(new float[]{0f, 0f, 0f, 0f})
@@ -261,7 +261,7 @@ public class Circle extends Shape {
             num=10-lightList.size();
             for(int i=0;i<num;i++)
             {
-                lightList.add(blacklight);
+                lightList.add(blackLight);
             }
         }
         Light light = lightList.get(0);
@@ -388,16 +388,13 @@ public class Circle extends Shape {
         {
             normalX=0;
             normalY=0;
-            normalZ=1;
+            normalZ=-1;
         }
         else
         {
-            //normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
-            //normalY=-(vector1Z*vector2X-vector1X*vector2Z);
-            //normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
             normalX=0;
             normalY=0;
-            normalZ=-1;
+            normalZ=1;
         }
     }
 }
