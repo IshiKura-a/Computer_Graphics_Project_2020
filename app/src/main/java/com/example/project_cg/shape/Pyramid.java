@@ -21,12 +21,12 @@ public class Pyramid extends Shape {
     private float normalX;
     private float normalY;
     private float normalZ;
-    private Prismbottom a;
+    private Prismbottom bottom;
     private int edge;
     public Pyramid(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl, int edge) {
-        this.type=ShapeType.PYRAMID;
-        a=new Prismbottom(base,shape,dir,rgba,mtl,edge,0,1f);
-        this.edge=edge;
+        this.type = ShapeType.PYRAMID;
+        bottom = new Prismbottom(base, shape, dir, rgba, mtl, edge, 0, 1f);
+        this.edge = edge;
         color = rgba.clone();
         method = DrawMethod.FAN;
         this.mtl = mtl;
@@ -170,69 +170,69 @@ public class Pyramid extends Shape {
     }
     public void setRotateX(float rotateX) {
         this.rotateX = rotateX;
-        a.rotateX=rotateX;
+        bottom.rotateX = rotateX;
     }
 
     public void setRotateY(float rotateY) {
         this.rotateY = rotateY;
-        a.rotateY=rotateY;
+        bottom.rotateY = rotateY;
     }
 
     public void setRotateZ(float rotateZ) {
         this.rotateZ = rotateZ;
-        a.rotateZ=rotateZ;
+        bottom.rotateZ = rotateZ;
     }
     public void setTextureUsed(LinkedList<Integer> textureUsed) {
-        a.setTextureUsed(textureUsed);
+        bottom.setTextureUsed(textureUsed);
         if(this.textureUsed.size() > 0) this.textureUsed.clear();
         this.textureUsed.addAll(textureUsed);
         enableTexture();
     }
     public void setChosen(boolean chosen) {
-        a.setChosen(chosen);
+        bottom.setChosen(chosen);
         synchronized(Observe.getCamera()) {
             isChosen = chosen;
         }
     }
     public void setRotatePara(float[] rotatePara) {
         this.rotatePara = rotatePara;
-        a.setRotatePara(rotatePara);
+        bottom.setRotatePara(rotatePara);
     }
 
     public void setScalePara(float[] scalePara) {
         this.scalePara = scalePara;
-        a.setScalePara(scalePara);
+        bottom.setScalePara(scalePara);
     }
 
     public void setTranslatePara(float[] translatePara) {
         this.translatePara = translatePara;
-        a.setTranslatePara(translatePara);
+        bottom.setTranslatePara(translatePara);
     }
 
     public void setBasePara(float[] basePara) {
         this.basePara = basePara;
-        a.setBasePara(basePara);
+        bottom.setBasePara(basePara);
     }
     public void enableTexture() {
         useTexture = true;
-        a.enableTexture();
+        bottom.enableTexture();
     }
     public void disableTexture() {
         useTexture = false;
-        a.disableTexture();
+        bottom.disableTexture();
     }
     public void setShapePara(float[] shapePara) {
         this.shapePara = shapePara;
-        a.setShapePara(shapePara);
+        bottom.setShapePara(shapePara);
     }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        a.onSurfaceCreated(gl,config);
+        bottom.onSurfaceCreated(gl, config);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        a.onDrawFrame(gl);
+        bottom.onDrawFrame(gl);
         // get uniform handlers
         GLES20.glUseProgram(mProgram);
         int uModelHandler = GLES20.glGetUniformLocation(mProgram, "uModel");
@@ -442,5 +442,9 @@ public class Pyramid extends Shape {
     public int getEdge()
     {
         return this.edge;
+    }
+
+    public Prismbottom getBottom() {
+        return bottom;
     }
 }

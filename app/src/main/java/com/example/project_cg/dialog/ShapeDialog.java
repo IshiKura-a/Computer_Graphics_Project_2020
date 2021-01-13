@@ -26,6 +26,7 @@ import com.example.project_cg.shape.ShapeType;
 import com.example.project_cg.texture.TextureManager;
 import com.example.project_cg.util.ColorUtil;
 import com.example.project_cg.util.RenderUtil;
+import com.example.project_cg.util.RequestUtil;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -83,6 +84,7 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
             document.getElementById("textureImg").append(html);
         }
 
+        document.getElementById("model").attr("style", "display: none;");
         if (toEdit >= 0) {
             Shape s = ((MainActivity) activity).getmRender().getShapes().get(toEdit);
             float[] base = s.getBasePara();
@@ -286,12 +288,9 @@ public class ShapeDialog extends Dialog implements View.OnClickListener {
     }
 
     public static void displayDialog(Activity activity, int toEdit) {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
         ShapeDialog dialog = new ShapeDialog(activity, toEdit);
         dialog.show();
 
-        dialog.getWindow().setLayout((int) (displayMetrics.widthPixels / 1.5f), (int) (displayMetrics.heightPixels / 1.3f));
+        dialog.getWindow().setLayout((int) (RequestUtil.widthPixels / 1.5f), (int) (RequestUtil.heightPixels / 1.3f));
     }
 }
