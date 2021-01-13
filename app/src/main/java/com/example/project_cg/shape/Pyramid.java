@@ -107,6 +107,9 @@ public class Pyramid extends Shape {
 
         //法向量
         ArrayList<Float> normalTmp=new ArrayList<>();
+        normalTmp.add(0f);
+        normalTmp.add(0f);
+        normalTmp.add(1f);
         for(int i=0;i<edge;i++)
         {
             if(i+2>edge) normalCalculate(i+1,1);
@@ -302,7 +305,7 @@ public class Pyramid extends Shape {
         synchronized (Observe.getLightList()) {
             lightList = new LinkedList<>(Observe.getLightList());
         }
-        Light blacklight =new Light()
+        Light blackLight =new Light()
                 .setAmbient(new float[]{0f, 0f, 0f, 0f})
                 .setDiffuse(new float[]{0f, 0f, 0f, 0f})
                 .setSpecular(new float[]{0f, 0f, 0f, 0f})
@@ -313,7 +316,7 @@ public class Pyramid extends Shape {
             num=10-lightList.size();
             for(int i=0;i<num;i++)
             {
-                lightList.add(blacklight);
+                lightList.add(blackLight);
             }
         }
         Light light = lightList.get(0);
