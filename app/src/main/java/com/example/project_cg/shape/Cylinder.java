@@ -421,4 +421,12 @@ public class Cylinder extends Shape {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertex.length / 3);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
     }
+
+    public Circle getTop() {
+        return top;
+    }
+
+    public Circle getBottom() {
+        return bottom;
+    }
 }

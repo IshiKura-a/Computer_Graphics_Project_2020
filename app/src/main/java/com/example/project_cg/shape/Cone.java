@@ -22,9 +22,9 @@ public class Cone extends Shape {
     private float normalX;
     private float normalY;
     private float normalZ;
-    private Circle a;
+    private Circle bottom;
     public Cone(float[] base, float[] shape, float[] dir, float[] rgba, MtlInfo mtl) {
-        a=new Circle(base,shape,dir,rgba,mtl,0);
+        bottom = new Circle(base, shape, dir, rgba, mtl, 0);
         color = rgba.clone();
         method = DrawMethod.FAN;
         float height=1f;
@@ -159,70 +159,70 @@ public class Cone extends Shape {
         GLES20.glLinkProgram(mProgram);
     }
     public void setChosen(boolean chosen) {
-        a.setChosen(chosen);
+        bottom.setChosen(chosen);
         synchronized(Observe.getCamera()) {
             isChosen = chosen;
         }
     }
     public void setRotateX(float rotateX) {
         this.rotateX = rotateX;
-        a.rotateX=rotateX;
+        bottom.rotateX = rotateX;
     }
 
     public void setRotateY(float rotateY) {
         this.rotateY = rotateY;
-        a.rotateY=rotateY;
+        bottom.rotateY = rotateY;
     }
 
     public void setRotateZ(float rotateZ) {
         this.rotateZ = rotateZ;
-        a.rotateZ=rotateZ;
+        bottom.rotateZ = rotateZ;
     }
     public void setTextureUsed(LinkedList<Integer> textureUsed) {
-        a.setTextureUsed(textureUsed);
+        bottom.setTextureUsed(textureUsed);
         if(this.textureUsed.size() > 0) this.textureUsed.clear();
         this.textureUsed.addAll(textureUsed);
         enableTexture();
     }
     public void setRotatePara(float[] rotatePara) {
         this.rotatePara = rotatePara;
-        a.setRotatePara(rotatePara);
+        bottom.setRotatePara(rotatePara);
     }
 
     public void setScalePara(float[] scalePara) {
         this.scalePara = scalePara;
-        a.setScalePara(scalePara);
+        bottom.setScalePara(scalePara);
     }
 
     public void setTranslatePara(float[] translatePara) {
         this.translatePara = translatePara;
-        a.setTranslatePara(translatePara);
+        bottom.setTranslatePara(translatePara);
     }
 
     public void setBasePara(float[] basePara) {
         this.basePara = basePara;
-        a.setBasePara(basePara);
+        bottom.setBasePara(basePara);
     }
     public void enableTexture() {
         useTexture = true;
-        a.enableTexture();
+        bottom.enableTexture();
     }
     public void disableTexture() {
         useTexture = false;
-        a.disableTexture();
+        bottom.disableTexture();
     }
     public void setShapePara(float[] shapePara) {
         this.shapePara = shapePara;
-        a.setShapePara(shapePara);
+        bottom.setShapePara(shapePara);
     }
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        a.onSurfaceCreated(gl,config);
+        bottom.onSurfaceCreated(gl, config);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        a.onDrawFrame(gl);
+        bottom.onDrawFrame(gl);
         // get uniform handlers
         GLES20.glUseProgram(mProgram);
         int flag=GLES20.glGetUniformLocation(mProgram, "ischosen");
@@ -430,5 +430,9 @@ public class Cone extends Shape {
         normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
         normalY=-(vector1Z*vector2X-vector1X*vector2Z);
         normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
+    }
+
+    public Circle getBottom() {
+        return bottom;
     }
 }

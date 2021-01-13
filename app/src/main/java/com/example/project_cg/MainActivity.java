@@ -27,6 +27,7 @@ import android.os.Environment;
 import android.os.FileUtils;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -192,6 +193,11 @@ public class MainActivity extends AppCompatActivity implements LightRecyclerAdap
         mObjectRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mObjectRecyclerView.addItemDecoration(new LinearItemDecoration(Color.rgb(168, 165, 181)));
         mObjectRecyclerView.swapAdapter(mObjectRecyclerAdapter, true);
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        RequestUtil.widthPixels = displayMetrics.widthPixels;
+        RequestUtil.heightPixels = displayMetrics.heightPixels;
     }
 
     @Override

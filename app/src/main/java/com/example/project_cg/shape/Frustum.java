@@ -458,5 +458,11 @@ public class Frustum extends Shape {
         return fraction;
     }
 
+    public Prismbottom getTop() {
+        return top;
+    }
 
+    public Prismbottom getBottom() {
+        return bottom;
+    }
 }

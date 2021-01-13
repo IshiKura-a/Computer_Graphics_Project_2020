@@ -11,8 +11,14 @@ import androidx.core.app.ActivityCompat;
 
 import com.example.project_cg.MainActivity;
 import com.example.project_cg.observe.Observe;
+import com.example.project_cg.shape.Cone;
+import com.example.project_cg.shape.Cylinder;
+import com.example.project_cg.shape.Frustum;
 import com.example.project_cg.shape.Model;
+import com.example.project_cg.shape.Prism;
+import com.example.project_cg.shape.Pyramid;
 import com.example.project_cg.shape.Shape;
+import com.example.project_cg.shape.ShapeType;
 import com.example.project_cg.util.ExportObjUtil;
 
 import java.io.File;
@@ -32,6 +38,24 @@ public class ExportObj extends AsyncTask<Activity, Void, Void> {
             for (Shape s : activity.getmRender().getShapes()) {
                 if (s.isChosen()) {
                     list.add(s);
+                    if(s.getType() == ShapeType.CONE) {
+                        list.add(((Cone)s).getBottom());
+                    }
+                    else if(s.getType() == ShapeType.CYLINDER) {
+                        list.add(((Cylinder)s).getTop());
+                        list.add(((Cylinder)s).getBottom());
+                    }
+                    else if(s.getType() == ShapeType.FRUSTUM) {
+                        list.add(((Frustum)s).getTop());
+                        list.add(((Frustum)s).getBottom());
+                    }
+                    else if(s.getType() == ShapeType.PRISM) {
+                        list.add(((Prism)s).getTop());
+                        list.add(((Prism)s).getBottom());
+                    }
+                    else if(s.getType() == ShapeType.PYRAMID) {
+                        list.add(((Pyramid)s).getBottom());
+                    }
                 }
             }
         }

@@ -14,6 +14,7 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project_cg.R;
+import com.example.project_cg.observe.Observe;
 import com.example.project_cg.shape.Shape;
 import com.example.project_cg.shape.ShapeType;
 import com.example.project_cg.util.FontUtil;
@@ -121,7 +122,7 @@ public class ObjectRecyclerAdapter extends RecyclerView.Adapter<ObjectRecyclerAd
             if (mItemClickListener != null) {
                 mItemClickListener.onItemLongCLick(position, mShapes.get(position));
             }
-            return false;
+            return true;
         });
     }
 
@@ -139,12 +140,14 @@ public class ObjectRecyclerAdapter extends RecyclerView.Adapter<ObjectRecyclerAd
     }
 
     public void remove(int position) {
-        if (null != mShapes && mShapes.size() > position) {
-            mShapes.remove(position);
-            notifyItemRemoved(position);
-            if (position != mShapes.size()) {
-                //刷新改变位置item下方的所有Item的位置,避免索引错乱
-                notifyItemRangeChanged(position, mShapes.size() - position);
+        synchronized (Observe.getCamera()) {
+            if (null != mShapes && mShapes.size() > position) {
+                mShapes.remove(position);
+                notifyItemRemoved(position);
+                if (position != mShapes.size()) {
+                    //刷新改变位置item下方的所有Item的位置,避免索引错乱
+                    notifyItemRangeChanged(position, mShapes.size() - position);
+                }
             }
         }
     }

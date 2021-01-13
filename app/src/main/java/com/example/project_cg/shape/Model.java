@@ -417,7 +417,7 @@ public class Model extends Shape {
                 }
             } else if (s.method == DrawMethod.FAN) {
                 int i = base;
-                for(int index = 1; index < vertexBuffer.limit() / 4; index += 2) {
+                for(int index = 1; index < vertexBuffer.limit() / 4 - 1; index ++) {
                     int j = i + index;
                     int k = j + 1;
                     fos.write(String.format(Locale.getDefault(), "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i, i, i, j, j, j, k, k, k).getBytes());

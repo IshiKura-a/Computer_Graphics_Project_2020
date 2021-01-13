@@ -20,6 +20,7 @@ import com.example.project_cg.html.HTMLManager;
 import com.example.project_cg.observe.Light;
 import com.example.project_cg.observe.Observe;
 import com.example.project_cg.util.ColorUtil;
+import com.example.project_cg.util.RequestUtil;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -50,13 +51,10 @@ public class LightDialog extends Dialog implements View.OnClickListener {
     }
 
     public static void displayDialog(Activity activity, int toEdit) {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
         LightDialog dialog = new LightDialog(activity, toEdit);
         dialog.show();
 
-        dialog.getWindow().setLayout((int) (displayMetrics.widthPixels / 1.5f), (int) (displayMetrics.heightPixels / 1.3f));
+        dialog.getWindow().setLayout((int) (RequestUtil.widthPixels / 1.5f), (int) (RequestUtil.heightPixels / 1.3f));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)

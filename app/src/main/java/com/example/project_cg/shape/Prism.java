@@ -429,9 +429,16 @@ public class Prism extends Shape {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertex.length / 3);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
     }
-    public int getEdge()
-    {
+
+    public int getEdge() {
         return this.edge;
     }
 
+    public Prismbottom getTop() {
+        return top;
+    }
+
+    public Prismbottom getBottom() {
+        return bottom;
+    }
 }

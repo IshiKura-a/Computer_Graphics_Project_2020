@@ -101,7 +101,7 @@ public class LightRecyclerAdapter extends RecyclerView.Adapter<LightRecyclerAdap
                 if (mItemClickListener != null) {
                     mItemClickListener.onItemLongCLick(position, Observe.getLightList().get(position));
                 }
-                return false;
+                return true;
             }
 
         });
