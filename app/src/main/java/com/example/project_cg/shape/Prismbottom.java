@@ -59,7 +59,7 @@ public class Prismbottom extends Shape {
         {
             pos.add(base[0]);
             pos.add(base[1]);
-            pos.add(base[2]+1f);
+            pos.add(base[2]+0.5f);
             float angDegSpan=360f/edge;
             for(float i=0;i<360+angDegSpan;i+=angDegSpan){
                 pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
@@ -71,7 +71,7 @@ public class Prismbottom extends Shape {
         {
             pos.add(base[0]);
             pos.add(base[1]);
-            pos.add(base[2]);
+            pos.add(base[2]-0.5f);
             float angDegSpan=360f/edge;
             for(float i=0;i<360+angDegSpan;i+=angDegSpan){
                 pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
