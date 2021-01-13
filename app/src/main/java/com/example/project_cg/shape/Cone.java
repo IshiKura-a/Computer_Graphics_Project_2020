@@ -97,7 +97,24 @@ public class Cone extends Shape {
 
         //法向量
         ArrayList<Float> normalTmp=new ArrayList<>();
-        for(int i=0;i<vertex.length/3-1;i++)
+        float topX=0;
+        float topY=0;
+        float topZ=0;
+        for(int i=0;i<60;i++)
+        {
+            if(i+2>60) normalCalculate(i+1,1);
+            else normalCalculate(i+1,i+2);
+            topX+=normalX;
+            topY+=normalY;
+            topZ+=normalZ;
+        }
+        topX/=60;
+        topY/=60;
+        topZ/=60;
+        normalTmp.add(topX);
+        normalTmp.add(topY);
+        normalTmp.add(topZ);
+        for(int i=0;i<=60;i++)
         {
             if(i+2>60) normalCalculate(i+1,1);
             else normalCalculate(i+1,i+2);

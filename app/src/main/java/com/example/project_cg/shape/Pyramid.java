@@ -124,7 +124,7 @@ public class Pyramid extends Shape {
         normalTmp.add(topX);
         normalTmp.add(topY);
         normalTmp.add(topZ);
-        for(int i=0;i<edge;i++)
+        for(int i=0;i<=edge;i++)
         {
             if(i+2>edge) normalCalculate(i+1,1);
             else normalCalculate(i+1,i+2);
