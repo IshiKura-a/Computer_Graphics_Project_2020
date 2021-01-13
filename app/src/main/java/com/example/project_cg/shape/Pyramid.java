@@ -107,9 +107,23 @@ public class Pyramid extends Shape {
 
         //法向量
         ArrayList<Float> normalTmp=new ArrayList<>();
-        normalTmp.add(0f);
-        normalTmp.add(0f);
-        normalTmp.add(1f);
+        float topX=0;
+        float topY=0;
+        float topZ=0;
+        for(int i=0;i<edge;i++)
+        {
+            if(i+2>edge) normalCalculate(i+1,1);
+            else normalCalculate(i+1,i+2);
+            topX+=normalX;
+            topY+=normalY;
+            topZ+=normalZ;
+        }
+        topX/=edge;
+        topY/=edge;
+        topZ/=edge;
+        normalTmp.add(topX);
+        normalTmp.add(topY);
+        normalTmp.add(topZ);
         for(int i=0;i<edge;i++)
         {
             if(i+2>edge) normalCalculate(i+1,1);
