@@ -62,10 +62,10 @@ public class Prism extends Shape {
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-            pos.add(base[2]+height);
+            pos.add(base[2]+0.5f*height);
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-            pos.add(base[2]);
+            pos.add(base[2]-0.5f);
         }
         vertex=new float[pos.size()];    //所有的顶点
         for (int i=0;i<vertex.length;i++)

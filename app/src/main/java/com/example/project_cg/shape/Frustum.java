@@ -67,10 +67,10 @@ public class Frustum extends Shape {
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius1*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius1*Math.cos(i*Math.PI/180f)));
-            pos.add(base[2]+height);
+            pos.add(base[2]+0.5f*height);
             pos.add((float) (base[0]+radius2*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius2*Math.cos(i*Math.PI/180f)));
-            pos.add(base[2]);
+            pos.add(base[2]-0.5f);
         }
         vertex=new float[pos.size()];    //所有的顶点
         for (int i=0;i<vertex.length;i++)

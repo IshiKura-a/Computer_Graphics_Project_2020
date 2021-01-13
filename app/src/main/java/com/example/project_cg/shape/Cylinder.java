@@ -25,10 +25,6 @@ public class Cylinder extends Shape {
         float height=1f;
         float radius=1f;
         float[] basetop=new float[base.length];
-        basetop[0]=base[0];
-        basetop[1]=base[1];
-        basetop[2]=base[2]-height;
-        basetop[3]=base[3];
         top=new Circle(base,shape,dir,rgba,mtl,1);
         bottom=new Circle(base,shape,dir,rgba,mtl,0);
         color = rgba.clone();
@@ -65,10 +61,10 @@ public class Cylinder extends Shape {
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-            pos.add(base[2]+height);
+            pos.add(base[2]+0.5f);
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-            pos.add(base[2]);
+            pos.add(base[2]-0.5f);
         }
         vertex=new float[pos.size()];    //所有的顶点
         for (int i=0;i<vertex.length;i++)

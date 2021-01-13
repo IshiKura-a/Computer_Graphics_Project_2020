@@ -62,12 +62,12 @@ public class Cone extends Shape {
         ArrayList<Float> pos=new ArrayList<>();
         pos.add(base[0]);
         pos.add(base[1]);
-        pos.add(base[2]+height);
+        pos.add(base[2]+0.5f);
         float angDegSpan=360f/60;
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
             pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-            pos.add(base[2]);
+            pos.add(base[2]-0.5f);
         }
         vertex=new float[pos.size()];    //所有的顶点
 
