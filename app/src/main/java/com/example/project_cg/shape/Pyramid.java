@@ -61,14 +61,14 @@ public class Pyramid extends Shape {
 
 
         ArrayList<Float> pos=new ArrayList<>();
-        pos.add(base[0]);
-        pos.add(base[1]);
-        pos.add(base[2]+0.5f*height);
+        pos.add(0f);
+        pos.add(0f);
+        pos.add(0.5f);
         float angDegSpan=360f/edge;
         for(float i=0;i<360+angDegSpan;i+=angDegSpan){
-            pos.add((float) (base[0]+radius*Math.sin(i*Math.PI/180f)));
-            pos.add((float)(base[1]+radius*Math.cos(i*Math.PI/180f)));
-            pos.add(base[2]-0.5f);
+            pos.add((float) (radius*Math.sin(i*Math.PI/180f)));
+            pos.add((float)(radius*Math.cos(i*Math.PI/180f)));
+            pos.add(-0.5f);
         }
         vertex=new float[pos.size()];    //所有的顶点
 
@@ -124,13 +124,56 @@ public class Pyramid extends Shape {
         normalTmp.add(topX);
         normalTmp.add(topY);
         normalTmp.add(topZ);
-        for(int i=0;i<=edge;i++)
+        for(int i=1;i<=edge+1;i++)
         {
-            if(i+2>edge) normalCalculate(i+1,1);
-            else normalCalculate(i+1,i+2);
-            normalTmp.add(normalX);
-            normalTmp.add(normalY);
-            normalTmp.add(normalZ);
+            //if(i+2>edge) normalCalculate(i+1,1);
+            //else normalCalculate(i+1,i+2);
+            //normalTmp.add(normalX);
+            //normalTmp.add(normalY);
+            //normalTmp.add(normalZ);
+            topX=0;
+            topY=0;
+            topZ=0;
+            if(i==1) {
+                normalCalculate(edge,1);
+                topX+=normalX;
+                topY+=normalY;
+                topZ+=normalZ;
+                normalCalculate(1,2);
+                topX+=normalX;
+                topY+=normalY;
+                topZ+=normalZ;
+                topX/=2;
+                topY/=2;
+                topZ/=2;
+                normalTmp.add(topX);
+                normalTmp.add(topY);
+                normalTmp.add(topZ);
+            }
+            else
+            {
+                if(i+1>edge+1)
+                {
+                    normalCalculate(i,1);
+                }
+                else
+                {
+                    normalCalculate(i,i+1);
+                }
+                topX+=normalX;
+                topY+=normalY;
+                topZ+=normalZ;
+                normalCalculate(i-1,i);
+                topX+=normalX;
+                topY+=normalY;
+                topZ+=normalZ;
+                topX/=2;
+                topY/=2;
+                topZ/=2;
+                normalTmp.add(topX);
+                normalTmp.add(topY);
+                normalTmp.add(topZ);
+            }
         }
         float normal[]=new float[normalTmp.size()];
         for(int i=0;i<normal.length;i++)
