@@ -23,6 +23,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 
@@ -363,11 +364,14 @@ public class Model extends Shape {
         color = rgba.clone();
     }
 
-    public static void writeObject(LinkedList<Shape> shapes, FileOutputStream fos) throws IOException {
+    public static void writeObject(LinkedList<Shape> shapes, LinkedList<float[]> models, FileOutputStream fos) throws IOException {
         int base = 1;
-        for (Shape s : shapes) {
-            s.updateModelMatrix();
-            float[] model = s.model.clone();
+        Iterator<Shape> its = shapes.iterator();
+        Iterator<float[]> itm = models.iterator();
+        while (its.hasNext() && itm.hasNext()) {
+            Shape s = its.next();
+            // s.updateModelMatrix();
+            float[] model = itm.next();
             FloatBuffer vertexBuffer = s.vertexBuffer.asReadOnlyBuffer();
             FloatBuffer normalBuffer = s.normalBuffer.asReadOnlyBuffer();
             FloatBuffer textureBuffer = s.textureBuffer.asReadOnlyBuffer();
