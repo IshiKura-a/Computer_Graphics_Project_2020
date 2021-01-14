@@ -210,7 +210,7 @@ public class MainRender implements Renderer {
                     s.setBasePara(RenderUtil.base);
                     s.setShapePara(RenderUtil.shape);
                     s.setRotateX(RenderUtil.dir[0]);
-                    s.setRotateY(RenderUtil.dir[1] - 90);
+                    s.setRotateY(RenderUtil.dir[1]);
                     s.setRotateZ(RenderUtil.dir[2]);
                     shapes.add(s);
                 }
