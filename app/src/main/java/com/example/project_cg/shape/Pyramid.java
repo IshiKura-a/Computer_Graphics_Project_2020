@@ -495,9 +495,9 @@ public class Pyramid extends Shape {
         float vector2X=vertex[Index2*3]-vertex[0];
         float vector2Y=vertex[Index2*3+1]-vertex[1];
         float vector2Z=vertex[Index2*3+2]-vertex[2];
-        normalX=(vector1Y*vector2Z-vector2Y*vector1Z);
-        normalY=(vector1Z*vector2X-vector1X*vector2Z);
-        normalZ=(vector1X*vector2Y-vector1Y*vector2X);
+        normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
+        normalY=-(vector1Z*vector2X-vector1X*vector2Z);
+        normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
     }
     public int getEdge()
     {
