@@ -154,7 +154,7 @@ public class Menu {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("image/png");
+        intent.setType("image/*");
 
         try {
             activity.startActivityForResult(
