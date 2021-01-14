@@ -28,7 +28,7 @@ public class Pyramid extends Shape {
         bottom = new Prismbottom(base, shape, dir, rgba, mtl, edge, 0, 1f);
         this.edge = edge;
         color = rgba.clone();
-        method = DrawMethod.FAN;
+        method = DrawMethod.SIMPLE;
         this.mtl = mtl;
         float radius=1f;
         float height=1f;
@@ -61,13 +61,16 @@ public class Pyramid extends Shape {
 
 
         ArrayList<Float> pos=new ArrayList<>();
-        pos.add(0f);
-        pos.add(0f);
-        pos.add(0.5f);
         float angDegSpan=360f/edge;
-        for(float i=0;i<360+angDegSpan;i+=angDegSpan){
+        for(float i=0;i<360;i+=angDegSpan){
+            pos.add(0f);
+            pos.add(0f);
+            pos.add(0.5f);
             pos.add((float) (radius*Math.sin(i*Math.PI/180f)));
             pos.add((float)(radius*Math.cos(i*Math.PI/180f)));
+            pos.add(-0.5f);
+            pos.add((float) (radius*Math.sin((i+angDegSpan)*Math.PI/180f)));
+            pos.add((float)(radius*Math.cos((i+angDegSpan)*Math.PI/180f)));
             pos.add(-0.5f);
         }
         vertex=new float[pos.size()];    //所有的顶点
@@ -80,23 +83,15 @@ public class Pyramid extends Shape {
 
         //未修改
         ArrayList<Float> tex=new ArrayList<>();
-        tex.add(0.5f);
-        tex.add(1f);
-        int flag=0;
-        for(int i=0;i<=edge;i+=1)
+
+        for(int i=0;i<edge;i+=1)
         {
-            if(flag==0)
-            {
-                flag=1;
-                tex.add(0f);
-                tex.add(0f);
-            }
-            else
-            {
-                flag=0;
-                tex.add(1f);
-                tex.add(0f);
-            }
+            tex.add(0.5f);
+            tex.add(1f);
+            tex.add(0f);
+            tex.add(0f);
+            tex.add(1f);
+            tex.add(0f);
         }
         float texture[]=new float[tex.size()];    //所有的顶点
         for(int i=0;i<texture.length;i++)
@@ -110,75 +105,24 @@ public class Pyramid extends Shape {
         float topX=0;
         float topY=0;
         float topZ=0;
+
         for(int i=0;i<edge;i++)
         {
-            if(i+2>edge) normalCalculate(i+1,1);
-            else normalCalculate(i+1,i+2);
-            topX+=normalX;
-            topY+=normalY;
-            topZ+=normalZ;
-        }
-        topX/=edge;
-        topY/=edge;
-        topZ/=edge;
-        normalTmp.add(topX);
-        normalTmp.add(topY);
-        normalTmp.add(topZ);
-        for(int i=1;i<=edge+1;i++)
-        {
-            //if(i+2>edge) normalCalculate(i+1,1);
-            //else normalCalculate(i+1,i+2);
-            //normalTmp.add(normalX);
-            //normalTmp.add(normalY);
-            //normalTmp.add(normalZ);
-            topX=0;
-            topY=0;
-            topZ=0;
-            if(i==1) {
-                normalCalculate(edge,1);
-                topX+=normalX;
-                topY+=normalY;
-                topZ+=normalZ;
-                normalCalculate(1,2);
-                topX+=normalX;
-                topY+=normalY;
-                topZ+=normalZ;
-                topX/=2;
-                topY/=2;
-                topZ/=2;
-                normalTmp.add(topX);
-                normalTmp.add(topY);
-                normalTmp.add(topZ);
-            }
-            else
-            {
-                if(i+1>edge+1)
-                {
-                    normalCalculate(i,1);
-                }
-                else
-                {
-                    normalCalculate(i,i+1);
-                }
-                topX+=normalX;
-                topY+=normalY;
-                topZ+=normalZ;
-                normalCalculate(i-1,i);
-                topX+=normalX;
-                topY+=normalY;
-                topZ+=normalZ;
-                topX/=2;
-                topY/=2;
-                topZ/=2;
-                normalTmp.add(topX);
-                normalTmp.add(topY);
-                normalTmp.add(topZ);
-            }
+            normalCalculate(3*i,3*i+1,3*i+2);
+            normalTmp.add(normalX);
+            normalTmp.add(normalY);
+            normalTmp.add(normalZ);
+            normalTmp.add(normalX);
+            normalTmp.add(normalY);
+            normalTmp.add(normalZ);
+            normalTmp.add(normalX);
+            normalTmp.add(normalY);
+            normalTmp.add(normalZ);
         }
         float normal[]=new float[normalTmp.size()];
         for(int i=0;i<normal.length;i++)
         {
-            normal[i]=normalTmp.get(i);
+            normal[i]=normalTmp.get(i)/2;
         }
 
         vertexBuffer = ByteBuffer.allocateDirect(vertex.length /3*4*4)
@@ -484,17 +428,17 @@ public class Pyramid extends Shape {
         GLES20.glEnableVertexAttribArray(iTextureCoordHandle);
         GLES20.glVertexAttribPointer(iTextureCoordHandle, 2, GLES20.GL_FLOAT, false, 0, textureBuffer);
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, vertex.length / 3);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertex.length / 3);
         GLES20.glDisableVertexAttribArray(iVertexPositionHandle);
     }
-    private void normalCalculate(int Index1,int Index2)
+    private void normalCalculate(int Index1,int Index2,int Index3)
     {
-        float vector1X=vertex[Index1*3]-vertex[0];
-        float vector1Y=vertex[Index1*3+1]-vertex[1];
-        float vector1Z=vertex[Index1*3+2]-vertex[2];
-        float vector2X=vertex[Index2*3]-vertex[0];
-        float vector2Y=vertex[Index2*3+1]-vertex[1];
-        float vector2Z=vertex[Index2*3+2]-vertex[2];
+        float vector1X=vertex[Index1*3]-vertex[Index3*3];
+        float vector1Y=vertex[Index1*3+1]-vertex[Index3*3+1];
+        float vector1Z=vertex[Index1*3+2]-vertex[Index3*3+2];
+        float vector2X=vertex[Index2*3]-vertex[Index3*3];
+        float vector2Y=vertex[Index2*3+1]-vertex[Index3*3+1];
+        float vector2Z=vertex[Index2*3+2]-vertex[Index3*3+2];
         normalX=-(vector1Y*vector2Z-vector2Y*vector1Z);
         normalY=-(vector1Z*vector2X-vector1X*vector2Z);
         normalZ=-(vector1X*vector2Y-vector1Y*vector2X);
